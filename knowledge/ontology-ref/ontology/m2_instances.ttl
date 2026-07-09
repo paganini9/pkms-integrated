@@ -1,0 +1,33 @@
+### ===== M2 : 프로젝트 데이터 (Project + 요구 RB + 설계 DB) =====
+### 도메인 지식(M1)과 구분 — 여기는 "특정 프로젝트"의 요구·설계 데이터.
+@prefix spmm: <http://ex.org/spmm#> .
+@prefix dom:  <http://ex.org/domain#> .
+@prefix eng:  <http://ex.org/eng#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+### 프로젝트
+eng:Proj_WinterSUV a dom:Project ;
+    rdfs:label "겨울용 SUV 와이퍼 프로젝트" ;
+    dom:targetVehicle dom:MidSizeSUV ; dom:targetEnv dom:Winter ;
+    dom:hasRequirement eng:RB_Winter , eng:RB_NoChatter ;
+    dom:hasDesign eng:Blade_bad , eng:Blade_good .
+
+### 프로젝트 요구사항 (RequiredBehavior) — 엔지니어 자연어 입력의 파싱 결과
+eng:RB_Winter    a spmm:RequiredBehavior ; rdfs:label "겨울 저소음(소음 없음)" ; dom:forbidsSymptom dom:Noise .
+eng:RB_NoChatter a spmm:RequiredBehavior ; rdfs:label "끝단 떨림 없음" ; dom:forbidsSymptom dom:TipChatter .
+
+### 설계 A — 고무·600mm·8N·simple·중형 SUV  (요구 불만족 예상)
+eng:Blade_bad a dom:WiperBlade ;
+    rdfs:label "설계 A (고무·600·8N·simple·SUV)" ;
+    dom:hasMaterial dom:Rubber ; dom:mountedOn dom:MidSizeSUV ; dom:operatesIn dom:Winter ;
+    dom:lengthMm 600 ; dom:springN 8 ; dom:armShape "simple" ;
+    spmm:has_des_behavior eng:DB_bad .
+eng:DB_bad a spmm:DesignedBehavior ; spmm:satisfy_beh_required eng:RB_Winter , eng:RB_NoChatter .
+
+### 설계 B — 실리콘·550mm·12N·complex·소형 세단  (요구 만족 예상)
+eng:Blade_good a dom:WiperBlade ;
+    rdfs:label "설계 B (실리콘·550·12N·complex·세단)" ;
+    dom:hasMaterial dom:Silicone ; dom:mountedOn dom:CompactSedan ; dom:operatesIn dom:Winter ;
+    dom:lengthMm 550 ; dom:springN 12 ; dom:armShape "complex" ;
+    spmm:has_des_behavior eng:DB_good .
+eng:DB_good a spmm:DesignedBehavior ; spmm:satisfy_beh_required eng:RB_Winter , eng:RB_NoChatter .

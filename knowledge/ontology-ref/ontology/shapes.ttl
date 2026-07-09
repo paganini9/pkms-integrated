@@ -1,0 +1,40 @@
+### ===== SHACL 수치·규칙 게이트 (CWA) — 6문장에서 도출 =====
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix dom: <http://ex.org/domain#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+### S1 : 겨울철 + 고무 → 소음
+dom:NoiseShape a sh:NodeShape ; sh:targetClass dom:WiperBlade ;
+  dom:gateFor dom:Noise ; dom:sentence "S1" ;
+  sh:sparql [ sh:severity sh:Violation ;
+    sh:message "S1: 겨울철 운용 + 고무 재질 → 소음 발생" ;
+    sh:select """SELECT $this WHERE {
+      $this <http://ex.org/domain#hasMaterial> <http://ex.org/domain#Rubber> .
+      $this <http://ex.org/domain#operatesIn> <http://ex.org/domain#Winter> . }""" ] .
+
+### S3 : 길이 > 차종 안전길이 → 끝단 떨림
+dom:ChatterShape a sh:NodeShape ; sh:targetClass dom:WiperBlade ;
+  dom:gateFor dom:TipChatter ; dom:sentence "S3" ;
+  sh:sparql [ sh:severity sh:Violation ;
+    sh:message "S3: 블레이드 길이가 차종 안전길이 초과 → 끝단 떨림" ;
+    sh:select """SELECT $this WHERE {
+      $this <http://ex.org/domain#lengthMm> ?l .
+      $this <http://ex.org/domain#mountedOn> ?v .
+      ?v <http://ex.org/domain#maxSafeLengthMm> ?m .
+      FILTER(?l > ?m) }""" ] .
+
+### S4 : 스프링 압력 < 10N → 떨림 악화
+dom:SpringShape a sh:NodeShape ; sh:targetClass dom:WiperBlade ;
+  dom:gateFor dom:TipChatter ; dom:sentence "S4" ;
+  sh:sparql [ sh:severity sh:Violation ;
+    sh:message "S4: 암 스프링 압력 부족(<10N) → 끝단 떨림 악화" ;
+    sh:select """SELECT $this WHERE {
+      $this <http://ex.org/domain#springN> ?s . FILTER(?s < 10) }""" ] .
+
+### S6 : 단순 암형상 → 떨림 악화
+dom:ArmShape a sh:NodeShape ; sh:targetClass dom:WiperBlade ;
+  dom:gateFor dom:TipChatter ; dom:sentence "S6" ;
+  sh:sparql [ sh:severity sh:Violation ;
+    sh:message "S6: 단순 암형상 → 압력 편차↑ → 끝단 떨림 악화" ;
+    sh:select """SELECT $this WHERE {
+      $this <http://ex.org/domain#armShape> ?a . FILTER(str(?a) = "simple") }""" ] .

@@ -1,0 +1,35 @@
+@prefix dom: <http://ex.org/domain#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+dom:ArmShape a sh:NodeShape ;
+    dom:gateFor dom:TipChatter ;
+    dom:sentence "S6" ;
+    sh:sparql [ sh:message "[S6] 단순 암형상 → 떨림 악화" ;
+            sh:select "SELECT $this WHERE { $this <http://ex.org/domain#armShape> ?armShape . FILTER(str(?armShape) = \"simple\") }" ;
+            sh:severity sh:Violation ] ;
+    sh:targetClass dom:WiperBlade .
+
+dom:ChatterShape a sh:NodeShape ;
+    dom:gateFor dom:TipChatter ;
+    dom:sentence "S3,S5" ;
+    sh:sparql [ sh:message "[S3,S5] 길이 > 차종 안전길이 → 떨림" ;
+            sh:select "SELECT $this WHERE { $this <http://ex.org/domain#lengthMm> ?a . $this <http://ex.org/domain#mountedOn> ?x . ?x <http://ex.org/domain#maxSafeLengthMm> ?b . FILTER(?a > ?b) }" ;
+            sh:severity sh:Violation ] ;
+    sh:targetClass dom:WiperBlade .
+
+dom:NoiseShape a sh:NodeShape ;
+    dom:gateFor dom:Noise ;
+    dom:sentence "S1" ;
+    sh:sparql [ sh:message "[S1] 겨울 + 고무 → 소음" ;
+            sh:select "SELECT $this WHERE { $this <http://ex.org/domain#hasMaterial> <http://ex.org/domain#Rubber> . $this <http://ex.org/domain#operatesIn> <http://ex.org/domain#Winter> . }" ;
+            sh:severity sh:Violation ] ;
+    sh:targetClass dom:WiperBlade .
+
+dom:SpringShape a sh:NodeShape ;
+    dom:gateFor dom:TipChatter ;
+    dom:sentence "S4" ;
+    sh:sparql [ sh:message "[S4] 스프링 압력 < 10N → 떨림 악화" ;
+            sh:select "SELECT $this WHERE { $this <http://ex.org/domain#springN> ?springN . FILTER(?springN < 10) }" ;
+            sh:severity sh:Violation ] ;
+    sh:targetClass dom:WiperBlade .
+

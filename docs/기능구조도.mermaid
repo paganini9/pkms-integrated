@@ -1,0 +1,63 @@
+graph TD
+  ROOT["PKMS 통합 시스템"]
+  ROOT --> A["A. 엔지니어 워크스페이스 · P1"]
+  ROOT --> B["B. 관리자 콘솔 · P2"]
+  ROOT --> C["C. 공통 플랫폼 · 횡단"]
+
+  A --> A1["A1 지식 입력·구조화"]
+  A --> A2["A2 설계검증 satisfy ★"]
+  A --> A3["A3 지식맵·탐색"]
+  A --> A4["A4 질의·환각비교 ★"]
+  A1 --> A1a["SmartInput 자연어 입력"]
+  A1 --> A1b["개념·관계 추출"]
+  A1 --> A1c["명세검증 OWL/SHACL"]
+  A1 --> A1d["지식 저장·연결"]
+  A2 --> A2a["설계 인스턴스 입력"]
+  A2 --> A2b["요구거동 RB 선택"]
+  A2 --> A2c["satisfy 판정 DB⊑RB"]
+  A2 --> A2d["위반근거·허용대안"]
+  A3 --> A3a["다층 지식맵"]
+  A3 --> A3b["필터·검색"]
+  A3 --> A3c["상세·출처추적"]
+  A3 --> A3d["설계안 비교 VisualDiff"]
+  A4 --> A4a["Q&A Layer A/B"]
+  A4 --> A4b["환각비교 모드"]
+  A4 --> A4c["신뢰지표"]
+
+  B --> B1["B1 상위 온톨로지 M0/M1-mid"]
+  B --> B2["B2 도메인 규칙·명세 M1"]
+  B --> B3["B3 거버넌스"]
+  B1 --> B1a["클래스 편집·DL수식"]
+  B1 --> B1b["관계·satisfy 편집"]
+  B1 --> B1c["일관성·M1 영향분석"]
+  B2 --> B2a["DesignRule 편집"]
+  B2 --> B2b["SHACL 빌더·dry-run"]
+  B2 --> B2c["규칙 영향분석"]
+  B3 --> B3a["custom 개념·관계 CRUD"]
+  B3 --> B3b["권한·역할"]
+  B3 --> B3c["버전·이력·롤백"]
+
+  C --> C1["C1 추론·검증 엔진"]
+  C --> C2["C2 AI Gateway"]
+  C --> C3["C3 저장·데이터"]
+  C --> C4["C4 API·보안"]
+  C1 --> C1a["OWL EL 분류·일관성"]
+  C1 --> C1b["SHACL 게이트 CWA"]
+  C1 --> C1c["satisfy 엔진 ★"]
+  C1 --> C1d["위반 설명 xpSHACL"]
+  C2 --> C2a["멀티모델 Claude/Gemini/Mock"]
+  C3 --> C3a["RDF triplestore (rdflib)"]
+  C3 --> C3b["SHACL/OWL 검증 (pySHACL+HermiT)"]
+  C3 --> C3c["PostgreSQL 명세"]
+  C3 --> C3d["M0/M1/M2 대시보드"]
+  C4 --> C4a["REST /satisfy 등"]
+  C4 --> C4b["인증·권한 미들웨어"]
+
+  classDef eng fill:#e8f0fe,stroke:#4285f4,color:#000;
+  classDef adm fill:#fce8e6,stroke:#ea4335,color:#000;
+  classDef plat fill:#e6f4ea,stroke:#34a853,color:#000;
+  classDef root fill:#fff3cd,stroke:#f9ab00,color:#000;
+  class ROOT root;
+  class A,A1,A2,A3,A4,A1a,A1b,A1c,A1d,A2a,A2b,A2c,A2d,A3a,A3b,A3c,A3d,A4a,A4b,A4c eng;
+  class B,B1,B2,B3,B1a,B1b,B1c,B2a,B2b,B2c,B3a,B3b,B3c adm;
+  class C,C1,C2,C3,C4,C1a,C1b,C1c,C1d,C2a,C3a,C3b,C3c,C3d,C4a,C4b plat;
