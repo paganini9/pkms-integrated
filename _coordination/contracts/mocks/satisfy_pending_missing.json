@@ -1,0 +1,37 @@
+{
+  "_comment": "수용기준 §4 'satisfy 수치 누락' — SHACL 필수속성 경고, 판정 보류. HTTP 200, satisfies=null.",
+  "_request": {
+    "project_id": "proj-winter-suv",
+    "design": { "material": "Rubber", "length_mm": 600, "spring_n": 0, "arm_shape": "simple", "vehicle": "MidSizeSUV" },
+    "_note": "spring_n 미입력 상태를 서버가 결측으로 판단한 경우"
+  },
+  "satisfies": null,
+  "pending_reason": "missing_required",
+  "applied_categories": ["소음", "떨림"],
+  "steps": [
+    { "stage": "subsumption", "ok": false, "detail": "재질 고무 ∧ 겨울 → 소음(S1)" },
+    {
+      "stage": "shacl_interval",
+      "ok": false,
+      "checks": [{ "name": "길이 구간포함 length ≤ maxSafe", "expr": "600 ≤ 599", "ok": false }],
+      "warnings": [
+        {
+          "code": "missing_required",
+          "severity": "warning",
+          "offender": "springN",
+          "message": "스프링 압력(N)이 없어 떨림 악화 규칙(S4)을 판정할 수 없습니다. 값을 입력하면 최종 판정이 나옵니다.",
+          "sentence": "S4",
+          "source_shape": "SpringShape"
+        }
+      ]
+    },
+    { "stage": "symptom_free", "ok": false, "exhibited": [] }
+  ],
+  "violations": [],
+  "violation_bases": [],
+  "violated_requirements": [],
+  "alternatives": [],
+  "justification": ["필수 수치(springN) 결측 → 판정 보류(pending). 결정론 엔진은 부분 판정을 확정으로 승격하지 않는다."],
+  "cache_hit": false,
+  "trace_id": "trace-satisfy-0007"
+}

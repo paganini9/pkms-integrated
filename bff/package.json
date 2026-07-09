@@ -1,0 +1,29 @@
+{
+  "name": "pkms-bff",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "PKMS BFF — 오케스트레이션 · AI Gateway · SSE · 지식서비스 클라이언트. RDF/SPARQL/SHACL 은 다루지 않는다.",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "undici": "^7.2.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

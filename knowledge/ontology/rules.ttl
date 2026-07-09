@@ -1,0 +1,40 @@
+### ===== 단일 진실원 : 구조화 DesignRule (조건 → 증상·극성·근거문장·카테고리) =====
+### SoT. gen_shacl.py 가 SHACL·인과엣지·사람뷰를 파생. 카테고리는 프로젝트별 지식 선택에 사용.
+### (엔지니어는 이 구조가 아니라 원본 자연어 문장을 편집 — 이 파일은 LLM 파생 결과의 저장 형태)
+@prefix dom:  <http://ex.org/domain#> .
+@prefix ext:  <http://ex.org/spmm-ext#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+dom:DesignRule a owl:Class .
+dom:aboutSymptom a owl:ObjectProperty . dom:polarity a owl:DatatypeProperty . dom:basis a owl:DatatypeProperty .
+dom:category a owl:DatatypeProperty . dom:fromSentence a owl:ObjectProperty .
+dom:hasCond a owl:ObjectProperty . dom:onPath a owl:ObjectProperty . dom:op a owl:DatatypeProperty .
+dom:val a owl:DatatypeProperty . dom:refList a owl:ObjectProperty .
+
+### S1 : (겨울 ∧ 고무) → 소음  [cause]
+dom:NoiseRule a dom:DesignRule ; rdfs:label "겨울 + 고무 → 소음" ; dom:category "소음" ; dom:fromSentence dom:S1 ;
+    dom:aboutSymptom dom:Noise ; dom:polarity "cause" ; dom:basis "S1" ;
+    dom:hasCond [ dom:onPath dom:hasMaterial ; dom:op "eq" ; dom:val dom:Rubber ] ,
+               [ dom:onPath dom:operatesIn ; dom:op "eq" ; dom:val dom:Winter ] .
+
+### S2 : 실리콘 → 소음 해소  [mitigate] — 게이트 없음(원인의 여집합), 근거로만 보존
+dom:SiliconeRule a dom:DesignRule ; rdfs:label "실리콘 → 소음 해소" ; dom:category "소음" ; dom:fromSentence dom:S2 ;
+    dom:aboutSymptom dom:Noise ; dom:polarity "mitigate" ; dom:basis "S2" ;
+    dom:hasCond [ dom:onPath dom:hasMaterial ; dom:op "eq" ; dom:val dom:Silicone ] .
+
+### S3+S5 : 길이 > 차종 안전길이 → 끝단 떨림  [cause]
+dom:ChatterRule a dom:DesignRule ; rdfs:label "길이 > 차종 안전길이 → 떨림" ; dom:category "떨림" ; dom:fromSentence dom:S3, dom:S5 ;
+    dom:aboutSymptom dom:TipChatter ; dom:polarity "cause" ; dom:basis "S3,S5" ;
+    dom:hasCond [ dom:onPath dom:lengthMm ; dom:op "gtPath" ; dom:refList ( dom:mountedOn dom:maxSafeLengthMm ) ] .
+
+### S4 : 스프링 < 10N → 떨림 악화  [aggravate]
+dom:SpringRule a dom:DesignRule ; rdfs:label "스프링 압력 < 10N → 떨림 악화" ; dom:category "떨림" ; dom:fromSentence dom:S4 ;
+    dom:aboutSymptom dom:TipChatter ; dom:polarity "aggravate" ; dom:basis "S4" ;
+    dom:hasCond [ dom:onPath dom:springN ; dom:op "lt" ; dom:val 10 ] .
+
+### S6 : 단순 암형상 → 떨림 악화  [aggravate]
+dom:ArmRule a dom:DesignRule ; rdfs:label "단순 암형상 → 떨림 악화" ; dom:category "떨림" ; dom:fromSentence dom:S6 ;
+    dom:aboutSymptom dom:TipChatter ; dom:polarity "aggravate" ; dom:basis "S6" ;
+    dom:hasCond [ dom:onPath dom:armShape ; dom:op "eq" ; dom:val "simple" ] .

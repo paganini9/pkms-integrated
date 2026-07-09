@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pkms.local/contracts/v1/satisfy.schema.json",
+  "title": "satisfy 판정 (FR-04·05) v1",
+  "$defs": {
+    "SatisfyRequest": {
+      "type": "object",
+      "required": ["design"],
+      "additionalProperties": false,
+      "properties": {
+        "project_id": { "type": ["string", "null"] },
+        "design": { "$ref": "common.schema.json#/$defs/Design" },
+        "require": {
+          "type": "array", "items": { "type": "string" },
+          "description": "요구거동 id. 생략 시 프로젝트의 hasRequirement 전체"
+        },
+        "categories": {
+          "type": ["array", "null"], "items": { "type": "string" },
+          "description": "지식 카테고리 필터. 컴파일 시점에 적용 (CD-4). null이면 전체. BFF는 project_id로부터 채운다"
+        }
+      }
+    },
+
+    "IntervalCheck": {
+      "type": "object",
+      "required": ["name", "expr", "ok"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "description": "예: 길이 구간포함 length ≤ maxSafe" },
+        "expr": { "type": "string", "description": "예: 600 ≤ 599" },
+        "ok": { "type": "boolean" }
+      }
+    },
+
+    "ExhibitedSymptom": {
+      "type": "object",
+      "required": ["symptom", "label", "sentences"],
+      "additionalProperties": false,
+      "properties": {
+        "symptom": { "type": "string", "description": "로컬네임. 예 TipChatter" },
+        "label": { "type": "string" },
+        "sentences": {
+          "type": "array", "items": { "type": "string" },
+          "description": "게이트 basis 원문. 예 [\"S3,S5\",\"S4\",\"S6\"]"
+        }
+      }
+    },
+
+    "Step": {
+      "description": "3단계는 항상 subsumption → shacl_interval → symptom_free 순서로 실린다",
+      "oneOf": [
+        {
+          "type": "object", "required": ["stage", "ok", "detail"], "additionalProperties": false,
+          "properties": { "stage": { "const": "subsumption" }, "ok": { "type": "boolean" }, "detail": { "type": "string" } }
+        },
+        {
+          "type": "object", "required": ["stage", "ok", "checks"], "additionalProperties": false,
+          "properties": {
+            "stage": { "const": "shacl_interval" },
+            "ok": { "type": "boolean" },
+            "checks": { "type": "array", "items": { "$ref": "#/$defs/IntervalCheck" } },
+            "warnings": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/Violation" } }
+          }
+        },
+        {
+          "type": "object", "required": ["stage", "ok", "exhibited"], "additionalProperties": false,
+          "properties": {
+            "stage": { "const": "symptom_free" },
+            "ok": { "type": "boolean" },
+            "exhibited": { "type": "array", "items": { "$ref": "#/$defs/ExhibitedSymptom" } }
+          }
+        }
+      ]
+    },
+
+    "ViolatedRequirement": {
+      "type": "object",
+      "required": ["rb", "forbids", "sentences"],
+      "additionalProperties": false,
+      "properties": {
+        "rb": { "type": "string" },
+        "label": { "type": "string" },
+        "forbids": { "type": "string" },
+        "sentences": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "SatisfyResponse": {
+      "type": "object",
+      "required": ["satisfies", "steps", "violations", "violation_bases", "violated_requirements", "alternatives", "trace_id"],
+      "additionalProperties": false,
+      "properties": {
+        "satisfies": {
+          "type": ["boolean", "null"],
+          "description": "null = 판정 보류(pending_reason 참조). 결정론 엔진(reasoner/SHACL) 산출 — LLM 금지"
+        },
+        "pending_reason": { "type": ["string", "null"], "enum": ["missing_required", null] },
+        "applied_categories": { "type": "array", "items": { "type": "string" } },
+        "steps": { "type": "array", "items": { "$ref": "#/$defs/Step" }, "minItems": 3, "maxItems": 3 },
+        "violations": {
+          "type": "array", "items": { "type": "string" },
+          "description": "CD-1 정규화: basis 콤마 분해 → 극성 cause·aggravate만 → 정렬·중복제거. 예 [S1,S3,S4,S6]"
+        },
+        "violation_bases": {
+          "type": "array", "items": { "type": "string" },
+          "description": "CD-1: 위반 게이트의 원본 basis. 예 [S1,\"S3,S5\",S4,S6]"
+        },
+        "violated_requirements": { "type": "array", "items": { "$ref": "#/$defs/ViolatedRequirement" } },
+        "alternatives": { "type": "array", "items": { "type": "string" } },
+        "justification": { "type": "array", "items": { "type": "string" }, "description": "감사 로그로 보존" },
+        "cache_hit": { "type": "boolean" },
+        "trace_id": { "$ref": "common.schema.json#/$defs/TraceId" }
+      }
+    }
+  }
+}

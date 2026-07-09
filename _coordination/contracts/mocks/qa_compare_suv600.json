@@ -1,0 +1,29 @@
+{
+  "_comment": "AC-3 환각비교 — B계층(설계검증 → satisfy). LLM 단독은 '가능'이라 답하고 온톨로지는 위반 판정. 불일치 하이라이트.",
+  "_request": { "question": "중형 SUV에 고무 600mm 써도 될까?", "mode": "compare", "project_id": "proj-winter-suv" },
+  "layer": "B",
+  "verified_answer": {
+    "text": "불가합니다. 중형 SUV 안전 길이 599mm를 초과해 끝단 떨림이 발생하고(S3), 겨울철 고무는 소음을 유발합니다(S1). 허용 대안: 재질을 실리콘으로(S2), 길이를 599mm 이하로(S5).",
+    "determinism": "satisfy",
+    "sources": [
+      { "sentence": "S3", "iri": "http://ex.org/domain#S3", "text": "중형 SUV에서 블레이드 길이가 600mm 이상이면 끝단 떨림이 발생할 수 있다." },
+      { "sentence": "S1", "iri": "http://ex.org/domain#S1", "text": "겨울철 저온에서 고무는 경도가 상승해 소음을 유발한다." },
+      { "rule": "ChatterRule", "iri": "http://ex.org/domain#ChatterRule" },
+      { "rule": "NoiseRule", "iri": "http://ex.org/domain#NoiseRule" }
+    ]
+  },
+  "llm_answer": {
+    "text": "네, 가능합니다. 600mm는 중형 SUV에 일반적으로 쓰이는 길이이며 고무 블레이드도 무난합니다.",
+    "model": "mock"
+  },
+  "comparison": {
+    "mismatches": [
+      { "claim": "600mm 사용 가능", "verdict": "위반 — 안전길이 599mm 초과", "evidence": ["S3"] },
+      { "claim": "고무 블레이드 무난", "verdict": "위반 — 겨울철 소음 유발", "evidence": ["S1"] }
+    ],
+    "violation_rate": 1.0,
+    "agreement_rate": 0.0
+  },
+  "insufficient_evidence": false,
+  "trace_id": "trace-qa-0009"
+}

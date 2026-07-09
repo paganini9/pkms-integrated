@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pkms.local/contracts/v1/common.schema.json",
+  "title": "PKMS 공통 타입 v1",
+  "$defs": {
+    "ConceptType": {
+      "type": "string",
+      "enum": ["PartType", "Component", "Material", "VehicleType", "EnvCondition", "Symptom", "Behavior", "Attribute"]
+    },
+    "Predicate": {
+      "type": "string",
+      "enum": ["causes", "mitigates", "aggravates", "conditionedOn", "hasMaterial", "has_part", "mountedOn", "operatesIn"]
+    },
+    "Polarity": { "type": "string", "enum": ["cause", "mitigate", "aggravate"] },
+
+    "Concept": {
+      "type": "object",
+      "required": ["label", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "type": { "$ref": "#/$defs/ConceptType" },
+        "iri": { "type": "string", "format": "uri" },
+        "span": {
+          "type": "array", "items": { "type": "integer", "minimum": 0 },
+          "minItems": 2, "maxItems": 2,
+          "description": "원문 내 문자 오프셋 [start, end)"
+        }
+      }
+    },
+
+    "Relation": {
+      "type": "object",
+      "required": ["subject", "predicate", "object"],
+      "additionalProperties": false,
+      "properties": {
+        "subject": { "type": "string", "minLength": 1 },
+        "predicate": { "$ref": "#/$defs/Predicate" },
+        "object": { "type": "string", "minLength": 1 },
+        "evidence": { "type": "string" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+
+    "Violation": {
+      "type": "object",
+      "required": ["code", "severity", "offender", "message"],
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": ["causes_range", "disjoint", "shacl_constraint", "missing_required", "unknown_concept"]
+        },
+        "severity": {
+          "type": "string", "enum": ["violation", "warning"],
+          "description": "CD-7. violation = UI amber + 저장 차단(409 GUARDRAIL_BLOCKED). warning = 정보 표시 + 저장 허용"
+        },
+        "offender": { "type": "string", "minLength": 1 },
+        "offender_iri": { "type": "string", "format": "uri" },
+        "message": { "type": "string", "minLength": 1, "description": "한글, 사용자 노출용" },
+        "sentence": { "type": "string", "description": "근거 문장 코드. 'S1' 또는 'S3,S5'" },
+        "source_shape": { "type": "string" }
+      }
+    },
+
+    "Source": {
+      "type": "object",
+      "required": ["iri"],
+      "additionalProperties": false,
+      "properties": {
+        "sentence": { "type": "string" },
+        "rule": { "type": "string" },
+        "iri": { "type": "string", "format": "uri" },
+        "text": { "type": "string" }
+      }
+    },
+
+    "Design": {
+      "type": "object",
+      "required": ["material", "length_mm", "spring_n", "arm_shape", "vehicle"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "material": { "type": "string", "enum": ["Rubber", "Silicone"] },
+        "length_mm": { "type": "integer", "exclusiveMinimum": 0, "maximum": 2000 },
+        "spring_n": { "type": "integer", "exclusiveMinimum": 0, "maximum": 1000 },
+        "arm_shape": { "type": "string", "enum": ["simple", "complex"] },
+        "vehicle": { "type": "string", "enum": ["MidSizeSUV", "CompactSedan"] },
+        "env": { "type": "string", "enum": ["Winter"] }
+      }
+    },
+
+    "ErrorCode": {
+      "type": "string",
+      "enum": [
+        "VALIDATION_ERROR", "GUARDRAIL_BLOCKED", "BUILTIN_LOCKED", "FORBIDDEN", "NOT_FOUND",
+        "LLM_ERROR", "LLM_TIMEOUT", "STORE_ERROR", "REASONER_ERROR", "REASONER_TIMEOUT",
+        "RAG_ERROR", "KNOWLEDGE_UNAVAILABLE", "INTERNAL"
+      ]
+    },
+
+    "Error": {
+      "type": "object",
+      "required": ["code", "user_message", "trace_id"],
+      "additionalProperties": false,
+      "properties": {
+        "code": { "$ref": "#/$defs/ErrorCode" },
+        "user_message": { "type": "string", "minLength": 1 },
+        "trace_id": { "type": "string" },
+        "details": { "type": "object" }
+      }
+    },
+
+    "TraceId": { "type": "string", "minLength": 1 }
+  }
+}

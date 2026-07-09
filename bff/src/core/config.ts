@@ -1,0 +1,29 @@
+/**
+ * 설정 — 환경변수만이 진실원.
+ * API 키는 프로세스 env 에서만 읽는다. 코드·.env·git·이미지·로그(마스킹)에 절대 두지 않는다.
+ */
+export const config = {
+  port: Number(process.env.BFF_PORT ?? 4000),
+  knowledgeUrl: process.env.KNOWLEDGE_URL ?? "http://localhost:8000",
+  logLevel: process.env.LOG_LEVEL ?? "info",
+
+  /** MOCK 우선 — 키가 없으면 자동으로 mock provider 를 쓴다. */
+  aiMockMode:
+    (process.env.AI_MOCK_MODE ?? "true") === "true" ||
+    (!process.env.ANTHROPIC_API_KEY && !process.env.GOOGLE_AI_API_KEY),
+
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+  googleAiApiKey: process.env.GOOGLE_AI_API_KEY,
+
+  /** 신뢰성 패턴 (interface_contracts.md §6) */
+  timeouts: { llmMs: 30_000, knowledgeMs: 20_000, satisfyMs: 60_000 },
+  retry: { attempts: 2, baseDelayMs: 250 },
+  breaker: { failureThreshold: 5, openMs: 60_000 },
+} as const;
+
+/** 로그·에러 본문에서 키 형태를 지운다. */
+export function maskSecrets(text: string): string {
+  return text
+    .replace(/(sk-[A-Za-z0-9_-]{4})[A-Za-z0-9_-]+/g, "$1***")
+    .replace(/(AIza[A-Za-z0-9_-]{4})[A-Za-z0-9_-]+/g, "$1***");
+}

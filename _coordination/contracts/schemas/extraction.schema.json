@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pkms.local/contracts/v1/extraction.schema.json",
+  "title": "추출 · 검증 · 저장 (FR-01~03·3d) v1",
+  "$defs": {
+    "StreamRequest": {
+      "type": "object",
+      "required": ["text"],
+      "additionalProperties": false,
+      "properties": {
+        "text": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "thread_id": { "type": "string" },
+        "project_id": { "type": "string" }
+      }
+    },
+
+    "StreamEvent": {
+      "description": "SSE 이벤트. 순서: status* → (concept|relation)* → validation → done. error는 종료.",
+      "oneOf": [
+        {
+          "type": "object", "required": ["stage"], "additionalProperties": false,
+          "properties": { "stage": { "enum": ["extract", "validate"] }, "msg": { "type": "string" } },
+          "title": "status"
+        },
+        { "$ref": "common.schema.json#/$defs/Concept", "title": "concept" },
+        { "$ref": "common.schema.json#/$defs/Relation", "title": "relation" },
+        {
+          "type": "object", "required": ["conforms", "violations"], "additionalProperties": false,
+          "properties": {
+            "conforms": { "type": "boolean" },
+            "violations": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/Violation" } }
+          },
+          "title": "validation"
+        },
+        {
+          "type": "object", "required": ["thread_id", "draft_id", "trace_id"], "additionalProperties": false,
+          "properties": { "thread_id": { "type": "string" }, "draft_id": { "type": "string" }, "trace_id": { "type": "string" } },
+          "title": "done"
+        },
+        { "$ref": "common.schema.json#/$defs/Error", "title": "error" }
+      ]
+    },
+
+    "ValidateRequest": {
+      "type": "object",
+      "required": ["concepts", "relations"],
+      "additionalProperties": false,
+      "properties": {
+        "concepts": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/Concept" } },
+        "relations": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/Relation" } },
+        "project_id": { "type": ["string", "null"] }
+      }
+    },
+
+    "ValidateResponse": {
+      "type": "object",
+      "required": ["conforms", "violations", "trace_id"],
+      "additionalProperties": false,
+      "properties": {
+        "conforms": { "type": "boolean" },
+        "violations": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/Violation" } },
+        "trace_id": { "$ref": "common.schema.json#/$defs/TraceId" }
+      }
+    },
+
+    "SaveRequest": {
+      "type": "object",
+      "required": ["sentence_text", "concepts", "relations", "category", "approved"],
+      "additionalProperties": false,
+      "properties": {
+        "sentence_text": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "concepts": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/Concept" } },
+        "relations": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/Relation" } },
+        "category": { "type": "string", "minLength": 1 },
+        "approved": { "const": true, "description": "HITL 게이트. true 아니면 409 GUARDRAIL_BLOCKED" },
+        "draft_id": { "type": "string", "description": "멱등키" },
+        "project_id": { "type": ["string", "null"] }
+      }
+    },
+
+    "SavedSentence": {
+      "type": "object",
+      "required": ["id", "iri", "text", "category", "mentions", "polarity"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "description": "문장 코드. 예 S7" },
+        "iri": { "type": "string", "format": "uri" },
+        "text": { "type": "string" },
+        "category": { "type": "string" },
+        "mentions": { "type": "array", "items": { "type": "string" } },
+        "about_symptom": { "type": ["string", "null"] },
+        "polarity": { "$ref": "common.schema.json#/$defs/Polarity" }
+      }
+    },
+
+    "DesignRuleCond": {
+      "type": "object",
+      "required": ["path", "op"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string", "description": "예 hasMaterial · lengthMm" },
+        "op": { "type": "string", "enum": ["eq", "lt", "le", "gt", "ge", "gtPath"] },
+        "val": { "type": ["string", "number", "null"] },
+        "ref_list": { "type": "array", "items": { "type": "string" }, "description": "gtPath 전용. 예 [mountedOn, maxSafeLengthMm]" }
+      }
+    },
+
+    "DerivedRule": {
+      "type": "object",
+      "required": ["id", "label", "polarity", "category", "conds"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "polarity": { "$ref": "common.schema.json#/$defs/Polarity" },
+        "category": { "type": "string" },
+        "about_symptom": { "type": ["string", "null"] },
+        "basis": { "type": "string" },
+        "conds": { "type": "array", "items": { "$ref": "#/$defs/DesignRuleCond" } }
+      }
+    },
+
+    "DerivedShape": {
+      "type": "object",
+      "required": ["id", "gate_for", "sentence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "gate_for": { "type": "string", "description": "증상 로컬네임. 예 Noise" },
+        "sentence": { "type": "string" }
+      }
+    },
+
+    "SaveResponse": {
+      "type": "object",
+      "required": ["sentence", "derived", "human_view", "trace_id"],
+      "additionalProperties": false,
+      "properties": {
+        "sentence": { "$ref": "#/$defs/SavedSentence" },
+        "derived": {
+          "type": "object",
+          "required": ["rule", "shapes", "causal_edges"],
+          "additionalProperties": false,
+          "properties": {
+            "rule": { "$ref": "#/$defs/DerivedRule" },
+            "shapes": { "type": "array", "items": { "$ref": "#/$defs/DerivedShape" } },
+            "causal_edges": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/Relation" } }
+          }
+        },
+        "human_view": { "type": "array", "items": { "type": "string" } },
+        "trace_id": { "$ref": "common.schema.json#/$defs/TraceId" }
+      }
+    }
+  }
+}

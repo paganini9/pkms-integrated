@@ -1,0 +1,7 @@
+-r requirements.txt
+
+pytest==8.3.4
+pytest-asyncio==0.25.0
+jsonschema==4.23.0         # 계약 검증 (_coordination/contracts/validate_contracts.py)
+referencing==0.35.1
+ruff==0.8.4

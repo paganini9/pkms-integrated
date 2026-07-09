@@ -1,0 +1,24 @@
+{
+  "_comment": "POST /api/v1/extraction/validate — AC-1 range 위반. 회귀 ext-range. severity=violation → amber + 저장 차단(CD-7).",
+  "_request": {
+    "concepts": [
+      { "label": "경도", "type": "Attribute" },
+      { "label": "겨울철", "type": "EnvCondition", "iri": "http://ex.org/domain#Winter" }
+    ],
+    "relations": [
+      { "subject": "경도", "predicate": "causes", "object": "겨울철", "evidence": "경도가 겨울철을 유발한다" }
+    ]
+  },
+  "conforms": false,
+  "violations": [
+    {
+      "code": "causes_range",
+      "severity": "violation",
+      "offender": "겨울철",
+      "offender_iri": "http://ex.org/domain#Winter",
+      "message": "'causes'의 대상은 증상(Symptom)이어야 합니다. '겨울철'은 환경조건(EnvCondition)이라 관계를 저장할 수 없습니다. 대상을 증상으로 바꾸거나 관계를 'conditionedOn'으로 수정해 주세요.",
+      "source_shape": "CausesRangeShape"
+    }
+  ],
+  "trace_id": "trace-validate-0002"
+}

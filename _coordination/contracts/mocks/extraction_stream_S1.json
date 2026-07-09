@@ -1,0 +1,15 @@
+{
+  "_comment": "POST /api/v1/extraction/stream — AC-1 정상 흐름. 배열 순서 = SSE 전송 순서. 각 항목 {event, data}.",
+  "_request": { "text": "겨울철 저온에서 고무 블레이드는 소음이 발생한다" },
+  "events": [
+    { "event": "status", "data": { "stage": "extract", "msg": "개념 추출 중" } },
+    { "event": "concept", "data": { "label": "겨울철", "type": "EnvCondition", "iri": "http://ex.org/domain#Winter", "span": [0, 3] } },
+    { "event": "concept", "data": { "label": "고무", "type": "Material", "iri": "http://ex.org/domain#Rubber", "span": [9, 11] } },
+    { "event": "concept", "data": { "label": "소음", "type": "Symptom", "iri": "http://ex.org/domain#Noise", "span": [19, 21] } },
+    { "event": "relation", "data": { "subject": "고무", "predicate": "causes", "object": "소음", "evidence": "겨울철 저온에서 고무 블레이드는 소음이 발생한다", "confidence": 0.93 } },
+    { "event": "relation", "data": { "subject": "소음", "predicate": "conditionedOn", "object": "겨울철", "evidence": "겨울철 저온에서", "confidence": 0.88 } },
+    { "event": "status", "data": { "stage": "validate", "msg": "명세 검증 중" } },
+    { "event": "validation", "data": { "conforms": true, "violations": [] } },
+    { "event": "done", "data": { "thread_id": "thread-0001", "draft_id": "draft-0001", "trace_id": "trace-extract-0001" } }
+  ]
+}

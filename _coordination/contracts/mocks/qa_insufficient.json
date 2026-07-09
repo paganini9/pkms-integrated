@@ -1,0 +1,21 @@
+{
+  "_comment": "수용기준 §4 '도메인 밖 질의' — 억지 답 금지. C계층 RAG에서 verified hit 0건 → insufficient_evidence=true.",
+  "_request": { "question": "타이어 공기압은 몇 psi가 적정한가?", "mode": "compare" },
+  "layer": "C",
+  "verified_answer": {
+    "text": "명세 근거 없음 — 현재 지식베이스(와이퍼 도메인 6문장)에는 타이어 공기압에 대한 검증된 규칙이 없습니다. 답변을 생성하지 않습니다. 해당 지식을 추가하려면 지식 입력 화면을 이용해 주세요.",
+    "determinism": "rag",
+    "sources": []
+  },
+  "llm_answer": {
+    "text": "일반적으로 승용차는 32~35 psi가 적정합니다.",
+    "model": "mock"
+  },
+  "comparison": {
+    "mismatches": [{ "claim": "32~35 psi 적정", "verdict": "검증 불가 — 명세 근거 없음", "evidence": [] }],
+    "violation_rate": 0.0,
+    "agreement_rate": 0.0
+  },
+  "insufficient_evidence": true,
+  "trace_id": "trace-qa-0010"
+}

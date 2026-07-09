@@ -1,0 +1,42 @@
+{
+  "_comment": "AC-scope · 회귀 scope-B. 동일 설계 A인데 프로젝트 B(떨림 지식만) → 소음 규칙 미적용 → 3위반. CD-4: 카테고리는 컴파일 시점 필터.",
+  "_request": {
+    "project_id": "proj-vibration-lab",
+    "design": { "id": "Blade_bad", "material": "Rubber", "length_mm": 600, "spring_n": 8, "arm_shape": "simple", "vehicle": "MidSizeSUV", "env": "Winter" },
+    "require": ["RB_NoChatter"],
+    "categories": ["떨림"]
+  },
+  "satisfies": false,
+  "pending_reason": null,
+  "applied_categories": ["떨림"],
+  "steps": [
+    { "stage": "subsumption", "ok": true, "detail": "소음 카테고리 미적용 — 정성 판정 대상 없음" },
+    {
+      "stage": "shacl_interval",
+      "ok": false,
+      "checks": [
+        { "name": "길이 구간포함 length ≤ maxSafe", "expr": "600 ≤ 599", "ok": false },
+        { "name": "스프링 임계 springN ≥ 10", "expr": "8 ≥ 10", "ok": false }
+      ]
+    },
+    {
+      "stage": "symptom_free",
+      "ok": false,
+      "exhibited": [{ "symptom": "TipChatter", "label": "끝단 떨림", "sentences": ["S3,S5", "S4", "S6"] }]
+    }
+  ],
+  "violations": ["S3", "S4", "S6"],
+  "violation_bases": ["S3,S5", "S4", "S6"],
+  "violated_requirements": [
+    { "rb": "RB_NoChatter", "label": "끝단 떨림 없음", "forbids": "TipChatter", "sentences": ["S3,S5", "S4", "S6"] }
+  ],
+  "alternatives": ["길이→차종 안전길이 이내(S5)", "스프링→≥10N", "암형상→complex"],
+  "justification": [
+    "적용 지식범위: [떨림] — 소음 카테고리 규칙(NoiseRule·SiliconeRule)은 컴파일 대상에서 제외",
+    "(2) 수치 게이트 ✘ — 길이 600 > 599 (S3,S5)",
+    "(2) 수치 게이트 ✘ — 스프링 8N < 10N (S4)",
+    "(3) 무증상 규칙 ✘ — 유발 증상: 끝단 떨림[S3,S5·S4·S6]"
+  ],
+  "cache_hit": false,
+  "trace_id": "trace-satisfy-0006"
+}

@@ -1,0 +1,36 @@
+{
+  "_comment": "AC-4 — GET /api/v1/graph?symptom=TipChatter&sentence=S3. S3 클릭 시 S3·S4·S5·S6·ChatterRule·관련 개념 하이라이트, 이행 관계는 inferred=true(점선).",
+  "_request": { "symptom": "TipChatter", "sentence": "S3", "limit": 500 },
+  "nodes": [
+    { "id": "TipChatter", "label": "끝단 떨림", "kind": "symptom", "layer": "M1", "iri": "http://ex.org/domain#TipChatter" },
+    { "id": "S3", "label": "S3", "kind": "sentence", "layer": "M1", "iri": "http://ex.org/domain#S3", "text": "중형 SUV에서 블레이드 길이가 600mm 이상이면 끝단 떨림이 발생할 수 있다." },
+    { "id": "S4", "label": "S4", "kind": "sentence", "layer": "M1", "iri": "http://ex.org/domain#S4", "text": "끝단 떨림은 와이퍼 암 스프링 압력이 부족할 때(10N 미만) 악화된다." },
+    { "id": "S5", "label": "S5", "kind": "sentence", "layer": "M1", "iri": "http://ex.org/domain#S5", "text": "소형 세단은 550mm까지는 끝단 떨림 문제가 없다." },
+    { "id": "S6", "label": "S6", "kind": "sentence", "layer": "M1", "iri": "http://ex.org/domain#S6", "text": "와이퍼 암 형상이 단순하면 압력 편차가 커져 떨림이 악화된다." },
+    { "id": "ChatterRule", "label": "길이 > 차종 안전길이 → 떨림", "kind": "rule", "layer": "M1", "iri": "http://ex.org/domain#ChatterRule" },
+    { "id": "SpringRule", "label": "스프링 압력 < 10N → 떨림 악화", "kind": "rule", "layer": "M1", "iri": "http://ex.org/domain#SpringRule" },
+    { "id": "ArmRule", "label": "단순 암형상 → 떨림 악화", "kind": "rule", "layer": "M1", "iri": "http://ex.org/domain#ArmRule" },
+    { "id": "MidSizeSUV", "label": "중형 SUV", "kind": "concept", "layer": "M1", "iri": "http://ex.org/domain#MidSizeSUV" },
+    { "id": "CompactSedan", "label": "소형 세단", "kind": "concept", "layer": "M1", "iri": "http://ex.org/domain#CompactSedan" },
+    { "id": "WiperArm", "label": "와이퍼 암", "kind": "concept", "layer": "M1", "iri": "http://ex.org/domain#WiperArm" },
+    { "id": "WipingBehavior", "label": "와이핑 거동", "kind": "concept", "layer": "M1", "iri": "http://ex.org/domain#WipingBehavior" },
+    { "id": "ContactBehavior", "label": "접촉 거동", "kind": "concept", "layer": "M1", "iri": "http://ex.org/domain#ContactBehavior", "inferred": true }
+  ],
+  "edges": [
+    { "source": "S3", "target": "ChatterRule", "predicate": "derivesRule", "inferred": false, "evidence": "S3" },
+    { "source": "S5", "target": "ChatterRule", "predicate": "derivesRule", "inferred": false, "evidence": "S5" },
+    { "source": "S4", "target": "SpringRule", "predicate": "derivesRule", "inferred": false, "evidence": "S4" },
+    { "source": "S6", "target": "ArmRule", "predicate": "derivesRule", "inferred": false, "evidence": "S6" },
+    { "source": "ChatterRule", "target": "TipChatter", "predicate": "causes", "inferred": false, "evidence": "S3,S5" },
+    { "source": "SpringRule", "target": "TipChatter", "predicate": "aggravates", "inferred": false, "evidence": "S4" },
+    { "source": "ArmRule", "target": "TipChatter", "predicate": "aggravates", "inferred": false, "evidence": "S6" },
+    { "source": "S3", "target": "MidSizeSUV", "predicate": "mentions", "inferred": false },
+    { "source": "S3", "target": "TipChatter", "predicate": "aboutSymptom", "inferred": false },
+    { "source": "S5", "target": "CompactSedan", "predicate": "mentions", "inferred": false },
+    { "source": "S4", "target": "WiperArm", "predicate": "mentions", "inferred": false },
+    { "source": "S6", "target": "WiperArm", "predicate": "mentions", "inferred": false },
+    { "source": "WipingBehavior", "target": "ContactBehavior", "predicate": "has_subbehavior", "inferred": true }
+  ],
+  "stats": { "nodes": 13, "edges": 13, "inferred_edges": 1, "truncated": false },
+  "trace_id": "trace-graph-0011"
+}

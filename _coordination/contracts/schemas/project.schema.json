@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pkms.local/contracts/v1/project.schema.json",
+  "title": "프로젝트 · 요구사항 · 지식범위 (FR-3b·3c) v1",
+  "$defs": {
+    "Requirement": {
+      "type": "object",
+      "required": ["id", "label", "forbids_symptom"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "description": "예 RB_Winter" },
+        "iri": { "type": "string", "format": "uri" },
+        "label": { "type": "string" },
+        "forbids_symptom": { "type": "string", "description": "증상 로컬네임. 예 Noise" }
+      }
+    },
+
+    "CreateProjectRequest": {
+      "type": "object",
+      "required": ["name", "target_vehicle", "knowledge_categories"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "target_vehicle": { "type": "string", "enum": ["MidSizeSUV", "CompactSedan"] },
+        "target_env": { "type": "string", "enum": ["Winter"] },
+        "knowledge_categories": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+      }
+    },
+
+    "Project": {
+      "type": "object",
+      "required": ["id", "iri", "name", "target_vehicle", "knowledge_categories"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "iri": { "type": "string", "format": "uri" },
+        "name": { "type": "string" },
+        "target_vehicle": { "type": "string" },
+        "target_env": { "type": ["string", "null"] },
+        "knowledge_categories": { "type": "array", "items": { "type": "string" } },
+        "requirements": { "type": "array", "items": { "$ref": "#/$defs/Requirement" } },
+        "designs": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/Design" } },
+        "trace_id": { "$ref": "common.schema.json#/$defs/TraceId" }
+      }
+    },
+
+    "KnowledgeScopeRequest": {
+      "type": "object",
+      "required": ["categories"],
+      "additionalProperties": false,
+      "properties": {
+        "categories": {
+          "type": "array", "items": { "type": "string" },
+          "description": "미선택 카테고리의 규칙은 satisfy에서 제외 (AC-scope · CD-4)"
+        }
+      }
+    },
+
+    "KnowledgeScopeResponse": {
+      "type": "object",
+      "required": ["categories", "compiled_gates", "trace_id"],
+      "additionalProperties": false,
+      "properties": {
+        "categories": { "type": "array", "items": { "type": "string" } },
+        "compiled_gates": { "type": "integer", "description": "이 범위로 컴파일된 SHACL NodeShape 수" },
+        "trace_id": { "$ref": "common.schema.json#/$defs/TraceId" }
+      }
+    },
+
+    "ParseRequirementsRequest": {
+      "type": "object",
+      "required": ["text"],
+      "additionalProperties": false,
+      "properties": { "text": { "type": "string", "minLength": 1, "maxLength": 2000 } }
+    },
+
+    "ParseRequirementsResponse": {
+      "type": "object",
+      "required": ["requirements", "unknown_symptoms", "trace_id"],
+      "additionalProperties": false,
+      "properties": {
+        "requirements": { "type": "array", "items": { "$ref": "#/$defs/Requirement" } },
+        "unknown_symptoms": {
+          "type": "array", "items": { "type": "string" },
+          "description": "비어있지 않으면 프론트가 '지식 추가' 유도 (AC-1P). 저장은 알려진 증상분만"
+        },
+        "trace_id": { "$ref": "common.schema.json#/$defs/TraceId" }
+      }
+    },
+
+    "CategoriesResponse": {
+      "type": "object",
+      "required": ["categories", "trace_id"],
+      "additionalProperties": false,
+      "properties": {
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "sentences", "rules"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string" },
+              "sentences": { "type": "integer" },
+              "rules": { "type": "integer" }
+            }
+          }
+        },
+        "trace_id": { "$ref": "common.schema.json#/$defs/TraceId" }
+      }
+    }
+  }
+}
