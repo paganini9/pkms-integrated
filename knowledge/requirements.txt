@@ -1,5 +1,5 @@
 # 지식·추론 서비스 런타임 의존성 (Python 3.12)
-# 무거운 임베딩 모델은 requirements-ml.txt (선택) — EMBEDDING_MODE=mock 이면 불필요
+# 무거운 임베딩 모델은 requirements-ml.txt (선택) — EMBEDDING_PROVIDER=mock 이면 불필요
 
 fastapi==0.115.6
 uvicorn[standard]==0.34.0

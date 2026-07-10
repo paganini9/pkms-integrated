@@ -20,8 +20,9 @@ class Settings(BaseSettings):
     ontology_dir: Path = KNOWLEDGE_DIR / "ontology"
 
     # MOCK 우선 — 키·모델 없이 전 흐름이 동작해야 한다
-    embedding_mode: str = "mock"  # mock | st
-    embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    embedding_provider: str = "mock"  # mock | local | solar
+    local_embed_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    embed_dim: int = 384  # 컬렉션 차원 검증용
 
     # 추론
     reasoner_timeout_s: int = 60

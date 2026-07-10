@@ -1,9 +1,10 @@
 """임베딩 — 다국어 sentence-transformers, MOCK 우선(해시 결정론 벡터).
 
 `interface_contracts.md` §2 `Embedder` Protocol 구현.
-- `EMBEDDING_MODE=mock`(기본): 패키지·모델 없이 결정론 벡터. 같은 입력 → 같은 벡터.
-- `EMBEDDING_MODE=st`: sentence-transformers. **lazy import**(함수 안에서만) — 모듈 최상단 import 금지.
-- `st` 인데 패키지가 없으면 경고 로그 + mock 폴백(죽지 않는다).
+- `EMBEDDING_PROVIDER=mock`(기본): 패키지·모델 없이 결정론 벡터. 같은 입력 → 같은 벡터.
+- `EMBEDDING_PROVIDER=local`: sentence-transformers. **lazy import**(함수 안에서만) — 모듈 최상단 import 금지.
+- `local` 인데 패키지가 없으면 경고 로그 + mock 폴백(죽지 않는다).
+- `EMBEDDING_PROVIDER=solar`: 미구현 — 경고 로그 + mock 폴백.
 """
 from __future__ import annotations
 
@@ -62,7 +63,7 @@ class MockEmbedder:
 
 
 class StEmbedder:
-    """다국어 sentence-transformers 임베더. 모델은 `settings.embedding_model`.
+    """다국어 sentence-transformers 임베더. 모델은 `settings.local_embed_model`.
 
     sentence_transformers 는 **lazy import** — 인스턴스 생성 시점에만 로드한다.
     """
@@ -70,7 +71,7 @@ class StEmbedder:
     def __init__(self, model_name: str | None = None) -> None:
         from sentence_transformers import SentenceTransformer  # lazy import (필수)
 
-        self.model_name = model_name or settings.embedding_model
+        self.model_name = model_name or settings.local_embed_model
         self._model = SentenceTransformer(self.model_name)
 
     def encode(self, texts: list[str]) -> list[list[float]]:
@@ -81,18 +82,22 @@ class StEmbedder:
 
 
 def get_embedder(mode: str | None = None) -> MockEmbedder | StEmbedder:
-    """`settings.embedding_mode` 로 임베더 선택.
+    """`settings.embedding_provider` 로 임베더 선택.
 
-    `st` 인데 sentence-transformers 가 없으면 경고 후 MockEmbedder 로 폴백한다(서비스 지속).
+    `local` 인데 sentence-transformers 가 없으면 경고 후 MockEmbedder 로 폴백한다(서비스 지속).
+    `solar` 는 미구현 — 경고 후 mock 폴백. `st` 는 구표기 호환으로 `local` 과 같게 받는다.
     """
-    mode = (mode or settings.embedding_mode or "mock").lower()
-    if mode == "st":
+    mode = (mode or settings.embedding_provider or "mock").lower()
+    if mode in ("local", "st"):  # "st" 는 구표기 호환
         try:
             return StEmbedder()
         except Exception as exc:  # noqa: BLE001 — 패키지 부재·모델 로드 실패 모두 폴백
             log.warning(
-                "EMBEDDING_MODE=st 이나 sentence-transformers 사용 불가(%s) — mock 임베딩으로 폴백",
+                "EMBEDDING_PROVIDER=local 이나 sentence-transformers 사용 불가(%s) — mock 임베딩으로 폴백",
                 type(exc).__name__,
             )
             return MockEmbedder()
+    if mode == "solar":
+        log.warning("EMBEDDING_PROVIDER=solar 는 미구현 — mock 임베딩으로 폴백")
+        return MockEmbedder()
     return MockEmbedder()

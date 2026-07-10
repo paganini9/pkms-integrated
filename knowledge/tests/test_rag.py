@@ -134,9 +134,11 @@ def test_contract_schema_via_route(tmp_path, source):
     assert names["떨림"]["sentences"] == 4 and names["떨림"]["rules"] == 3
 
 
-# ── 6. EMBEDDING_MODE=st 인데 패키지 없음 → mock 폴백(예외 없음) ─────────────
+# ── 6. EMBEDDING_PROVIDER=local 인데 패키지 없음 → mock 폴백(예외 없음) ───────
+# 기본 CI 는 requirements.txt 만 설치한다(ML 미포함) — requirements-ml.txt 를 넣으면
+# 이 테스트가 StEmbedder 를 받아 실패한다. 실제 ST 검증은 ML 설치 잡에서 별도로.
 def test_st_mode_falls_back_to_mock():
-    emb = get_embedder(mode="st")
+    emb = get_embedder(mode="local")
     # sentence-transformers 미설치 환경에서는 MockEmbedder 로 폴백
     assert isinstance(emb, MockEmbedder)
     vec = emb.encode(["폴백 확인"])[0]
