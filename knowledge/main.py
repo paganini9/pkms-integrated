@@ -31,7 +31,9 @@ log = logging.getLogger("knowledge")
 async def lifespan(app: FastAPI):
     applog.configure(settings.log_level)
     log.info(
-        "지식 서비스 기동 — embedding_mode=%s reasoner=%s", settings.embedding_mode, reasoner_status()
+        "지식 서비스 기동 — embedding_provider=%s reasoner=%s",
+        settings.embedding_provider,
+        reasoner_status(),
     )
     _wire_layers()
     yield
