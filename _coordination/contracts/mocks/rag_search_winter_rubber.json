@@ -1,5 +1,5 @@
 {
-  "_comment": "POST /rag/search (지식서비스 내부). verified=false 인 hit는 답변 근거로 쓰지 않는다 — 루브릭 'RAG 충분성: 미검증 근거 0'. sufficient = verified hit ≥ 1.",
+  "_comment": "POST /rag/search (지식서비스 내부). CD-9: verified = 문장의 규칙이 프로젝트 지식범위로 컴파일되었는가(mitigate 포함). verified=false 인 hit 는 답변 근거로 쓰지 않는다 — 루브릭 'RAG 충분성: 미검증 근거 0'. sufficient = verified hit ≥ 1.",
   "_request": { "query": "겨울에 고무 블레이드를 쓰면 어떻게 되나?", "k": 6, "project_id": "proj-winter-suv" },
   "hits": [
     {
@@ -27,9 +27,21 @@
       "score": 0.31,
       "about_symptom": "TipChatter",
       "derives_rule": "ArmRule",
-      "verified": false
+      "verified": true
     }
   ],
   "sufficient": true,
-  "trace_id": "trace-rag-0014"
+  "trace_id": "trace-rag-0014",
+
+  "_variant_out_of_scope": {
+    "_comment": "같은 질의를 프로젝트 B(떨림 지식만)에서. CD-4 로 소음 규칙이 컴파일되지 않아 S1·S2 는 미검증 → 답변 근거에서 제외된다. verified hit(S6)가 남아 sufficient=true.",
+    "_request": { "query": "겨울에 고무 블레이드를 쓰면 어떻게 되나?", "k": 6, "project_id": "proj-vibration-lab" },
+    "hits": [
+      { "iri": "http://ex.org/domain#S1", "sentence": "S1", "text": "겨울철 저온에서 고무는 경도가 상승해 소음을 유발한다.", "score": 0.87, "about_symptom": "Noise", "derives_rule": "NoiseRule", "verified": false },
+      { "iri": "http://ex.org/domain#S2", "sentence": "S2", "text": "실리콘은 저온에서도 탄성을 유지하므로 소음 문제를 해소한다.", "score": 0.74, "about_symptom": "Noise", "derives_rule": "SiliconeRule", "verified": false },
+      { "iri": "http://ex.org/domain#S6", "sentence": "S6", "text": "와이퍼 암 형상이 단순하면 압력 편차가 커져 떨림이 악화된다.", "score": 0.31, "about_symptom": "TipChatter", "derives_rule": "ArmRule", "verified": true }
+    ],
+    "sufficient": true,
+    "trace_id": "trace-rag-0014b"
+  }
 }

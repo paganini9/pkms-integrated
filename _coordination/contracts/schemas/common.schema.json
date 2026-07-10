@@ -77,17 +77,18 @@
 
     "Design": {
       "type": "object",
-      "required": ["material", "length_mm", "spring_n", "arm_shape", "vehicle"],
+      "description": "CD-8: 수치·형상은 선택(nullable). 결측은 422 가 아니라 satisfies:null 판정 보류로 처리한다.",
+      "required": ["material", "vehicle"],
       "additionalProperties": false,
       "properties": {
         "id": { "type": "string" },
         "label": { "type": "string" },
         "material": { "type": "string", "enum": ["Rubber", "Silicone"] },
-        "length_mm": { "type": "integer", "exclusiveMinimum": 0, "maximum": 2000 },
-        "spring_n": { "type": "integer", "exclusiveMinimum": 0, "maximum": 1000 },
-        "arm_shape": { "type": "string", "enum": ["simple", "complex"] },
+        "length_mm": { "type": ["integer", "null"], "exclusiveMinimum": 0, "maximum": 2000 },
+        "spring_n": { "type": ["integer", "null"], "exclusiveMinimum": 0, "maximum": 1000 },
+        "arm_shape": { "type": ["string", "null"], "enum": ["simple", "complex", null] },
         "vehicle": { "type": "string", "enum": ["MidSizeSUV", "CompactSedan"] },
-        "env": { "type": "string", "enum": ["Winter"] }
+        "env": { "type": ["string", "null"], "enum": ["Winter", null] }
       }
     },
 

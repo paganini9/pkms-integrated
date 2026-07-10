@@ -64,15 +64,16 @@ interface Source { sentence?: string; rule?: string; iri: string; text?: string;
 interface Design {
   id?: string;               // 저장된 설계면 "Blade_bad"
   label?: string;
-  material: "Rubber"|"Silicone";
-  length_mm: number;         // >0
-  spring_n: number;          // >0
-  arm_shape: "simple"|"complex";
-  vehicle: "MidSizeSUV"|"CompactSedan";
-  env?: "Winter";
+  material: "Rubber"|"Silicone";          // 필수
+  vehicle: "MidSizeSUV"|"CompactSedan";   // 필수
+  length_mm?: number | null;   // >0, CD-8: 선택
+  spring_n?: number | null;    // >0, CD-8: 선택
+  arm_shape?: "simple"|"complex" | null;
+  env?: "Winter" | null;
 }
 ```
-> 필수 속성 누락 시 `422 VALIDATION_ERROR`가 아니라 **SHACL 경고 + 판정 보류**로 응답한다(수용기준 §4). → `satisfies: null`, `pending_reason: "missing_required"`.
+> **CD-8** — 수치·형상은 선택이다. 누락 시 `422 VALIDATION_ERROR`가 아니라 **SHACL 경고 + 판정 보류**로 응답한다(수용기준 §4). → `200`, `satisfies: null`, `pending_reason: "missing_required"`, 경고는 `steps[1].warnings[]`.
+> 필수로 두면 결측 요청이 스키마 검증에서 걸려 판정 보류 경로에 도달할 수 없다.
 
 ## 4. 엔드포인트 상세
 

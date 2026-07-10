@@ -19,6 +19,8 @@
 | 버전 | 일자 | 변경 | 영향 Agent |
 |---|---|---|---|
 | v1 | 2026-07-10 | 최초 freeze (G0) | — |
+| v1.1 | 2026-07-10 | **CD-8** — `Design` 의 `length_mm`·`spring_n`·`arm_shape`·`env` 를 선택(nullable)으로. 필수였으면 "판정 보류"에 도달할 수 없었다 | 04·05·07·08 |
+| v1.1 | 2026-07-10 | **CD-9** — RAG `verified` = 지식범위로 컴파일된 규칙(mitigate 포함). 게이트 기준이면 AC-2 의 근거 S2·S5 가 사라진다 | 03·05·08 |
 
 ## 1. 불변 원칙 (계약보다 상위)
 
@@ -48,6 +50,23 @@ API는 사람이 읽는 **문장 코드**(`S1`…`S6`)와 **`iri`**(`http://ex.o
 
 ### CD-4. 프로젝트 지식범위의 적용 지점
 `categories` 필터는 **규칙 컴파일 시점**에 적용한다(`compile_rules(rules, categories)`). satisfy 호출은 프로젝트가 선택한 카테고리로 컴파일된 SHACL 게이트 집합만 사용한다. 판정 후 필터링(post-filter)은 금지 — 결과가 달라진다.
+
+### CD-9. RAG `verified` 의 의미 — 게이트가 아니라 **지식범위** — v1.1
+`interface_contracts.md` §1.1은 `verified`를 "그 문장이 파생한 규칙이 SPARQL/SHACL 검증을 통과했는가"라 썼다. 이를 "SHACL 게이트로 컴파일되었는가"로 구현하면 **`mitigate` 규칙이 전부 미검증으로 떨어진다** — 해소 규칙은 원인의 여집합이라 게이트를 만들지 않기 때문이다.
+
+그런데 AC-2는 설계 B가 만족한다는 근거로 **S2**(실리콘 → 소음 해소)와 **S5**(세단 550mm 무해)를 요구한다. 둘 다 `mitigate` 다. 게이트 기준으로 판정하면 정답 근거가 답변에서 사라진다.
+
+확정: **`verified` = 그 문장의 규칙이 프로젝트 지식범위로 컴파일된 규칙 집합(`rule_ids`)에 속하는가.**
+- `mitigate` 포함. 게이트 여부는 `verified` 와 무관하다.
+- 미검증이 되는 경우: 알 수 없는 규칙 · **프로젝트 지식범위 밖**(CD-4) · 규칙 컴파일 실패.
+- 답변 근거(`sources`)에는 `verified: true` 만 싣는다(루브릭 "미검증 근거 0"). `sufficient` = `verified` hit ≥ 1.
+
+### CD-8. `Design` 의 수치는 선택이다 (판정 보류가 도달 가능해야 한다) — v1.1
+수용기준 §4는 "satisfy 수치 누락 → SHACL 필수속성 경고, **판정 보류**"라 하고, `error_model.md` §3은 이를 `200 satisfies:null` 로 못박았다. 그런데 v1 의 `Design` 스키마는 `length_mm`·`spring_n`·`arm_shape` 를 **필수**로 두었다. 필수라면 결측 요청은 `422 VALIDATION_ERROR` 에서 걸려 **판정 보류 경로에 영원히 도달하지 못한다.**
+
+확정: `material`·`vehicle` 만 필수(설계를 식별하는 최소 정보). 나머지 수치·형상·환경은 **선택(nullable)**.
+- 결측 시 → `satisfies: null`, `pending_reason: "missing_required"`, `steps[1].warnings[]` 에 `missing_required`(severity `warning`) 를 싣는다.
+- `warning` 이므로 저장·입력을 막지 않는다(CD-7). 다만 **확정 판정으로 승격하지 않는다** — 부분 정보로 ✅/⛔ 를 말하지 않는다는 뜻이다.
 
 ### CD-7. `severity`의 의미 (amber ↔ 저장 차단)
 AC-1은 range 위반을 "**amber 경고**로 표시"라 하고, 실패 케이스 표(수용기준 §4)는 같은 위반에 "**저장 차단** + 수정 유도(HITL)"를 요구한다. amber를 "저장 가능한 경고"로 읽으면 두 문장이 충돌한다. 확정:

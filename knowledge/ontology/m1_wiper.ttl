@@ -58,23 +58,23 @@ dom:S1 a dom:KnowledgeSentence ; dom:sentenceNo 1 ; dom:polarity "cause" ;
     dom:mentions dom:Winter , dom:Rubber , dom:Noise ; dom:aboutSymptom dom:Noise ; dom:derivesRule dom:NoiseRule .
 dom:S2 a dom:KnowledgeSentence ; dom:sentenceNo 2 ; dom:polarity "mitigate" ;
     dom:sentenceText "실리콘은 저온에서도 탄성을 유지하므로 소음 문제를 해소한다." ;
-    dom:mentions dom:Silicone , dom:Noise ; dom:aboutSymptom dom:Noise ; dom:derivesRule dom:NoiseRule .
+    dom:mentions dom:Silicone , dom:Noise ; dom:aboutSymptom dom:Noise ; dom:derivesRule dom:SiliconeRule .
 dom:S3 a dom:KnowledgeSentence ; dom:sentenceNo 3 ; dom:polarity "cause" ;
     dom:sentenceText "중형 SUV에서 블레이드 길이가 600mm 이상이면 끝단 떨림이 발생할 수 있다." ;
     dom:mentions dom:MidSizeSUV , dom:TipChatter ; dom:aboutSymptom dom:TipChatter ; dom:derivesRule dom:ChatterRule .
 dom:S4 a dom:KnowledgeSentence ; dom:sentenceNo 4 ; dom:polarity "cause" ;
     dom:sentenceText "끝단 떨림은 와이퍼 암 스프링 압력이 부족할 때(10N 미만) 악화된다." ;
-    dom:mentions dom:WiperArm , dom:TipChatter ; dom:aboutSymptom dom:TipChatter ; dom:derivesRule dom:AggravationRule .
+    dom:mentions dom:WiperArm , dom:TipChatter ; dom:aboutSymptom dom:TipChatter ; dom:derivesRule dom:SpringRule .
 dom:S5 a dom:KnowledgeSentence ; dom:sentenceNo 5 ; dom:polarity "mitigate" ;
     dom:sentenceText "소형 세단은 550mm까지는 끝단 떨림 문제가 없다." ;
     dom:mentions dom:CompactSedan , dom:TipChatter ; dom:aboutSymptom dom:TipChatter ; dom:derivesRule dom:ChatterRule .
 dom:S6 a dom:KnowledgeSentence ; dom:sentenceNo 6 ; dom:polarity "cause" ;
     dom:sentenceText "와이퍼 암 형상이 단순하면 압력 편차가 커져 떨림이 악화된다." ;
-    dom:mentions dom:WiperArm , dom:TipChatter ; dom:aboutSymptom dom:TipChatter ; dom:derivesRule dom:AggravationRule .
+    dom:mentions dom:WiperArm , dom:TipChatter ; dom:aboutSymptom dom:TipChatter ; dom:derivesRule dom:ArmRule .
 
-dom:NoiseRule       a dom:DesignRule ; rdfs:label "겨울+고무→소음(실리콘 해소)" ; dom:basis "S1,S2" .
-dom:ChatterRule     a dom:DesignRule ; rdfs:label "차종 안전길이 초과→떨림" ; dom:basis "S3,S5" .
-dom:AggravationRule a dom:DesignRule ; rdfs:label "스프링<10N/단순형상→떨림 악화" ; dom:basis "S4,S6" .
+### DesignRule 의 정의(label·basis·category·polarity·조건)는 rules.ttl 이 단일 진실원이다 (CD-3).
+### 여기서 중복 선언하면 basis 가 갈린다(예전: NoiseRule basis "S1,S2" vs rules.ttl "S1").
+### 이 파일은 문장→규칙 참조(dom:derivesRule)만 유지한다.
 
 ### --- 프로젝트 스키마 (M1 어휘; 인스턴스는 M2 프로젝트 데이터) ---
 dom:Project a owl:Class ; rdfs:label "설계 프로젝트" .

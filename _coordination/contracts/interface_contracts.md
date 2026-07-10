@@ -72,7 +72,8 @@ res  { "hits":[{"iri":"http://ex.org/domain#S1","sentence":"S1","text":"...","sc
                 "about_symptom":"Noise","derives_rule":"NoiseRule","verified":true}],
        "sufficient": true, "trace_id":"..." }
 ```
-- `verified`: 그 문장이 파생한 규칙이 SPARQL/SHACL 검증을 통과했는가. **`verified:false`인 hit는 답변 근거로 쓰지 않는다**(루브릭 "RAG 충분성: 미검증 근거 0").
+- `verified` (**CD-9**): 그 문장의 규칙이 **프로젝트 지식범위로 컴파일된 규칙 집합**에 속하는가. `mitigate` 규칙(게이트 없음)도 포함된다 — AC-2 의 근거 S2·S5 가 mitigate 다. 미검증 = 알 수 없는 규칙 · 지식범위 밖(CD-4) · 컴파일 실패.
+- **`verified:false`인 hit는 답변 근거로 쓰지 않는다**(루브릭 "RAG 충분성: 미검증 근거 0").
 - `sufficient`: `verified:true` hit가 1건 이상.
 
 ## 2. 레이어 Protocol — Python (`knowledge/`)

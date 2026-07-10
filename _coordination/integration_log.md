@@ -56,3 +56,59 @@ G0 에서 명세 간 충돌 **2건**을 발견해 확정했다. 상세는 `contr
 
 ### 다음
 Phase 1(02·03·04·06) 병렬 착수 **승인 요청**. 임계 경로는 T-30(satisfy 코어).
+
+---
+
+## G1 — 인터페이스 적합성 · 2026-07-10 · **통과**
+
+### 산출물
+| Agent | 경로 | 내용 |
+|---|---|---|
+| 02 데이터 | `knowledge/ontology/` | CD-3 정규화 · `check_seed.py`(일관성 게이트) |
+| 03 RAG | `knowledge/rag/` | 임베딩(mock/st) · Chroma · 하이브리드 검색 · 충분성 · `/categories` |
+| 04 그래프·코어 | `knowledge/reasoning/` | 규칙 컴파일러 · satisfy 3단계 · 명세검증 · reasoner(owlrl 폴백) · 시그니처 캐시 · dry-run |
+| 06 퍼시스턴스 | `knowledge/store/` | Oxigraph 영속 · 읽기전용 SPARQL 게이트 · 트리플+벡터 원자성 · 프로젝트 CRUD |
+| 00 오케스트레이터 | `knowledge/main.py` | 라우터 결선 · 레이어 결선 · 에러 핸들러 |
+
+### 검증 증거 (실행함)
+| 검사 | 결과 |
+|---|---|
+| `pytest knowledge/tests/` | ✅ **61 passed** (rag 7 · store 11 · reasoning 26 · G1 통합 17) |
+| `validate_contracts.py` | ✅ 27건 |
+| `check_seed.py` | ✅ 6문장 · 5규칙 · 게이트 4/3 |
+| `check_seed.py ontology-ref/ontology` (정규화 전) | ✅ **3건 검출** — 검증기가 no-op 아님 |
+| 회귀 `sat-bad` | ✅ `violations=[S1,S3,S4,S6]` · `bases=[S1,"S3,S5",S4,S6]` |
+| 회귀 `sat-good` | ✅ `satisfies=true` |
+| 회귀 `scope-A`/`scope-B` | ✅ 4위반 / 3위반 (CD-4) |
+| 회귀 `sat-pending` | ✅ `200 satisfies=null` (422 아님) |
+| 회귀 `ext-range` | ✅ `causes_range` · `severity=violation` |
+| 회귀 `rag-verified-only` | ✅ `sufficient=true` |
+| BFF↔지식서비스 왕복 | ✅ `X-Trace-Id` 전파 · 지식서비스 down 시 `200 degraded` |
+| bff·frontend typecheck | ✅ 0 errors |
+| 판정 결정론 | ✅ 3회 반복 동일 (SHACL 리포트 순서 비의존) |
+
+### G1 통과 조건
+- [x] 02·03·04·06 산출물이 계약 스키마 검증 통과
+- [x] `sat-bad`·`sat-good`·`scope-A`·`scope-B` 전건 통과
+- [x] mock↔실구현 교체 가능 — `main._wire_layers()` 가 03 의 `MockRuleVerifier` 를 04 실제 컴파일러로 교체
+
+### 이번 페이즈에서 잡은 결함 (전부 실행으로 발견)
+
+1. **CD-8 — 판정 보류 경로가 도달 불가능했다.** `Design` 스키마가 `length_mm`·`spring_n`·`arm_shape` 를 필수로 요구했다. 그러면 수치 결측 요청이 `422` 에서 걸려, 계약이 명시한 `200 satisfies:null` 판정 보류에 **영원히 도달하지 못한다.** → `material`·`vehicle` 만 필수로 바꾸고 나머지는 nullable. (G0 에서 내가 만든 모순)
+
+2. **CD-9 — `verified` 를 게이트 기준으로 하면 정답 근거가 사라진다.** `verified` 를 "SHACL 게이트로 컴파일되었는가"로 구현하면 `mitigate` 규칙이 전부 미검증이 된다. 그런데 AC-2 는 설계 B 만족의 근거로 **S2·S5** 를 요구하고 둘 다 `mitigate` 다. → `verified` = "프로젝트 지식범위로 컴파일된 규칙에 속하는가"(mitigate 포함).
+
+3. **pySHACL 이 정본 shapes 그래프를 오염시켰다.** `pyshacl.validate(shacl_graph=...)` 는 넘겨받은 그래프에 트리플을 주입한다(측정: +2). 결과로 (a) `shapes_hash` 가 매 호출 달라져 **satisfy 시그니처 캐시가 영원히 빗나갔고**(단위 테스트는 통과하는데 HTTP 에서만 실패), (b) `/rules/compile` 의 `shapes_ttl` 이 호출할수록 부풀었다. → 해시는 컴파일 시점 고정, pySHACL 에는 사본 전달. 회귀 테스트 2개 추가.
+
+4. **FastAPI 기본 에러가 계약 에러 모델을 우회했다.** 스키마 위반은 `{"detail":[...]}`, 본문 파싱 실패는 `{"detail":"..."}` 로 나갔다 — `code`·`trace_id` 없음. 05·07 이 두 가지 에러 형태를 다뤄야 했을 것이다. → `RequestValidationError`·`StarletteHTTPException` 핸들러 추가, `details.fields` 로 위반 필드 경로 노출.
+
+5. **SHACL 리포트 순서 비결정성.** 위반 shape 를 리포트 순서대로 모으면 `alternatives`·`violation_bases` 순서가 실행마다 달라진다(NFR 재현성 위반). → 근거 문장 번호로 정렬.
+
+### 알려진 한계 (Phase 2 이전에 인지할 것)
+- **원자성은 보상 롤백**이다(06 보고). 트리플 커밋 후 벡터 upsert 실패 시 트리플을 지운다. 보상 단계 **자체가 실패**하면(크래시·디스크 오류) 불일치가 남는다. 진짜 2PC 가 아니다. 또한 `next_sentence_code` 의 max+1 발급은 다중 프로세스에서 경합 가능.
+- **mock 임베딩은 표층 어휘 매칭**이다(03 보고). 동의어·의역을 못 잡는다. 절대 점수(0.0~0.35)로 임계값 컷을 하면 안 되고 순위·`verified` 만 신뢰해야 한다. 운영 품질은 `EMBEDDING_MODE=st` 필요.
+- **JRE 부재** — HermiT 미가동, owlrl 폴백 중. `/health.reasoner="no_jre"`. FR-12(상위 온톨로지 일관성 검사)를 실제로 검증하려면 JRE 가 필요하다(T-80 Docker).
+- 통합 테스트가 개발용 영속 스토어(`knowledge/data/`)를 공유한다. 서비스가 떠 있으면 Oxigraph 파일 락 충돌로 테스트가 깨진다(재현함). T-82 CI 에서 격리 필요.
+
+### 다음
+Phase 2(05 백엔드 API → 07 프론트) 착수 **승인 요청**. 임계 경로는 T-51~53(SSE·satisfy·QA).

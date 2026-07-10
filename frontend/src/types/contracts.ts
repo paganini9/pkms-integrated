@@ -29,13 +29,15 @@ export interface Violation {
 
 export interface Source { iri: string; sentence?: string; rule?: string; text?: string }
 
+/** CD-8 — 수치·형상은 선택. 누락은 검증 오류가 아니라 satisfies:null 판정 보류. */
 export interface Design {
   id?: string; label?: string;
   material: "Rubber" | "Silicone";
-  length_mm: number; spring_n: number;
-  arm_shape: "simple" | "complex";
   vehicle: "MidSizeSUV" | "CompactSedan";
-  env?: "Winter";
+  length_mm?: number | null;
+  spring_n?: number | null;
+  arm_shape?: "simple" | "complex" | null;
+  env?: "Winter" | null;
 }
 
 // ── SSE (api_standard.md §4.1) ────────────────────────────────────────────

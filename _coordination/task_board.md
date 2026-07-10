@@ -3,7 +3,7 @@
 > 단일 진실 소스. 각 Agent 는 자기 task 만 상태 전이하고, 진행 상세는 `status/<agent>.md` 에 쓴다.
 > 계약 변경은 `agents/통신_프로토콜.md` 의 `contract-change` 절차 — 무단 변경 금지.
 
-**현재 페이즈: Phase 1 착수 대기 (G0 통과, 승인 요청 중)**
+**현재 페이즈: Phase 2 착수 대기 (G0·G1 통과, 승인 요청 중)**
 
 상태: `todo` · `doing` · `blocked` · `review` · `done`
 
@@ -27,24 +27,25 @@
 
 | id | owner | task | deps | 상태 | DoD |
 |---|:--:|---|---|:--:|---|
-| T-10 | 02 | 시드 TTL 적재·정규화 (**CD-3**: `AggravationRule` → `SpringRule`·`ArmRule`) | 계약 | todo | 멱등 적재, 재적재 시 트리플 수 불변 |
-| T-11 | 02 | 6문장·규칙·카테고리 일관성 점검 스크립트 | T-10 | todo | S1~S6 · 5규칙 · 2카테고리 검증 |
-| T-20 | 03 | 임베딩(다국어 ST / **MOCK**) + Chroma 임베디드 | 계약 | todo | `EMBEDDING_MODE=mock` 으로 키 없이 동작 |
-| T-21 | 03 | 하이브리드 검색 + **충분성 판단**(`verified` hit 만 근거) | T-20 | todo | `rag_search_winter_rubber.json` 재현, 미검증 근거 0 |
-| T-22 | 03 | 지식 카테고리 · 프로젝트 지식선택 조회 | T-10 | todo | `GET /categories` 계약 일치 |
-| T-30 | 04 | `satisfy_demo.py` → **satisfy 엔진 서비스화**(3단계) | 계약 + mock store | todo | `satisfy_bad/good.json` 재현, **CD-1** 정규화 |
-| T-31 | 04 | `gen_shacl.py` → **규칙 컴파일러**(문장→규칙→SHACL, 카테고리 필터) | T-30 | todo | **CD-4** 컴파일 시점 필터, A=4게이트/B=3게이트 |
-| T-32 | 04 | `/validate/shacl` — range·disjoint 명세검증 | 계약 | todo | `ext-range` 회귀 통과, **CD-7** severity |
-| T-33 | 04 | reasoner: HermiT(owlready2) + **owlrl 폴백**(JRE 부재) | T-30 | todo | JRE 없이도 일관성 검사 동작 |
-| T-34 | 04 | satisfy **시그니처 캐시** | T-30 | todo | 캐시 히트 시 `cache_hit:true`, 지연 감소 |
-| T-40 | 06 | Oxigraph 영속 스토어 + `/sparql`(읽기 전용) | 계약 | todo | SELECT/ASK/CONSTRUCT 만 허용, 쓰기 쿼리 거부 |
-| T-41 | 06 | `/kg/save`·`/kg/delete` — **트리플+벡터 원자성**(실패 시 롤백) | T-40, T-20 | todo | 벡터 실패 주입 시 트리플 롤백 확인 |
-| T-42 | 06 | 프로젝트·요구·지식범위 CRUD | T-40 | todo | `AC-scope` 재현(A=4위반 / B=3위반) |
+| T-10 | 02 | 시드 TTL 적재·정규화 (**CD-3**: `AggravationRule` → `SpringRule`·`ArmRule`) | 계약 | **done** | 멱등 적재(named graph), 재적재 시 트리플 수 불변 |
+| T-11 | 02 | 6문장·규칙·카테고리 일관성 점검 스크립트 | T-10 | **done** | `check_seed.py` — 정규화 전 원본에서 3건 검출 |
+| T-20 | 03 | 임베딩(다국어 ST / **MOCK**) + Chroma 임베디드 | 계약 | **done** | mock 폴백, st 미설치여도 예외 없음 |
+| T-21 | 03 | 하이브리드 검색 + **충분성 판단**(`verified` hit 만 근거) | T-20 | **done** | 미검증 근거 0, **CD-9** 로 의미 확정 |
+| T-22 | 03 | 지식 카테고리 · 프로젝트 지식선택 조회 | T-10 | **done** | `GET /categories` — 소음 2/2 · 떨림 4/3 |
+| T-30 | 04 | `satisfy_demo.py` → **satisfy 엔진 서비스화**(3단계) | 계약 | **done** | fixture 3종 완전 일치, **CD-1** 정규화 |
+| T-31 | 04 | `gen_shacl.py` → **규칙 컴파일러**(문장→규칙→SHACL, 카테고리 필터) | T-30 | **done** | **CD-4** 컴파일 시점 필터, 4게이트/3게이트 |
+| T-32 | 04 | `/validate/shacl` — range·disjoint 명세검증 | 계약 | **done** | `ext-range` 통과, **CD-7** severity |
+| T-33 | 04 | reasoner: HermiT(owlready2) + **owlrl 폴백**(JRE 부재) | T-30 | **done** | JRE 없이 일관성·고의모순 검출 |
+| T-34 | 04 | satisfy **시그니처 캐시** | T-30 | **done** | pySHACL shapes 오염 수정 후 HTTP 경로에서도 히트 |
+| T-40 | 06 | Oxigraph 영속 스토어 + `/sparql`(읽기 전용) | 계약 | **done** | update 거부, 리터럴 속 `INSERT` 는 통과 |
+| T-41 | 06 | `/kg/save`·`/kg/delete` — **트리플+벡터 원자성**(실패 시 롤백) | T-40, T-20 | **done** | 벡터 실패 주입 → 트리플 원상복귀 (보상 롤백) |
+| T-42 | 06 | 프로젝트·요구·지식범위 CRUD | T-40 | **done** | `compiled_gates` 4/3 |
+| T-35 | 00 | 라우터·레이어 결선 + 에러 핸들러 일관성 | 위 전부 | **done** | FastAPI 기본 에러를 계약 형태로 변환 |
 
-**G1 통과 조건**
-- [ ] 02·03·04·06 산출물이 `contracts/schemas/*.json` 검증 통과 (실/모의 무관)
-- [ ] `satisfy` 회귀 `sat-bad`·`sat-good`·`scope-A`·`scope-B` 전건 통과
-- [ ] 각 Protocol 의 mock↔실구현이 **교체 가능**(동일 시그니처·동일 스키마)
+**G1 판정: 통과** — 근거 `integration_log.md#G1`. `pytest` 61건.
+- [x] 02·03·04·06 산출물이 `contracts/schemas/*.json` 검증 통과
+- [x] `satisfy` 회귀 `sat-bad`·`sat-good`·`scope-A`·`scope-B`·`sat-pending` 전건 통과
+- [x] mock↔실구현 교체 가능 (`main._wire_layers()` 가 03 검증기를 04 컴파일러로 교체)
 
 ---
 
@@ -88,7 +89,9 @@
 
 | 리스크 | 영향 | 완화 |
 |---|---|---|
-| **JRE 미설치**(호스트) | HermiT 불가 → FR-12 일관성검사 | owlrl 폴백(T-33) + Docker JRE(T-80). `/health.reasoner="no_jre"` 로 노출 |
-| reasoner 지연 (xpSHACL 사례 ~65s) | NFR 성능 | 서브그래프 한정 + 시그니처 캐시(T-34) |
-| 트리플/벡터 불일치 | 데이터 손상 | 원자성·롤백(T-41) + 실패 주입 테스트 |
+| **JRE 미설치**(호스트) | HermiT 불가 → FR-12 일관성검사 미검증 | owlrl 폴백(T-33, 동작 확인). Docker JRE(T-80). `/health.reasoner="no_jre"` |
+| reasoner 지연 (xpSHACL 사례 ~65s) | NFR 성능 | 시그니처 캐시(T-34, 동작 확인). 현재 시드 규모에선 수십 ms |
+| **보상 롤백의 한계** | 보상 단계 자체가 실패하면 트리플/벡터 불일치 잔존 | 재기동 시 정합성 스윕 or outbox 도입 검토(Phase 3) |
+| **mock 임베딩의 검색 품질** | 동의어·의역 미검색 → C계층 QA 품질 | 순위·`verified` 만 신뢰, 점수 임계값 금지. 운영은 `EMBEDDING_MODE=st` |
+| 통합 테스트 ↔ 개발 스토어 파일 락 | 서비스 기동 중 테스트 실패(재현함) | T-82 CI 에서 임시 데이터 디렉터리로 격리 |
 | `gh` CLI 부재 | PR 자동화 불가 | 원격 이미 연결됨. PR 은 재현님 요청 시 |

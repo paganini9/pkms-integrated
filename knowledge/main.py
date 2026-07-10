@@ -11,12 +11,18 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from core import logging as applog
 from core.config import settings
+from rag.routes import router as rag_router
+from reasoning.reasoner import reasoner_status
+from reasoning.routes import router as reasoning_router
 from schemas.errors import AppError
 from schemas.models import HealthResponse
+from store.routes import router as store_router
 
 log = logging.getLogger("knowledge")
 
@@ -24,10 +30,31 @@ log = logging.getLogger("knowledge")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     applog.configure(settings.log_level)
-    log.info("지식 서비스 기동 — embedding_mode=%s", settings.embedding_mode)
-    # Phase 1: 06 이 시드 TTL 멱등 적재, 03 이 벡터 초기 인덱싱을 여기에 건다.
+    log.info(
+        "지식 서비스 기동 — embedding_mode=%s reasoner=%s", settings.embedding_mode, reasoner_status()
+    )
+    _wire_layers()
     yield
     log.info("지식 서비스 종료")
+
+
+def _wire_layers() -> None:
+    """레이어 결선 — 오케스트레이터 소유 (각 Agent 는 자기 레이어만 만든다).
+
+    03 RAG 의 `verified` 는 "그 문장의 규칙이 실제로 SHACL 게이트가 되었는가"여야 한다.
+    기본값인 `MockRuleVerifier` 는 rules.ttl 에 존재하기만 하면 True 라 의미가 약하다.
+    여기서 04 의 실제 규칙 컴파일러를 꽂아 준다(mock → 실구현 교체 = G1 조건).
+    """
+    from rag.routes import get_retriever
+    from rag.verifier import CompiledRuleVerifier
+    from reasoning.routes import get_compiler
+
+    try:
+        retriever = get_retriever()
+        retriever.verifier = CompiledRuleVerifier(compiler=get_compiler())
+        log.info("RAG verified 판정을 04 규칙 컴파일러에 연결")
+    except Exception:  # noqa: BLE001 — 검색기 초기화 실패가 서비스 기동을 막지 않는다
+        log.exception("RAG 결선 실패 — mock 검증기로 계속")
 
 
 app = FastAPI(
@@ -55,6 +82,43 @@ async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
     return JSONResponse(status_code=exc.http_status, content=exc.to_body(trace_id))
 
 
+@app.exception_handler(RequestValidationError)
+async def validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+    """FastAPI 기본 핸들러는 `{"detail": [...]}` 를 뱉는다 — 우리 에러 모델이 아니다.
+
+    계약은 모든 에러 본문이 `{code, user_message, trace_id}` 이길 요구한다(error_model.md §1).
+    이걸 덮지 않으면 05·07 이 두 가지 에러 형태를 다뤄야 한다.
+    """
+    trace_id = applog.get_trace_id()
+    fields = [".".join(str(p) for p in err.get("loc", ()) if p != "body") for err in exc.errors()]
+    log.warning("VALIDATION_ERROR: %s", exc.errors())
+    return JSONResponse(
+        status_code=422,
+        content={
+            "code": "VALIDATION_ERROR",
+            "user_message": "입력값을 확인해 주세요.",
+            "trace_id": trace_id,
+            "details": {"fields": [f for f in fields if f]},
+        },
+    )
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
+    """본문 파싱 실패(400)·404·405 등 프레임워크가 던지는 HTTP 예외도 계약 형태로 맞춘다."""
+    trace_id = applog.get_trace_id()
+    code = {400: "VALIDATION_ERROR", 404: "NOT_FOUND", 405: "VALIDATION_ERROR"}.get(exc.status_code, "INTERNAL")
+    user_message = {
+        "VALIDATION_ERROR": "입력값을 확인해 주세요.",
+        "NOT_FOUND": "대상을 찾을 수 없습니다.",
+        "INTERNAL": "일시적인 오류입니다.",
+    }[code]
+    log.warning("%s (%s): %s", code, exc.status_code, exc.detail)
+    return JSONResponse(
+        status_code=exc.status_code, content={"code": code, "user_message": user_message, "trace_id": trace_id}
+    )
+
+
 @app.exception_handler(Exception)
 async def unhandled_handler(request: Request, exc: Exception) -> JSONResponse:
     trace_id = applog.get_trace_id()
@@ -67,20 +131,17 @@ async def unhandled_handler(request: Request, exc: Exception) -> JSONResponse:
 
 @app.get("/health", response_model=HealthResponse)
 async def health() -> HealthResponse:
-    # Phase 1 에서 각 레이어가 실제 상태를 채운다. reasoner 는 JRE 부재 시 "no_jre"(owlrl 폴백).
+    # reasoner 는 JRE 부재 시 "no_jre" — owlrl 폴백으로 계속 동작한다. 숨기지 않는다.
     return HealthResponse(
         status="ok",
         store="ok",
-        reasoner="no_jre",
-        rag="ok",
+        reasoner=reasoner_status(),
+        rag="ok",  # 임베딩 모드(mock/st)는 기동 로그에 남긴다 — 계약 fixture 는 "ok"
         trace_id=applog.get_trace_id(),
     )
 
 
-# ── 라우터 include (Phase 1 에서 각 Agent 가 채운다 — 오케스트레이터 경유) ──
-# from store.routes import router as store_router          # 06: /sparql · /kg/* · /projects*
-# from reasoning.routes import router as reasoning_router  # 04: /validate/shacl · /reason/* · /satisfy · /rules/*
-# from rag.routes import router as rag_router              # 03: /rag/*
-# app.include_router(store_router)
-# app.include_router(reasoning_router)
-# app.include_router(rag_router)
+# ── 라우터 include (공유 파일 — 변경은 오케스트레이터 경유) ──
+app.include_router(reasoning_router)  # 04: /validate/shacl · /reason/* · /satisfy · /rules/*
+app.include_router(rag_router)  # 03: /rag/* · /categories
+app.include_router(store_router)  # 06: /sparql · /kg/* · /projects*

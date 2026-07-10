@@ -59,13 +59,15 @@ class Source(Strict):
 
 
 class Design(Strict):
+    """CD-8 — 수치·형상은 선택. 결측은 422 가 아니라 `satisfies:null` 판정 보류로 간다."""
+
+    material: Literal["Rubber", "Silicone"]
+    vehicle: Literal["MidSizeSUV", "CompactSedan"]
     id: str | None = None
     label: str | None = None
-    material: Literal["Rubber", "Silicone"]
-    length_mm: Annotated[int, Field(gt=0, le=2000)]
-    spring_n: Annotated[int, Field(gt=0, le=1000)]
-    arm_shape: Literal["simple", "complex"]
-    vehicle: Literal["MidSizeSUV", "CompactSedan"]
+    length_mm: Annotated[int, Field(gt=0, le=2000)] | None = None
+    spring_n: Annotated[int, Field(gt=0, le=1000)] | None = None
+    arm_shape: Literal["simple", "complex"] | None = None
     env: Literal["Winter"] | None = None
 
 
