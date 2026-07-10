@@ -155,7 +155,7 @@ class SatisfyEngine(Protocol):
 
 # rag/ — 03 RAG·지식
 class Embedder(Protocol):
-    def encode(self, texts: list[str]) -> list[list[float]]: ...   # 다국어 ST, EMBEDDING_MODE=mock이면 해시 기반 결정론 벡터
+    def encode(self, texts: list[str]) -> list[list[float]]: ...   # 다국어 ST, EMBEDDING_PROVIDER=mock이면 해시 기반 결정론 벡터
 
 class Retriever(Protocol):
     def search(self, query: str, k: int = 6, project_id: str | None = None) -> list[Hit]: ...

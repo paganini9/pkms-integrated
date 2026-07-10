@@ -26,6 +26,7 @@
 | v1.3 | 2026-07-10 | **CD-12** — `insufficient_evidence` 가 도달 불가능했다. `sufficient` 에 **도메인 접지(grounding)** 조건 추가 | 03·05·08 |
 | v1.4 | 2026-07-10 | **CD-13** — 접지를 라우팅 **뒤**에 두어 라우팅이 우회로가 되었다. 각 계층이 입력을 **날조**한다. 전 계층 fail-closed | 05·07·08 |
 | v1.5 | 2026-07-10 | **CD-14** — 근거 없는 `answer()` 호출이 곧 환각 답변이다. 검증답변과 LLM단독답변의 **호출 분리** | 05·07·08 |
+| v1.5 | 2026-07-11 | **표기 통일(동작 불변)** — `EMBEDDING_MODE`(mock\|st) → `EMBEDDING_PROVIDER`(mock\|local\|solar), 값 `st`→`local`. 임베딩=로컬(sentence-transformers) 결정 반영. 계약 표면·스키마·`Embedder` 시그니처 불변이므로 **버전업 없음** | 03 |
 
 ## 1. 불변 원칙 (계약보다 상위)
 
@@ -33,7 +34,7 @@
 2. **내부 구조 비노출** — 지식서비스는 내부망 전용. 외부에 노출되는 표면은 BFF `/api/v1` 뿐이다. 응답에 트리플·블랭크노드·내부 그래프 구조를 그대로 흘리지 않는다.
 3. **결정론 우선** — `satisfy`·명세검증의 **판정 주체는 reasoner/SHACL**이다. LLM은 생성(추출 초안·문장 파싱·자연어 답변)만 한다. 판정 필드(`satisfies`, `conforms`, `violations`)는 절대 LLM 출력으로 채우지 않는다.
 4. **HITL 게이트** — `/extraction/save`, 상위 온톨로지 저장, 규칙 변경 저장, satisfy 채택은 `approved: true` 없이는 수행되지 않는다.
-5. **MOCK 우선** — API 키가 없어도 전 흐름이 Mock으로 끝까지 동작해야 한다(`AI_MOCK_MODE=true`, `EMBEDDING_MODE=mock`).
+5. **MOCK 우선** — API 키가 없어도 전 흐름이 Mock으로 끝까지 동작해야 한다(`AI_MOCK_MODE=true`, `EMBEDDING_PROVIDER=mock`).
 6. **시크릿 분리** — 키는 프로세스 환경변수로만. 코드·`.env`·git·이미지·로그(마스킹)에 금지.
 
 ## 2. 계약 결정 (Contract Decisions) — 명세의 모호함을 여기서 확정

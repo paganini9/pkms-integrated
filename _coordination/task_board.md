@@ -109,6 +109,6 @@ Phase 2 의 임계 경로는 **T-55 → T-53/54** 다. T-55 가 늦으면 05 는
 | **JRE 미설치**(호스트) | HermiT 불가 → FR-12 일관성검사 미검증 | owlrl 폴백(T-33, 동작 확인). Docker JRE(T-80). `/health.reasoner="no_jre"` |
 | reasoner 지연 (xpSHACL 사례 ~65s) | NFR 성능 | 시그니처 캐시(T-34, 동작 확인). 현재 시드 규모에선 수십 ms |
 | **보상 롤백의 한계** | 보상 단계 자체가 실패하면 트리플/벡터 불일치 잔존 | 재기동 시 정합성 스윕 or outbox 도입 검토(Phase 3) |
-| **mock 임베딩의 검색 품질** | 동의어·의역 미검색 → C계층 QA 품질 | 순위·`verified` 만 신뢰, 점수 임계값 금지. 운영은 `EMBEDDING_MODE=st` |
+| **mock 임베딩의 검색 품질** | 동의어·의역 미검색 → C계층 QA 품질 | 순위·`verified` 만 신뢰, 점수 임계값 금지. 운영은 `EMBEDDING_PROVIDER=local` |
 | 통합 테스트 ↔ 개발 스토어 파일 락 | 서비스 기동 중 테스트 실패(재현함) | T-82 CI 에서 임시 데이터 디렉터리로 격리 |
 | `gh` CLI 부재 | PR 자동화 불가 | 원격 이미 연결됨. PR 은 재현님 요청 시 |
