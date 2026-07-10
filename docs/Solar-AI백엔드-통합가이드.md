@@ -84,7 +84,7 @@ export async function extractStructured(prompt: string, schema: object) {
 
 > **확정: 로컬 임베딩(sentence-transformers)** — 프로그램이 임베딩을 무료로 주지 않으므로 **API·비용 0의 로컬**을 채택. **기본 모델 = MiniLM 다국어(384)**. Solar 임베딩은 옵션으로 보존.
 >
-> **구현 상태(Phase 1)**: `knowledge/rag/embedder.py`에 `MockEmbedder`+`StEmbedder`로 **이미 구현**됨(MOCK-first). 코드의 설정명은 `EMBEDDING_MODE(mock|st)`였고 → 이 가이드 표기 **`EMBEDDING_PROVIDER(mock|local|solar)`로 통일**(리네임: [임베딩-로컬-전환-지침.md]). 개발 기본값은 `mock`(무의존 동작), 실임베딩은 `local`(=StEmbedder, `requirements-ml.txt` 필요).
+> **구현 상태(Phase 1)**: `knowledge/rag/embedder.py`에 `MockEmbedder`+`StEmbedder`로 **이미 구현**됨(MOCK-first). 코드의 설정명은 `EMBEDDING_MODE(mock|st)`였으나 이 가이드 표기 **`EMBEDDING_PROVIDER(mock|local|solar)`로 통일 완료**(2026-07-11 리네임 반영: [임베딩-로컬-전환-지침.md]). 개발 기본값은 `mock`(무의존 동작), 실임베딩은 `local`(=StEmbedder, `requirements-ml.txt` 필요).
 
 ### 5.1 로컬 임베딩 (기본, `EMBEDDING_PROVIDER=local`)
 ```python
@@ -164,6 +164,6 @@ SOLAR_EMBED_PASSAGE_MODEL=solar-embedding-2-passage
 1. ✅ **확정**: (Solar 옵션 사용 시) `solar-embedding-2-query`/`-passage`, **1024차원**, 정규화 벡터, 8k 컨텍스트, 배치 ≤100/204,800토큰. v2 **무료 2026-07-20까지**. v1-large 별칭 `embedding-*`는 4096·**2026-08-31 종료**.
 2. `solar-pro3`의 **`response_format: json_schema` strict** 지원 범위(미확정 → "JSON만 출력" 프롬프트+파서 폴백).
 3. **레이트리밋**: chat RPM 100 / TPM 300,000 — 다중에이전트·대량 추출 시 스로틀·배치·캐시 설계.
-4. ✅ **결정**: 임베딩 = **로컬 sentence-transformers**, 기본 **MiniLM 다국어(384)**(대안 bge-m3 1024·ko-sroberta 768) — 프로그램이 임베딩 무료 미포함. 설정명 `EMBEDDING_PROVIDER`(mock|local|solar), 개발 기본 `mock`. Phase 1 코드에 이미 구현(리네임만 반영). chat(Solar-Pro)·Document-Parse는 프로그램 무료(~2027-03-31).
+4. ✅ **결정**: 임베딩 = **로컬 sentence-transformers**, 기본 **MiniLM 다국어(384)**(대안 bge-m3 1024·ko-sroberta 768) — 프로그램이 임베딩 무료 미포함. 설정명 `EMBEDDING_PROVIDER`(mock|local|solar), 개발 기본 `mock`. Phase 1 코드에 이미 구현, **리네임 반영 완료(2026-07-11)**. chat(Solar-Pro)·Document-Parse는 프로그램 무료(~2027-03-31).
 
 Sources: Upstage 제공 샘플 코드(사용자), [Upstage Console — Models](https://console.upstage.ai/docs/models), [Qdrant — Upstage embeddings (query/passage, dim 4096)](https://qdrant.tech/documentation/embeddings/upstage/)
