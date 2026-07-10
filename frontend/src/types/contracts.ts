@@ -95,6 +95,53 @@ export interface QaResponse {
   trace_id: string;
 }
 
+// ── extraction/validate · save (§4.2 · §4.3) ─────────────────────────────
+export interface ValidateResponse { conforms: boolean; violations: Violation[]; trace_id: string }
+
+export interface SavedSentence {
+  id: string; iri: string; text: string; category: string;
+  mentions: string[]; about_symptom: string; polarity: Polarity;
+}
+export interface DerivedRule {
+  id: string; label: string; polarity: Polarity; category: string;
+  about_symptom?: string; basis?: string;
+  conds: { path: string; op: string; val: string }[];
+}
+export interface DerivedShape { id: string; gate_for: string; sentence: string }
+export interface CausalEdge { subject: string; predicate: string; object: string; evidence?: string }
+export interface SaveResponse {
+  sentence: SavedSentence;
+  derived: { rule: DerivedRule; shapes: DerivedShape[]; causal_edges: CausalEdge[] };
+  human_view: string[];
+  trace_id: string;
+}
+
+// ── 프로젝트 (§4.7) ────────────────────────────────────────────────────────
+export interface ProjectResponse {
+  id: string; iri?: string; name: string;
+  target_vehicle?: string; target_env?: string;
+  knowledge_categories: string[];
+  requirements?: RequirementBehavior[];
+  designs?: unknown[];
+  trace_id?: string;
+}
+
+// ── 프로젝트 요구사항 (§4.7, AC-1P) ────────────────────────────────────────
+export interface RequirementBehavior { id: string; iri?: string; label: string; forbids_symptom: string }
+export interface RequirementsResponse {
+  requirements: RequirementBehavior[];
+  unknown_symptoms: string[];
+  trace_id: string;
+}
+
+// ── health (§4.10) ─────────────────────────────────────────────────────────
+export interface HealthResponse {
+  status: "ok" | "degraded";
+  llm_provider: "mock" | "claude" | "gemini";
+  knowledge?: { status: string; store: string; reasoner: string; rag: string };
+  trace_id: string;
+}
+
 // ── 지식맵 ────────────────────────────────────────────────────────────────
 export interface GraphNode {
   id: string; label: string;

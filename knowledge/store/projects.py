@@ -20,13 +20,16 @@ from schemas.models import (
     Requirement,
 )
 from store.oxigraph import (
+    CREATED_AT,
     DOM,
     ENG,
     RDF_TYPE,
     RDFS_LABEL,
     SPMM,
+    XSD_DATETIME,
     OxigraphStore,
     _localname,
+    utc_now_iso,
 )
 
 _PROJ_ID = f"{DOM}projectId"
@@ -56,6 +59,11 @@ class ProjectService:
             ox.Quad(node, ox.NamedNode(_PROJ_ID), ox.Literal(pid)),
             ox.Quad(node, ox.NamedNode(RDFS_LABEL), ox.Literal(name)),
             ox.Quad(node, ox.NamedNode(f"{DOM}targetVehicle"), ox.NamedNode(f"{DOM}{target_vehicle}")),
+            ox.Quad(
+                node,
+                ox.NamedNode(CREATED_AT),
+                ox.Literal(utc_now_iso(), datatype=ox.NamedNode(XSD_DATETIME)),
+            ),
         ]
         if target_env:
             quads.append(

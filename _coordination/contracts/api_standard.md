@@ -105,8 +105,9 @@ event: error       data: {"code":"LLM_ERROR","user_message":"...","trace_id":"..
 ```json
 { "sentence_text": "겨울철 저온에서 고무는 경도가 상승해 소음을 유발한다.",
   "concepts": [...], "relations": [...], "category": "소음",
-  "approved": true, "project_id": "uuid?" }
+  "approved": true, "project_id": "uuid?", "draft_id": "uuid?" }
 ```
+`draft_id` 는 `/extraction/stream` 의 `done` 이벤트가 준 값이다. 멱등 키로 쓰여 중복 저장을 막는다(§6 Idempotency). v1.3 에 문서화(07 보고 — fixture 에는 있었으나 이 예시에 빠져 있었다).
 응답 `201`:
 ```json
 { "sentence": { "id": "S7", "iri": "http://ex.org/domain#S7", "text": "...", "category": "소음",
@@ -161,7 +162,8 @@ event: error       data: {"code":"LLM_ERROR","user_message":"...","trace_id":"..
 ```
 - `violations` / `violation_bases` 정규화는 **CD-1**. `justification`은 감사 로그로도 보존(NFR 관측성).
 - 3단계는 항상 `steps`에 순서대로 실린다: `subsumption` → `shacl_interval` → `symptom_free`.
-- 수치 누락 시: `satisfies: null`, `pending_reason: "missing_required"`, `violations: []`, SHACL 경고를 `steps[1].checks`에 실어 반환(200).
+- 수치 누락 시: `satisfies: null`, `pending_reason: "missing_required"`, `violations: []`, SHACL 경고를 **`steps[1].warnings[]`** 에 실어 반환(200).
+  `checks` 는 실제로 비교한 구간 검사만 담는다(판정 못 한 항목은 `checks` 가 아니라 `warnings`). v1.3 정정 — 본 문서 §3 CD-8 과 이 줄이 서로 달랐다(07 보고, fixture `satisfy_pending_missing.json` 이 정본).
 
 ### 4.5 `POST /api/v1/qa` (FR-06~09)
 요청 `{ "question": "중형 SUV에 고무 600mm 써도 될까?", "mode": "compare"|"verified", "project_id"?: string, "thread_id"?: string }`

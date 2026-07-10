@@ -29,12 +29,19 @@ frontend ──/api/v1──▶ bff (Node)  ──HTTP(내부)──▶ knowledg
 | POST | `/satisfy` | 04 | satisfy 3단계 판정 |
 | POST | `/rules/compile` | 04 | 문장→규칙→SHACL 파생 (카테고리 필터) |
 | POST | `/rules/dry-run` | 04 | 규칙 변경 시뮬레이션 |
-| POST | `/sparql` | 06 | **읽기 전용** SELECT/ASK/CONSTRUCT |
+| POST | `/sparql` | 06 | **읽기 전용** SELECT/ASK/CONSTRUCT. **CD-11: BFF 는 호출하지 않는다**(관리자·디버깅 전용) |
+| POST | `/kg/lookup` | 06 | **CD-11 신설** — 화이트리스트 명명 질의. Q&A A계층의 유일한 경로 |
 | POST | `/kg/save` | 06 | 트리플 + 벡터 원자적 upsert |
 | POST | `/kg/delete` | 06 | 트리플 + 벡터 원자적 삭제 |
 | POST | `/rag/search` | 03 | 하이브리드 검색 + 충분성 판단 |
 | POST | `/rag/upsert` | 03 | 임베딩 upsert |
 | GET/POST/PUT | `/projects*` | 06 | 프로젝트·요구·지식범위 CRUD |
+| GET | `/graph` | 06 | **CD-10 신설** — 노드·엣지·통계 (`inferred` 표시) |
+| GET | `/dashboard` | 06 | **CD-10 신설** — M0/M1/M2 카운트 + 최근 활동 |
+| GET/POST/DELETE | `/governance/concepts*` | 06 | **CD-10 신설** — builtin/custom 개념 |
+| GET/POST | `/upper-ontology/classes` | 04 | **CD-10 신설** — 클래스·관계 트리 · 편집 |
+| POST | `/upper-ontology/impact` | 04 | **CD-10 신설** — 영향 M1/M2 |
+| GET | `/rules` · `/rules/{id}/impact` | 04 | **CD-10 신설** — 생성 뷰(읽기전용) · 규칙 영향 |
 
 ### 1.1 요청/응답 (핵심 4개)
 
@@ -75,6 +82,47 @@ res  { "hits":[{"iri":"http://ex.org/domain#S1","sentence":"S1","text":"...","sc
 - `verified` (**CD-9**): 그 문장의 규칙이 **프로젝트 지식범위로 컴파일된 규칙 집합**에 속하는가. `mitigate` 규칙(게이트 없음)도 포함된다 — AC-2 의 근거 S2·S5 가 mitigate 다. 미검증 = 알 수 없는 규칙 · 지식범위 밖(CD-4) · 컴파일 실패.
 - **`verified:false`인 hit는 답변 근거로 쓰지 않는다**(루브릭 "RAG 충분성: 미검증 근거 0").
 - `sufficient`: `verified:true` hit가 1건 이상.
+
+### 1.2 CD-10·CD-11 신설 엔드포인트 (Phase 2, T-55)
+
+모두 **내부 전용**. 역할 게이트(CD-5)는 BFF 가 걸고, 지식서비스는 인증을 모른다.
+
+**`POST /kg/lookup`** — CD-11. Q&A A계층의 유일한 경로.
+```json
+req  { "query": "max_safe_length", "params": {"vehicle":"MidSizeSUV"} }
+res  { "query":"max_safe_length",
+       "rows":[{"vehicle":"MidSizeSUV","max_safe_mm":599,"sentence":"S3"}],
+       "sources":[{"sentence":"S3","iri":"http://ex.org/domain#S3","text":"중형 SUV에서 ..."}],
+       "trace_id":"..." }
+```
+- 화이트리스트: `max_safe_length` · `symptom_causes` · `rule_sentences` · `concept_relations`. 그 밖 → `422 VALIDATION_ERROR`.
+- `params` 는 **IRI 바인딩**(`initBindings` 상당). SPARQL 문자열 보간 금지.
+- `rows` 가 비면 BFF 는 "명세 근거 없음" 분기로 간다(억지 답 금지).
+
+**`GET /graph`** — `?layer=M0|M1|M2&symptom=&sentence=&project_id=&limit=500` → `GraphResponse`(`schemas/models.py` 에 이미 존재). `inferred:true` 는 추론 엣지.
+
+**`GET /dashboard`** → `{ "m0":{"classes":int,"relations":int}, "m1":{"sentences":int,"rules":int,"concepts":int}, "m2":{"projects":int,"designs":int,"violations":int}, "recent":[{"kind":"sentence","id":"S6","label":"...","at":"ISO-8601"}], "trace_id":"..." }`
+
+**거버넌스** (AC-8)
+```
+GET    /governance/concepts        → { "builtin":[{"id":"Symptom","label":"증상"}], "custom":[...] }
+POST   /governance/concepts        req { "id":"Vibration","label":"진동","parent":"Symptom","approved":true }
+DELETE /governance/concepts/{id}   custom → 200 · builtin → 400 BUILTIN_LOCKED
+```
+
+**상위 온톨로지** (FR-12·AC-6)
+```
+GET  /upper-ontology/classes   → { "classes":[{"id":"Symptom","parent":"owl:Thing","children":[...]}], "relations":[{"id":"causes","domain":"...","range":"Symptom"}] }
+POST /upper-ontology/classes   req { "changes":[...], "approved":true }   # approved!=true → 409 GUARDRAIL_BLOCKED
+POST /upper-ontology/impact    req { "changes":[...] } → { "affected_m1":["S1"], "affected_m2":["Blade_bad"] }
+```
+> 일관성 검사는 **신설하지 않는다** — 기존 `POST /reason/consistency` 를 BFF 가 `/upper-ontology/consistency` 로 매핑한다.
+
+**규칙 조회** (FR-13, 읽기 전용 — PUT/PATCH 없음)
+```
+GET /rules              → { "rules":[...], "shapes":[...], "human_view":[...] }   # rules/compile 의 조회판
+GET /rules/{id}/impact  → { "affected_instances":[...] }
+```
 
 ## 2. 레이어 Protocol — Python (`knowledge/`)
 
@@ -148,11 +196,16 @@ interface KnowledgeClient {
   validateShacl(req: ValidateReq): Promise<ValidateRes>;
   satisfy(req: SatisfyReq): Promise<SatisfyRes>;      // 응답 무변형 통과
   kgSave(req: SaveReq): Promise<SaveRes>;
-  sparql(query: string): Promise<Row[]>;
+  kgLookup(query: NamedQuery, params: Record<string, string>): Promise<LookupRes>;  // CD-11
   ragSearch(req: SearchReq): Promise<SearchRes>;
   rulesCompile(categories?: string[]): Promise<CompiledRules>;
   rulesDryRun(req: DryRunReq): Promise<DryRunRes>;
+  graph(q: GraphQuery): Promise<GraphRes>;            // CD-10
+  dashboard(): Promise<DashboardRes>;                 // CD-10
+  // 관리자: governance*(), upperOntology*(), rules() — CD-10
 }
+type NamedQuery = "max_safe_length" | "symptom_causes" | "rule_sentences" | "concept_relations";
+// CD-11: sparql(query: string) 은 존재하지 않는다. BFF 는 SPARQL 을 만들지 않는다.
 ```
 
 **추출 Structured Output 스키마** (LLM 강제 출력 — 기술설계 §4):
@@ -166,7 +219,7 @@ interface KnowledgeClient {
 
 | layer | 판정 기준 | 처리 | 결정론 |
 |:--:|---|---|:--:|
-| A | 규칙·수치 질문 ("안전 길이는?") | 지식서비스 `POST /sparql` | 100% |
+| A | 규칙·수치 질문 ("안전 길이는?") | 지식서비스 `POST /kg/lookup` (명명 질의, **CD-11**) | 100% |
 | B | 설계 검증 질문 ("고무 600mm 써도 될까?") | `POST /satisfy` | 100% |
 | C | 자유 질의 | `POST /rag/search` → `verified` hit만 → `aiGateway.answer` | 근거만 결정론 |
 

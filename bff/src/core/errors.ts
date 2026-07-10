@@ -80,3 +80,21 @@ export class KnowledgeUnavailable extends AppError {
     super("KNOWLEDGE_UNAVAILABLE", "지식 서비스에 연결할 수 없습니다.", 503, internal);
   }
 }
+
+export class BuiltinLocked extends AppError {
+  constructor(internal?: string) {
+    super("BUILTIN_LOCKED", "기본 개념은 삭제할 수 없습니다.", 400, internal);
+  }
+}
+
+export class NotFound extends AppError {
+  constructor(internal?: string) {
+    super("NOT_FOUND", "대상을 찾을 수 없습니다.", 404, internal);
+  }
+}
+
+export class StoreError extends AppError {
+  constructor(internal?: string) {
+    super("STORE_ERROR", "저장에 실패했습니다. 변경사항은 반영되지 않았습니다.", 500, internal);
+  }
+}

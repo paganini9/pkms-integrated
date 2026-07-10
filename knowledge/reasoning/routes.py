@@ -16,8 +16,10 @@ from rdflib import Graph
 from core.logging import get_trace_id
 from reasoning.compiler import RuleCompiler
 from reasoning.reasoner import Reasoner
+from reasoning.rule_views import RuleViews
 from reasoning.satisfy import SatisfyEngine
 from reasoning.spec_validate import SpecValidator
+from reasoning.upper_ontology import UpperOntology
 from schemas.errors import NotFound, ValidationError
 from schemas.models import (
     SatisfyRequest,
@@ -48,6 +50,15 @@ def get_reasoner() -> Reasoner:
 @lru_cache(maxsize=1)
 def get_spec_validator() -> SpecValidator:
     return SpecValidator()
+
+
+@lru_cache(maxsize=1)
+def get_upper_ontology() -> UpperOntology:
+    return UpperOntology()
+
+
+def get_rule_views() -> RuleViews:
+    return RuleViews(get_engine())
 
 
 # ── 명세 검증 (FR-02) ─────────────────────────────────────────────────────
@@ -199,3 +210,44 @@ def dry_run(
     categories = set(req.categories) if req.categories is not None else None
     new_violations, affected = engine.dry_run(override, categories)
     return DryRunResponse(new_violations=new_violations, affected_instances=affected, trace_id=get_trace_id())
+
+
+# ── CD-10 · FR-12 · AC-6: 상위 온톨로지 ────────────────────────────────────
+class UpperEditRequest(Strict):
+    changes: list[dict]
+    approved: bool = False
+
+
+class UpperImpactRequest(Strict):
+    changes: list[dict]
+
+
+@router.get("/upper-ontology/classes")
+def upper_classes(uo: Annotated[UpperOntology, Depends(get_upper_ontology)]) -> dict:
+    return uo.classes()
+
+
+@router.post("/upper-ontology/classes")
+def upper_edit(
+    req: UpperEditRequest, uo: Annotated[UpperOntology, Depends(get_upper_ontology)]
+) -> dict:
+    """HITL 게이트 — approved!=true 면 409 GUARDRAIL_BLOCKED (불변원칙 4)."""
+    return uo.edit(req.changes, req.approved)
+
+
+@router.post("/upper-ontology/impact")
+def upper_impact(
+    req: UpperImpactRequest, uo: Annotated[UpperOntology, Depends(get_upper_ontology)]
+) -> dict:
+    return uo.impact(req.changes)
+
+
+# ── CD-10 · FR-13: 규칙 조회(읽기 전용 — PUT/PATCH 없음) ─────────────────────
+@router.get("/rules")
+def rules_list(views: Annotated[RuleViews, Depends(get_rule_views)]) -> dict:
+    return views.list()
+
+
+@router.get("/rules/{rule_id}/impact")
+def rules_impact(rule_id: str, views: Annotated[RuleViews, Depends(get_rule_views)]) -> dict:
+    return views.impact(rule_id)

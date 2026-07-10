@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -30,6 +31,13 @@ SPMM = "http://ex.org/spmm#"
 ENG = "http://ex.org/eng#"
 RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label"
+XSD_DATETIME = "http://www.w3.org/2001/XMLSchema#dateTime"
+CREATED_AT = f"{DOM}createdAt"  # 대시보드 recent 용 생성 시각(런타임 저장분만)
+
+
+def utc_now_iso() -> str:
+    """대시보드 recent 의 `at` 값. 초 단위 ISO-8601 UTC."""
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 _SEED_GRAPH = "http://ex.org/seed/"  # 시드 파일별 그래프 prefix
 _SCODE = re.compile(r"^S(\d+)$")
@@ -148,6 +156,11 @@ class OxigraphStore:
             ox.Quad(node, ox.NamedNode(f"{DOM}category"), ox.Literal(category)),
             ox.Quad(node, ox.NamedNode(f"{DOM}polarity"), ox.Literal(polarity)),
             ox.Quad(node, ox.NamedNode(f"{DOM}basis"), ox.Literal(code)),
+            ox.Quad(
+                node,
+                ox.NamedNode(CREATED_AT),
+                ox.Literal(utc_now_iso(), datatype=ox.NamedNode(XSD_DATETIME)),
+            ),
         ]
         if about_symptom:
             quads.append(

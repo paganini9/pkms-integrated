@@ -1,28 +1,16 @@
-/** BFF `/api/v1` 클라이언트. 프론트는 지식서비스를 직접 호출하지 않는다. */
-import type { ApiError, GraphResponse, QaResponse, SatisfyResponse } from "../types/contracts";
+/**
+ * API 경계 스위치 — VITE_USE_MOCK 로 mock/real 교체.
+ * 기본값 mock (05 백엔드 BFF 와 병렬 개발; BFF 미완이어도 전 화면 동작).
+ * 실제 API 연결 시 `VITE_USE_MOCK=false` 로 빌드/실행한다.
+ */
+import { mockApi } from "./mockApi";
+import { realApi } from "./realApi";
+import type { PkmsApi } from "./types";
 
-const BASE = "/api/v1";
+const useMock = (import.meta.env.VITE_USE_MOCK ?? "true") !== "false";
 
-export class ApiCallError extends Error {
-  constructor(public readonly body: ApiError) {
-    // 기술 메시지 대신 다음 행동 안내를 보여준다 (기술설계 §7 에러 UX).
-    super(body.user_message);
-  }
-}
+export const api: PkmsApi = useMock ? mockApi : realApi;
+export const USING_MOCK = useMock;
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
-    ...init,
-    headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
-  });
-  const body = await res.json();
-  if (!res.ok) throw new ApiCallError(body as ApiError);
-  return body as T;
-}
-
-export const api = {
-  health: () => request<{ status: string; llm_provider: string }>("/health"),
-  satisfy: (req: unknown) => request<SatisfyResponse>("/satisfy", { method: "POST", body: JSON.stringify(req) }),
-  qa: (req: unknown) => request<QaResponse>("/qa", { method: "POST", body: JSON.stringify(req) }),
-  graph: (params: Record<string, string>) => request<GraphResponse>(`/graph?${new URLSearchParams(params)}`),
-};
+export { ApiCallError } from "./types";
+export type * from "./types";

@@ -1,0 +1,36 @@
+{
+  "_comment": "AC-2 설계 B(실리콘·550·12N·complex·소형세단) — 회귀 sat-good. 근거 S2·S5.",
+  "_request": {
+    "project_id": "proj-winter-suv",
+    "design": { "id": "Blade_good", "material": "Silicone", "length_mm": 550, "spring_n": 12, "arm_shape": "complex", "vehicle": "CompactSedan", "env": "Winter" },
+    "require": ["RB_Winter", "RB_NoChatter"]
+  },
+  "satisfies": true,
+  "pending_reason": null,
+  "applied_categories": ["소음", "떨림"],
+  "steps": [
+    { "stage": "subsumption", "ok": true, "detail": "재질 실리콘 ⊑ 저소음(S2)" },
+    {
+      "stage": "shacl_interval",
+      "ok": true,
+      "checks": [
+        { "name": "길이 구간포함 length ≤ maxSafe", "expr": "550 ≤ 550", "ok": true },
+        { "name": "스프링 임계 springN ≥ 10", "expr": "12 ≥ 10", "ok": true }
+      ]
+    },
+    { "stage": "symptom_free", "ok": true, "exhibited": [] }
+  ],
+  "violations": [],
+  "violation_bases": [],
+  "violated_requirements": [],
+  "alternatives": [],
+  "justification": [
+    "(1) 정성 subsumption ✔ — 재질 실리콘 ⊑ 저소음(S2)",
+    "(2) 수치 게이트 ✔ — 길이 550 ≤ 소형세단 안전길이 550 (S5)",
+    "(2) 수치 게이트 ✔ — 스프링 12N ≥ 10N (S4)",
+    "(3) 무증상 규칙 ✔ — 유발 증상 없음",
+    "판정: DB ⊑ RB_Winter ⊓ RB_NoChatter"
+  ],
+  "cache_hit": false,
+  "trace_id": "trace-satisfy-0005"
+}

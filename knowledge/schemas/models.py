@@ -311,6 +311,16 @@ class GraphResponse(Strict):
     trace_id: str
 
 
+# ── kg/lookup (CD-11) ─────────────────────────────────────────────────────
+class LookupResponse(Strict):
+    """화이트리스트 명명 질의 결과. `rows` 는 질의별 스키마라 자유 dict, `sources` 는 문장 근거."""
+
+    query: str
+    rows: list[dict]
+    sources: list[Source]
+    trace_id: str
+
+
 # ── health ────────────────────────────────────────────────────────────────
 class HealthResponse(Strict):
     status: Literal["ok", "degraded"]

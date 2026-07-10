@@ -7,20 +7,27 @@ main.py 의 exception_handler 한 곳에서만 한다.
 from __future__ import annotations
 
 from threading import Lock
+from typing import Literal
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel, Field
 
 from core.config import settings
 from core.logging import get_trace_id
 from schemas.models import (
+    GraphResponse,
     KnowledgeScopeRequest,
     KnowledgeScopeResponse,
+    LookupResponse,
     Requirement,
     SaveRequest,
     SaveResponse,
 )
+from store.dashboard import DashboardService
+from store.governance import GovernanceService
+from store.graph import GraphBuilder
 from store.kg import KgService
+from store.lookup import KgLookup
 from store.oxigraph import OxigraphStore
 from store.projects import ProjectService
 
@@ -71,6 +78,18 @@ class CreateProjectRequest(BaseModel):
 
 class RequirementsRequest(BaseModel):
     requirements: list[Requirement]
+
+
+class LookupRequest(BaseModel):
+    query: str = Field(min_length=1)
+    params: dict[str, str] = Field(default_factory=dict)
+
+
+class GovernanceConceptRequest(BaseModel):
+    id: str = Field(min_length=1)
+    label: str = Field(min_length=1)
+    parent: str | None = None
+    approved: bool = False
 
 
 # ── SPARQL (읽기 전용) ─────────────────────────────────────────────────────
@@ -124,3 +143,60 @@ def add_requirements(
     projects: ProjectService = Depends(get_projects),
 ) -> dict:
     return projects.add_requirements(project_id, req.requirements)
+
+
+# ── CD-11: 화이트리스트 명명 질의 (Q&A A계층의 유일한 경로) ─────────────────
+@router.post("/kg/lookup", response_model=LookupResponse)
+def kg_lookup(req: LookupRequest, store: OxigraphStore = Depends(get_store)) -> LookupResponse:
+    """`params` 는 rdflib initBindings 로 IRI 바인딩된다(문자열 보간 금지 — 주입 차단).
+    화이트리스트 밖 query 는 KgLookup 이 VALIDATION_ERROR(422) 를 던진다.
+    """
+    result = KgLookup(store).lookup(req.query, req.params)
+    return LookupResponse(
+        query=result.query, rows=result.rows, sources=result.sources, trace_id=get_trace_id()
+    )
+
+
+# ── CD-10: 지식맵 (FR-10) ──────────────────────────────────────────────────
+@router.get("/graph", response_model=GraphResponse)
+def graph(
+    layer: Literal["M0", "M1", "M2"] | None = None,
+    symptom: str | None = None,
+    sentence: str | None = None,
+    project_id: str | None = None,
+    limit: int = Query(default=500, ge=1, le=10_000),
+    store: OxigraphStore = Depends(get_store),
+) -> GraphResponse:
+    return GraphBuilder(store).build(
+        layer=layer, symptom=symptom, sentence=sentence, project_id=project_id, limit=limit
+    )
+
+
+# ── CD-10: 대시보드 (FR-16) ────────────────────────────────────────────────
+@router.get("/dashboard")
+def dashboard(store: OxigraphStore = Depends(get_store)) -> dict:
+    return DashboardService(store).summary()
+
+
+# ── CD-10 · AC-8: 개념 거버넌스 ────────────────────────────────────────────
+def get_governance(store: OxigraphStore = Depends(get_store)) -> GovernanceService:
+    return GovernanceService(store)
+
+
+@router.get("/governance/concepts")
+def governance_list(gov: GovernanceService = Depends(get_governance)) -> dict:
+    return gov.list()
+
+
+@router.post("/governance/concepts", status_code=status.HTTP_201_CREATED)
+def governance_create(
+    req: GovernanceConceptRequest, gov: GovernanceService = Depends(get_governance)
+) -> dict:
+    return gov.create(req.id, req.label, req.parent, req.approved)
+
+
+@router.delete("/governance/concepts/{concept_id}")
+def governance_delete(
+    concept_id: str, gov: GovernanceService = Depends(get_governance)
+) -> dict:
+    return gov.delete(concept_id)

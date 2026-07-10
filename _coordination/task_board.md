@@ -3,7 +3,7 @@
 > 단일 진실 소스. 각 Agent 는 자기 task 만 상태 전이하고, 진행 상세는 `status/<agent>.md` 에 쓴다.
 > 계약 변경은 `agents/통신_프로토콜.md` 의 `contract-change` 절차 — 무단 변경 금지.
 
-**현재 페이즈: Phase 2 착수 대기 (G0·G1 통과, 승인 요청 중)**
+**현재 페이즈: Phase 3 착수 대기 (G0·G1·G2 통과)**
 
 상태: `todo` · `doing` · `blocked` · `review` · `done`
 
@@ -51,18 +51,33 @@
 
 ## Phase 2 — 통합 · 게이트 **G2 (E2E)**
 
+> **CD-10·CD-11 (v1.2)** 로 계약을 보강하고 착수한다. 근거: 내부 API 표에 `/graph`·`/dashboard`·관리자 대응 엔드포인트가 없어
+> BFF 가 SPARQL 을 조립할 수밖에 없었다(불변원칙 1 위반). Q&A A계층의 `sparql(query)` 도 같은 이유로 명명 질의로 교체.
+> → **T-55 신설**. 05 는 T-55 미완이어도 `core/mocks.py` 로 선행한다(서로 대기 금지).
+
 | id | owner | task | deps | 상태 | DoD |
 |---|:--:|---|---|:--:|---|
-| T-50 | 05 | AI Gateway(Mock/Claude/Gemini) + Timeout·Retry·Breaker | 계약 | todo | 키 없이 mock 폴백, 연속 5실패 시 open |
-| T-51 | 05 | `/extraction/stream` SSE + `/validate` + `/save`(HITL) | T-50, T-32, T-41 | todo | 이벤트 순서 계약 준수, 위반 시 409 |
-| T-52 | 05 | `/satisfy` — 지식서비스 응답 **무변형 통과** | T-30 | todo | BFF 가 판정 필드를 재해석하지 않음 |
-| T-53 | 05 | `/qa` — A/B/C 라우팅 + 환각비교 대조기 | T-21, T-30, T-40 | todo | `qa-A`·`qa-B-compare`·`qa-C-insufficient` 통과 |
-| T-54 | 05 | `/graph` · `/dashboard` · admin 표면(403 게이트) | T-40 | todo | `AC-8` builtin 400 / 비관리자 403 |
-| T-60 | 07 | 핵심 3화면: 지식입력 · 설계검증 · Q&A/환각비교 | T-51~53 (없으면 mock API) | todo | SC-1→2→3 화면에서 완주 |
-| T-61 | 07 | 지식맵(Cytoscape, inferred 점선·필터·출처추적) | T-54 | todo | `AC-4` 재현 |
-| T-62 | 07 | 에러 UX(다음 행동 안내) · 답변 구조 순서 · amber 승인차단 | T-60 | todo | **CD-7** — amber 시 승인 버튼 비활성 |
+| T-55 | 04·06 | **CD-10·11 내부 엔드포인트**: `/kg/lookup`·`/graph`·`/dashboard`·`/governance/*`·`/upper-ontology/*`·`GET /rules` | 계약 v1.2 | **done** | pytest 97 · 오케스트레이터가 주입 4종 독립 검증(트리플 373 불변) |
+| T-50 | 05 | AI Gateway(Mock/Claude/Gemini) + Timeout·Retry·Breaker | 계약 | **done** | 키 없이 mock 폴백, 연속 5실패 시 open |
+| T-51 | 05 | `/extraction/stream` SSE + `/validate` + `/save`(HITL) | T-50, T-32, T-41 | **done** | 이벤트 순서 계약 준수, 위반 시 409. **저장 전 서버측 재검증**(위조된 `violations:[]` → 409 실증) |
+| T-52 | 05 | `/satisfy` — 지식서비스 응답 **무변형 통과** | T-30 | **done** | 무변형 통과 + **D1 수정**: 프로젝트 지식범위 조회(CD-4) |
+| T-53 | 05 | `/qa` — A/B/C 라우팅 + 환각비교 대조기 | T-21, T-30, T-55 | **done** | **D2·D3·D4 수정.** A계층 599 결정론 조립 · CD-12 도메인 접지 |
+| T-54 | 05 | `/graph` · `/dashboard` · admin 표면(403 게이트) | T-55 | **done** | `AC-8` builtin 400 / 비관리자 403 |
+| T-60 | 07 | 핵심 3화면: 지식입력 · 설계검증 · Q&A/환각비교 | T-51~53 (없으면 mock API) | **done** | **실제 BFF 로** SC-1→2→3 완주 · `shots/real_*.png` |
+| T-61 | 07 | 지식맵(Cytoscape, inferred 점선·필터·출처추적) | T-54 | **done** | 실 `/graph` 렌더. 시드에 inferred 엣지가 희소 — 08 이 회귀셋 보강 |
+| T-62 | 07 | 에러 UX(다음 행동 안내) · 답변 구조 순서 · amber 승인차단 | T-60 | **done** | **CD-7** — amber 시 승인 버튼 비활성 (화면 확인) |
 
-**G2 통과 조건**: SC-1 → SC-2 → SC-3 가 화면에서 처음부터 끝까지 동작.
+**G2 판정: 통과** — 근거 `integration_log.md#G2`. **실키(`claude-opus-4-8`)** 프로브 22/22 · **우회 공격 8/8 차단** · pytest 97 · vitest 49 · 계약검증 27.
+
+G2 를 막은 결함은 **8건**이었고 **7건이 mock 에서는 보이지 않았다.**
+- 실 스택이 드러낸 것(D1~D6): D1 은 에러 없이 `200` 과 함께 **조용히 틀린 판정**을 반환했다.
+- **실키만이 드러낸 것(CD-13·CD-14)**: 도메인 밖 질문에 시드 문장을 근거로 붙여 "검증 답변"이라 답했다.
+  mock 분류기가 모든 질문을 가드레일이 있는 계층으로만 흘려보냈기 때문이다.
+
+→ `contracts/README.md` **§3.1**: mock 은 계약의 하한이 아니라 계약 그 자체다. 게이트는 mock 이 아니라 실 스택이다.
+→ 그리고 **실 스택 통과도 실키 통과가 아니다.** LLM 이 라우팅·추출을 결정하는 곳에서는 mock 이 결함을 만나지 않는 경로만 골라 간다.
+
+**소유 경로 (병렬 안전)**: T-55 → `knowledge/` · T-50~54 → `bff/src/` · T-60~62 → `frontend/src/`. 겹치지 않는다.
 
 ---
 
@@ -70,20 +85,22 @@
 
 | id | owner | task | deps | 상태 | DoD |
 |---|:--:|---|---|:--:|---|
-| T-70 | 08 | 회귀셋 확장(`regression_set.jsonl`) · 수용기준 AC-1~8 | 상시 | todo | 전건 통과 |
-| T-71 | 08 | LLM-as-Judge 루브릭(정확성·근거성·안전성·RAG충분성) | T-70 | todo | 결정론 100% 일치, 미검증 근거 0 |
+| T-70 | 08 | 회귀셋 확장(`regression_set.jsonl`) · 수용기준 AC-1~8 | 상시 | todo | 전건 통과. **가드레일 우회 공격 8종 포함**(integration_log #G2) |
+| T-71 | 08 | LLM-as-Judge 루브릭(정확성·근거성·안전성·RAG충분성) | T-70 | todo | 결정론 100% 일치, 미검증 근거 0. **실키로 검증**(mock 통과는 무의미) |
+| T-73 | 04 | **D8** — `unknown_concept` 를 계약(CD-7 "범주 밖 개념")대로 고친다 | T-70 | todo | 현재는 `concepts[]` 자기참조만 검사한다. 라벨→IRI 해석기·`concept_relations` 가 이미 있어 **새 엔드포인트 불필요**. **과차단 위험**(실 LLM 은 `"겨울철 저온"` 같은 라벨을 낸다) — 회귀셋으로 측정 후 켤 것 |
 | T-72 | 08 | 실패 케이스(타임아웃·range위반·수치누락·도메인밖·롤백) | T-70 | todo | 수용기준 §4 전건 |
 | T-80 | 09 | Dockerfile ×3 + compose(**HermiT JRE 포함**) | G2 | todo | 로컬=Docker 동일 동작 |
 | T-81 | 09 | 시드 자동적재 · 벡터 초기 인덱싱 · env 배선 | T-80 | todo | 최초 기동만으로 6문장 조회 가능 |
-| T-82 | 09 | CI: `validate_contracts.py` + typecheck + 회귀셋 | T-80 | todo | 계약 위반 시 빌드 실패 |
+| T-82 | 09 | CI: `validate_contracts.py` + typecheck + 회귀셋 + **실 스택 스모크** | T-80 | todo | 계약 위반 시 빌드 실패. mock 통과만으로 통과시키지 않는다(§3.1). 임시 데이터 디렉터리로 격리. BFF 스위트 flake 재발 시 **출력 보존** |
 
 ---
 
 ## 임계 경로
 
-`T-02 계약(G0)` → **`T-30 satisfy 코어`** → `T-52/53 API(G2)` → `T-70 QA 게이트` → `T-80 패키징`
+`T-02 계약(G0)` → **`T-30 satisfy 코어`**(done) → **`T-55 내부 엔드포인트`** → `T-52/53 API(G2)` → `T-70 QA 게이트` → `T-80 패키징`
 
-02·03·06·07 은 임계 경로 밖에서 병렬 흡수한다. **T-30 이 늦어지면 전체가 늦어진다** — 04 에 우선 지원.
+Phase 2 의 임계 경로는 **T-55 → T-53/54** 다. T-55 가 늦으면 05 는 mock 으로 선행하고, 실구현 교체는 G2 직전에 한다(G1 에서 검증한 방식).
+07 은 mock API 로 임계 경로 밖에서 병렬 흡수한다.
 
 ## 알려진 리스크
 
