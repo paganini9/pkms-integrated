@@ -84,7 +84,7 @@ export async function extractStructured(prompt: string, schema: object) {
 
 > **확정: 로컬 임베딩(sentence-transformers)** — 프로그램이 임베딩을 무료로 주지 않으므로 **API·비용 0의 로컬**을 채택. **기본 모델 = MiniLM 다국어(384)**. Solar 임베딩은 옵션으로 보존.
 >
-> **구현 상태(Phase 1)**: `knowledge/rag/embedder.py`에 `MockEmbedder`+`StEmbedder`로 **이미 구현**됨(MOCK-first). 코드의 설정명은 `EMBEDDING_MODE(mock|st)`였으나 이 가이드 표기 **`EMBEDDING_PROVIDER(mock|local|solar)`로 통일 완료**(2026-07-11 리네임 반영: [임베딩-로컬-전환-지침.md]). 개발 기본값은 `mock`(무의존 동작), 실임베딩은 `local`(=StEmbedder, `requirements-ml.txt` 필요).
+> **구현 상태(Phase 1)**: `knowledge/rag/embedder.py`에 `MockEmbedder`+`StEmbedder`로 **이미 구현**됨(MOCK-first). 코드의 설정명은 `EMBEDDING_MODE(mock|st)`였고 → 이 가이드 표기 **`EMBEDDING_PROVIDER(mock|local|solar)`로 통일**(리네임: [임베딩-로컬-전환-지침.md]). 개발 기본값은 `mock`(무의존 동작), 실임베딩은 `local`(=StEmbedder, `requirements-ml.txt` 필요).
 
 ### 5.1 로컬 임베딩 (기본, `EMBEDDING_PROVIDER=local`)
 ```python
@@ -125,7 +125,7 @@ def embed_query(text: str) -> list[float]:                    # 검색 질의 �
 
 ## 6. 구조화 출력(추출·RB·규칙)
 
-- `solar-pro3` + `response_format: json_schema`로 개념/관계·RB 절·DesignRule을 JSON으로. **strict 지원 여부는 콘솔에서 확인**하고, 미지원 시 "JSON만 출력" 프롬프트 + 파서 검증으로 대체.
+- `solar-pro3` 구조화 출력은 **`response_format: json_object` + 프롬프트-스키마 + 파서 검증** 채택. ⚠️ **`json_schema` strict 는 solar-pro3 에서 오히려 출력 품질을 떨어뜨린다**(T-88 실측 2026-07-11: 정답 A→C 오염, 추출 공집합) → **strict 미사용**. 개념/관계·RB 절·DesignRule 은 json_object 로 받고 스키마 준수는 파서로 검증.
 - 문서/이미지 기반 추출이 필요해지면 `information-extract`(정보추출) 사용(현재 MVP 비목표, 향후 확장).
 - 어떤 경로든 **최종 판정은 OWL/SHACL/satisfy** — 추출이 틀려도 명세가 거른다.
 
@@ -156,14 +156,14 @@ SOLAR_EMBED_PASSAGE_MODEL=solar-embedding-2-passage
 ## 9. dev_team 반영 지점
 
 - **03 RAG·지식**: **로컬 임베딩**(`EMBEDDING_PROVIDER=local`, 기본 MiniLM 384) + MOCK 폴백 — **Phase 1에 이미 구현**(`embedder.py` mock|local). Solar 임베딩은 옵션. 모델 변경 시 컬렉션 재인덱싱.
-- **05 백엔드·API(AI Gateway)**: Solar chat provider 기본 등록 + SSE + 구조화 출력.
+- **05 백엔드·API(AI Gateway)**: Solar chat provider 기본 등록(**T-88 구현 완료**) + SSE + 구조화 출력(json_object). `/health` provider 정직 표기(잠복 버그 수정).
 - **개발 지시(킥오프)에 포함**: "앱 AI 백엔드는 chat=Solar(Upstage)·임베딩=로컬. 이 가이드(`docs/Solar-AI백엔드-통합가이드.md`)를 준수. Claude Code 자체 인증과는 무관."
 
 ## 10. 확인 필요 (2차)
 
 1. ✅ **확정**: (Solar 옵션 사용 시) `solar-embedding-2-query`/`-passage`, **1024차원**, 정규화 벡터, 8k 컨텍스트, 배치 ≤100/204,800토큰. v2 **무료 2026-07-20까지**. v1-large 별칭 `embedding-*`는 4096·**2026-08-31 종료**.
-2. `solar-pro3`의 **`response_format: json_schema` strict** 지원 범위(미확정 → "JSON만 출력" 프롬프트+파서 폴백).
+2. ✅ **확정(T-88 실측)**: `solar-pro3` `json_schema` strict 는 품질 저하(정답 오염·추출 공집합) → **`json_object`+프롬프트-스키마+파서 검증** 채택. strict 미사용.
 3. **레이트리밋**: chat RPM 100 / TPM 300,000 — 다중에이전트·대량 추출 시 스로틀·배치·캐시 설계.
-4. ✅ **결정**: 임베딩 = **로컬 sentence-transformers**, 기본 **MiniLM 다국어(384)**(대안 bge-m3 1024·ko-sroberta 768) — 프로그램이 임베딩 무료 미포함. 설정명 `EMBEDDING_PROVIDER`(mock|local|solar), 개발 기본 `mock`. Phase 1 코드에 이미 구현, **리네임 반영 완료(2026-07-11)**. chat(Solar-Pro)·Document-Parse는 프로그램 무료(~2027-03-31).
+4. ✅ **결정**: 임베딩 = **로컬 sentence-transformers**, 기본 **MiniLM 다국어(384)**(대안 bge-m3 1024·ko-sroberta 768) — 프로그램이 임베딩 무료 미포함. 설정명 `EMBEDDING_PROVIDER`(mock|local|solar), 개발 기본 `mock`. Phase 1 코드에 이미 구현(리네임만 반영). chat(Solar-Pro)·Document-Parse는 프로그램 무료(~2027-03-31).
 
 Sources: Upstage 제공 샘플 코드(사용자), [Upstage Console — Models](https://console.upstage.ai/docs/models), [Qdrant — Upstage embeddings (query/passage, dim 4096)](https://qdrant.tech/documentation/embeddings/upstage/)
