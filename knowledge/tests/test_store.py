@@ -148,6 +148,25 @@ def test_kg_save_success(store):
     assert resp.derived.shapes[0].id == "NoiseShape"
 
 
+def test_kg_save_idempotent_by_draft_id(store):
+    """T-83 — 같은 draft_id 재전송은 중복 저장 0. **BFF 재기동(새 서비스 인스턴스)에도** 멱등.
+
+    과거 멱등은 BFF in-memory Map 이라 재기동 시 소실됐다. 이제 draft_id 가 트리플에 남아 영속.
+    """
+    kg1 = KgService(store, retriever=SpyRetriever())
+    r1 = kg1.save(_save_request().model_copy(update={"draft_id": "draft-xyz"}))
+    triples_after_first = store.triple_count()
+
+    # 재기동 흉내: 새 KgService·새 retriever, 같은 store·같은 draft_id 재전송.
+    spy2 = SpyRetriever()
+    kg2 = KgService(store, retriever=spy2)
+    r2 = kg2.save(_save_request().model_copy(update={"draft_id": "draft-xyz"}))
+
+    assert r2.sentence.iri == r1.sentence.iri, "멱등인데 다른 문장이 생겼다"
+    assert store.triple_count() == triples_after_first, "중복 저장으로 트리플이 늘었다"
+    assert len(spy2.upserts) == 0, "멱등 재전송인데 벡터를 다시 upsert 했다"
+
+
 # ── 4. 원자성: 벡터 실패 → StoreError + 트리플 원상복구 ─────────────────────
 def test_kg_save_atomic_rollback(store):
     kg = KgService(store, retriever=FailingRetriever())

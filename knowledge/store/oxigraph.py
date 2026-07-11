@@ -142,10 +142,12 @@ class OxigraphStore:
         about_symptom: str | None = None,
         polarity: str = "cause",
         code: str | None = None,
+        draft_id: str | None = None,
     ) -> SavedSentence:
         """지식 문장 트리플을 default graph 에 커밋하고 SavedSentence 를 반환한다.
 
         `code` 미지정 시 기존 S1..Sn 최대값+1 로 발급(S7, S8 …).
+        `draft_id` 지정 시 `dom:draftId` 로 심어 **영속 멱등 키**로 쓴다(T-83).
         """
         code = code or self.next_sentence_code()
         iri = f"{DOM}{code}"
@@ -168,6 +170,8 @@ class OxigraphStore:
             )
         for m in mentions:
             quads.append(ox.Quad(node, ox.NamedNode(f"{DOM}mentions"), ox.NamedNode(f"{DOM}{m}")))
+        if draft_id:
+            quads.append(ox.Quad(node, ox.NamedNode(f"{DOM}draftId"), ox.Literal(draft_id)))
         self._store.extend(quads)
         return SavedSentence(
             id=code,
@@ -177,6 +181,37 @@ class OxigraphStore:
             mentions=list(mentions),
             about_symptom=about_symptom,
             polarity=polarity,  # type: ignore[arg-type]
+        )
+
+    def sentence_by_draft_id(self, draft_id: str) -> SavedSentence | None:
+        """T-83 — draft_id 로 이미 저장된 문장을 찾는다(영속 멱등). 없으면 None."""
+        esc = draft_id.replace("\\", "\\\\").replace('"', '\\"')
+        rows = self.query(
+            f'SELECT ?s WHERE {{ ?s <{DOM}draftId> "{esc}" }}', readonly=False
+        )
+        return self._load_sentence(rows[0]["s"]) if rows else None
+
+    def _load_sentence(self, iri: str) -> SavedSentence | None:
+        def one(pred: str) -> str | None:
+            r = self.query(f"SELECT ?o WHERE {{ <{iri}> <{pred}> ?o }}", readonly=False)
+            return r[0]["o"] if r else None
+
+        text = one(f"{DOM}sentenceText")
+        if text is None:
+            return None
+        about = one(f"{DOM}aboutSymptom")
+        ments = [
+            _localname(r["o"])
+            for r in self.query(f"SELECT ?o WHERE {{ <{iri}> <{DOM}mentions> ?o }}", readonly=False)
+        ]
+        return SavedSentence(
+            id=_localname(iri),
+            iri=iri,
+            text=text,
+            category=one(f"{DOM}category") or "",
+            mentions=ments,
+            about_symptom=_localname(about) if about else None,
+            polarity=(one(f"{DOM}polarity") or "cause"),  # type: ignore[arg-type]
         )
 
     def next_sentence_code(self) -> str:

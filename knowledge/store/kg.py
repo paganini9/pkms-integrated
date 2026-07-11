@@ -41,6 +41,19 @@ class KgService:
 
     # ── 저장 ────────────────────────────────────────────────────────────
     def save(self, req: SaveRequest) -> SaveResponse:
+        # (0) 영속 멱등(T-83): 같은 draft_id 재요청은 **새로 저장하지 않고** 기존 결과를 돌려준다.
+        # BFF in-memory 멱등은 재기동 시 소실되지만, draft_id 는 트리플에 남아 재기동·다중전송에도 중복 0.
+        if req.draft_id:
+            existing = self.store.sentence_by_draft_id(req.draft_id)
+            if existing is not None:
+                derived = self._build_derived(existing, req)
+                return SaveResponse(
+                    sentence=existing,
+                    derived=derived,
+                    human_view=self._human_view(derived),
+                    trace_id=get_trace_id(),
+                )
+
         mentions = self._resolve_mentions(req)
         about_symptom, polarity = self._infer_symptom_polarity(req)
 
@@ -51,6 +64,7 @@ class KgService:
             mentions,
             about_symptom=about_symptom,
             polarity=polarity,
+            draft_id=req.draft_id,
         )
 
         # (2) 벡터 upsert — 실패 시 (1) 보상 롤백
