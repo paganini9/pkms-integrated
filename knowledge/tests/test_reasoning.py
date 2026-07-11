@@ -191,8 +191,12 @@ def test_disjoint_위반_검출() -> None:
     violations = v.validate(
         [Concept(label="이상한것", type="Symptom"), Concept(label="이상한것", type="Material")], []
     )
-    assert [x.code for x in violations] == ["disjoint"]
-    assert violations[0].severity == "violation"
+    codes = [x.code for x in violations]
+    assert "disjoint" in codes
+    disj = next(x for x in violations if x.code == "disjoint")
+    assert disj.severity == "violation"
+    # T-73: "이상한것" 은 도메인 온톨로지 밖 → unknown_concept 도 함께 잡힌다.
+    assert "unknown_concept" in codes
 
 
 def test_개념_목록에_없는_대상은_경고이고_저장을_막지_않는다() -> None:

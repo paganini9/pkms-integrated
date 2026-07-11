@@ -66,6 +66,18 @@ def local(u: object) -> str:
     return str(u).split("#")[-1]
 
 
+#: 정당한 도메인 어휘 — 온톨로지에 **개체로는 없지만** 6문장이 쓰는 속성어(경도·압력 등)와
+#: 흔한 라벨 변형(겨울철 = "겨울철 저온"). 이 집합 + 온톨로지 라벨이 "도메인 소속"의 정의다.
+#: 우회어(타이어·자전거·귀마개·엔진·노트북·신발…)는 여기에 없으므로 unknown_concept 으로 걸린다.
+_EXTRA_DOMAIN_VOCAB: frozenset[str] = frozenset(
+    {
+        "겨울철",  # = 겨울철 저온
+        "블레이드", "와이퍼", "와이퍼 블레이드", "스프링", "와이퍼 암", "암",
+        "경도", "탄성", "압력", "스프링 압력", "길이", "블레이드 길이", "형상", "암 형상",
+    }
+)
+
+
 class SpecValidator:
     """M0 클래스 계층을 미리 펼쳐 두고, 개념 타입이 제약을 만족하는지 확인한다.
 
@@ -109,7 +121,18 @@ class SpecValidator:
 
     def iri_for(self, label: str) -> str | None:
         found = self._label_to_iri.get(label)
+        if found is None:
+            found = self._label_to_iri.get(label.strip())
         return str(found) if found else None
+
+    def concept_in_domain(self, label: str) -> bool:
+        """라벨이 도메인(와이퍼) 온톨로지의 개념/클래스로 해석되는가 — 결정론적 소속 판정(T-73).
+
+        접지(가드레일)의 단일 진실원. LLM 추출 규율이 아니라 이 판정이 도메인 경계를 정한다.
+        온톨로지 라벨(정확일치) ∪ 정당한 도메인 어휘(`_EXTRA_DOMAIN_VOCAB`). 부분일치는 쓰지
+        않는다("타이어 고무"가 "고무"에 걸려 새는 우회를 막기 위함).
+        """
+        return self.iri_for(label) is not None or label.strip() in _EXTRA_DOMAIN_VOCAB
 
     def validate(self, concepts: list[Concept], relations: list) -> list[Violation]:
         violations: list[Violation] = []
@@ -120,6 +143,22 @@ class SpecValidator:
         for concept in concepts:
             seen_types.setdefault(concept.label, set()).add(concept.type)
             by_label[concept.label] = concept
+
+        # T-73 (CD-7 "범주 밖 개념") — 추출 개념이 **도메인 온톨로지에 없으면** unknown_concept.
+        # 목적: 접지(가드레일)를 LLM 추출 규율이 아니라 **결정론적 온톨로지 소속**으로 판정하게 한다.
+        # (D8: 예전엔 관계가 개념목록을 자기참조하는지만 봤다 → 온톨로지 소속을 전혀 안 봤다.)
+        # severity=warning: 저장은 막지 않되(관계 드롭·HITL 검토), QA 접지는 이 offender 로 계층 판정.
+        for label in seen_types:  # 라벨 단위(중복 제거)
+            if self.concept_in_domain(label):
+                continue
+            violations.append(
+                Violation(
+                    code="unknown_concept",
+                    severity="warning",
+                    offender=label,
+                    message=f"'{label}' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+                )
+            )
 
         for label, types in seen_types.items():
             if len(types) < 2:
