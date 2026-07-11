@@ -40,6 +40,7 @@ describe("T-51 /extraction/stream (SSE)", () => {
   it("음성: 중간 error 발생 시 부분 결과 유지 + error 이벤트로 종료", async () => {
     // extract 가 개념 하나를 흘린 뒤 던지는 gateway 를 주입한다.
     const failingGateway = {
+      providerName: () => "mock",
       async *extract(): AsyncIterable<ExtractionEvent> {
         yield { kind: "status", stage: "extract", msg: "개념 추출 중" };
         yield { kind: "concept", concept: { label: "겨울철", type: "EnvCondition" } };

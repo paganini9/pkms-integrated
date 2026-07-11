@@ -133,9 +133,13 @@ G2 를 막은 결함은 **8건**이었고 **7건이 mock 에서는 보이지 않
 
 ### 백로그 (포스트-g3 · 릴리스 비차단)
 
+> 근거 `docs/저작-KR이슈-분석.md`. 순서: **T-90(측정)** → T-89(복합어·어휘) → T-91(인과 reification).
+
 | id | owner | task | deps | 상태 | DoD |
 |---|:--:|---|---|:--:|---|
-| T-89 | 02·04·07 | 저작 OOV 트리아지 + SKOS 어휘층 + 제안 큐 MVP 슬라이스 | g3-release | **backlog** | 어휘층(SKOS altLabel — `_EXTRA_DOMAIN_VOCAB` 화이트리스트를 온톨로지 데이터로 이관) + OOV 트리아지 카드(매핑 제안·관리자 확장 제안 스텁·provenance) + **접지 fail-closed 불변**. 근거 `docs/OOV-용어처리-온톨로지진화-설계제안.md`. **g3-release 후 착수 여부 재현님 결정.** |
+| T-90 | 05·07 | **모델 스위치 + A/B diff** (Solar 기본 / Claude 옵션) | g3-release | **done** | provider 라우팅(gateway providerByName·`/extraction/stream provider`·`/extraction/ab`)·저작 provider 선택기·A/B side-by-side·검증 게이트 provider 무관(우회 9/9 유지). **실키 A/B: Claude 는 "고무 블레이드" 분해+인과 프레임, Solar 는 원자 복합어**(`docs/T90-AB실키-데이터.md`). vitest 55. **feat/t90-model-switch**(develop 머지 대기). |
+| T-89 | 02·04·07 | 저작 OOV 트리아지 + SKOS 어휘층 + **복합어 컴포지셔널 추출 프레임** | T-90 | **backlog** | 어휘층(SKOS altLabel — `_EXTRA_DOMAIN_VOCAB`·`블레이드→WiperBlade`·`고무→Rubber` 이관) + 컴포지셔널 추출 프레임(모델 무관, 프레임이 우선 — 스위치가 덮지 않게) + OOV 트리아지 카드 + **접지 fail-closed 불변**. 근거 `docs/저작-KR이슈-분석.md` 이슈1·`docs/OOV-용어처리-온톨로지진화-설계제안.md`. MVP 검증서 in-domain 과차단 실측이 근거. |
+| T-91 | 04·02 | **조건부 인과 reification** (ext:Causation n-ary) | T-89 | **backlog** | `ext:Causation` 노드+역할 프로퍼티+shape+규칙컴파일러·추출·satisfy 정합+6문장 재모델. **게이트: 기존 satisfy 회귀 전건 재통과**. 근거 이슈2. 대(모델 개정). |
 
 ---
 

@@ -2,15 +2,17 @@
 import type { NextFunction, Request, RequestHandler, Response } from "express";
 
 import { AIGateway } from "../services/ai/gateway.js";
+import type { ProviderName } from "../services/ai/types.js";
 import { createKnowledgeClient, type KnowledgeClient } from "../services/knowledgeClient.js";
 
 export interface Deps {
-  makeGateway: (traceId: string) => AIGateway;
+  // T-90 — providerName 미지정 시 설정 기본(solar). 지정 시 요청별 라우팅.
+  makeGateway: (traceId: string, providerName?: ProviderName) => AIGateway;
   makeKnowledge: (traceId: string) => KnowledgeClient;
 }
 
 export const defaultDeps: Deps = {
-  makeGateway: (traceId) => new AIGateway(traceId),
+  makeGateway: (traceId, providerName) => new AIGateway(traceId, providerName ? { providerName } : {}),
   makeKnowledge: (traceId) => createKnowledgeClient(traceId),
 };
 

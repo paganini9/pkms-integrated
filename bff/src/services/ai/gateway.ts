@@ -15,6 +15,7 @@ import { EmptyContextError, type AIProvider, type ExtractionEvent, type Provider
 
 export interface GatewayOpts {
   primary?: AIProvider; // 테스트 주입용
+  providerName?: ProviderName; // T-90 — 요청별 provider 라우팅(미지정 시 설정 기본 = solar)
   mock?: AIProvider;
   timeoutMs?: number;
   retryAttempts?: number;
@@ -36,7 +37,9 @@ export class AIGateway {
   constructor(traceId: string, opts: GatewayOpts = {}) {
     this.traceId = traceId;
     this.mock = opts.mock ?? new MockProvider();
-    this.primary = opts.primary ?? pickPrimary(this.mock);
+    this.primary =
+      opts.primary ??
+      (opts.providerName ? providerByName(opts.providerName, this.mock) : pickPrimary(this.mock));
     this.timeoutMs = opts.timeoutMs ?? config.timeouts.llmMs;
     this.retryAttempts = opts.retryAttempts ?? config.retry.attempts;
     this.sleep = opts.sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
@@ -127,6 +130,26 @@ export class AIGateway {
   /** 관측용 — 테스트에서 breaker 상태 확인. */
   breakerState() {
     return this.breaker.getState();
+  }
+}
+
+/**
+ * T-90 — 요청이 명시한 provider 로 해석한다. 키 부재/AI_MOCK_MODE 면 mock 폴백(그레이스풀).
+ * 폴백 여부는 gateway.providerName() 이 요청값과 다른지로 라우트가 감지해 안내한다.
+ */
+export function providerByName(name: ProviderName, mock: AIProvider): AIProvider {
+  if (config.aiMockMode) return mock;
+  switch (name) {
+    case "mock":
+      return mock;
+    case "solar":
+      return config.solarApiKey ? new SolarProvider(config.solarApiKey) : mock;
+    case "claude":
+      return config.anthropicApiKey ? new ClaudeProvider(config.anthropicApiKey) : mock;
+    case "gemini":
+      return config.googleAiApiKey ? new GeminiProvider(config.googleAiApiKey) : mock;
+    default:
+      return pickPrimary(mock);
   }
 }
 

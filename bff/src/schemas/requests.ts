@@ -29,10 +29,20 @@ export const relationSchema = z.object({
   confidence: z.number().optional(),
 });
 
+// T-90 — 저작 추출 provider 선택. 미지정 시 설정 기본(solar).
+export const providerSchema = z.enum(["solar", "claude", "gemini", "mock"]);
+
 export const streamReqSchema = z.object({
   text: z.string().min(1).max(2000),
   thread_id: z.string().optional(),
   project_id: z.string().optional(),
+  provider: providerSchema.optional(),
+});
+
+// A/B diff — 두 모델로 동시 추출(T-90). 기본 [solar, claude].
+export const abExtractReqSchema = z.object({
+  text: z.string().min(1).max(2000),
+  providers: z.array(providerSchema).min(2).max(2).optional(),
 });
 
 export const validateReqSchema = z.object({

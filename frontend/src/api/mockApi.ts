@@ -11,6 +11,7 @@ import {
   ApiCallError, type PkmsApi, type StreamHandlers, type StreamRequest,
   type StreamController, type ValidateRequest, type SaveRequest,
   type SatisfyRequest, type QaRequest, type RequirementsRequest, type CreateProjectRequest,
+  type ABExtractRequest, type ABExtractResponse,
 } from "./types";
 
 import health from "../mocks/fixtures/health.json";
@@ -166,9 +167,27 @@ async function createProject(req: CreateProjectRequest): Promise<ProjectResponse
   };
 }
 
+// T-90 A/B — mock 은 관찰된 패턴(solar=복합어 원자 / claude=분해)을 데모로 보여준다(실제 판정 아님).
+async function extractionAB(req: ABExtractRequest): Promise<ABExtractResponse> {
+  await delay(300);
+  const providers = req.providers ?? ["solar", "claude"];
+  const decompose = /블레이드/.test(req.text);
+  const results = providers.map((p) => {
+    if (p === "claude" && decompose) {
+      return { requested_provider: p, actual_provider: p,
+        concepts: [{ label: "고무", type: "Material" }, { label: "블레이드", type: "Component" }] as Concept[],
+        relations: [{ subject: "블레이드", predicate: "hasMaterial", object: "고무" }] as Relation[] };
+    }
+    return { requested_provider: p, actual_provider: p,
+      concepts: [{ label: req.text.trim(), type: "PartType" }] as Concept[], relations: [] as Relation[] };
+  });
+  return { text: req.text, results, trace_id: "mock" };
+}
+
 export const mockApi: PkmsApi = {
   health: async () => { await delay(150); return strip<HealthResponse>(health); },
   extractionStream,
+  extractionAB,
   extractionValidate,
   extractionSave,
   satisfy,
