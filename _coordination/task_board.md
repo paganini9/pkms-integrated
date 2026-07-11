@@ -111,23 +111,31 @@ G2 를 막은 결함은 **8건**이었고 **7건이 mock 에서는 보이지 않
 | T-73 | 04 | **D8** — `unknown_concept` 를 계약(CD-7 "범주 밖 개념"=온톨로지 소속)대로 수정 | T-70 | **done** | 개념이 온톨로지 밖이면 unknown_concept(온톨로지 라벨 ∪ 도메인 어휘, 부분일치 금지). 추출 프롬프트 완화(등장 개념 모두)+결정론 접지 → **가드레일이 프롬프트 규율에서 분리**. **우회 9/9 안정(완화 뒤에도, 2R)**·회귀 24 PASS. 과차단은 도메인 어휘(경도·겨울철 등)로 해소, 측정 완료. |
 | T-85 | 04 | 상위 온톨로지 승인 후 **TTL 영속화** | T-55(done) | todo | `POST /upper-ontology/classes` 승인 변경이 TTL 에 반영·재기동 후 유지(현재 승인 게이트까지). |
 
-### 09 DevOps (병렬)
+### 09 DevOps (롱폴·리스크 먼저 — Docker 선행)
+
+> **재설정 순서(Phase3-이어가기-지시문)**: Docker(T-80~82)가 롱폴·최고리스크 — **HermiT 경로 미실행**(`reasoner._consistency_hermit`=no cover, 호스트 no_jre). 런웨이 있을 때 먼저 깬다. 교차의존 T-81/82←T-80.
 
 | id | owner | task | deps | 상태 | DoD |
 |---|:--:|---|---|:--:|---|
-| T-80 | 09 | Dockerfile ×3 + compose(**HermiT JRE 포함**) | G2 | todo | 로컬=Docker 동일 동작. `/health.reasoner` 가 JRE 유무 반영. |
-| T-81 | 09 | 시드 자동적재 · 벡터 초기 인덱싱 · env 배선 · **로컬 임베딩 모델 캐시** | T-80 | todo | 최초 기동만으로 6문장 조회. 모델 캐시(이미지/볼륨)로 **오프라인 기동**. |
-| T-82 | 09 | CI: `validate_contracts.py` + typecheck + 회귀셋 + **실 스택 스모크** | T-80, T-70 | todo | 계약 위반 시 빌드 실패. mock 통과만으로 통과 금지(§3.1). 임시 데이터 디렉터리 격리. **추론 의존 AC 는 Docker(HermiT)로 1회 검증**. |
+| T-80 | 09 | Dockerfile ×3(**멀티스테이지**)+compose 스켈레톤, knowledge 에 **temurin JRE headless** | G2 | todo | 로컬=Docker 동일. **HermiT 스모크**(seed `sync_reasoner_hermit` 일관성 + 고의 모순 clash 검출 `engine="hermit"` — 미검증 경로 첫 실행). **owlrl(dev)↔HermiT(Docker) 패리티**(seed 일관성·분류 일치). 이미지 경량(mock)/full(ML)을 **빌드아규먼트 `INCLUDE_ML`** 분리. `/health.reasoner` JRE 반영. |
+| T-81 | 09 | compose 완성: 볼륨·healthcheck·시드적재·모델 bake | T-80 | todo | `data/{oxigraph,chroma}`·**모델캐시 named volume**, **healthcheck**(Docker `/health` `reasoner=ok`=JRE 증거), `depends_on: service_healthy`, **시드 멱등 적재+벡터 초기 인덱싱**, **로컬 임베딩 모델 build-time bake**(오프라인 기동). |
+| T-82 | 09 | CI **2계층** + 실스택·Solar 스모크 | T-80, T-70 | todo | (a) 빠른 계약·유닛(mock, no JRE/torch) (b) **릴리스 스모크**(full 이미지·JRE·모델·Solar/Claude 키 없으면 mock 그레이스풀). **추론 의존 AC(일관성·분류) HermiT 컨테이너 1회**. `validate_contracts`+typecheck+회귀셋+실스택+Solar. 키 마스킹. 임시 데이터 디렉터리 격리. |
 
 ### 승격된 미결 리스크 (신규 정식 태스크)
 
 | id | owner | task | deps | 상태 | DoD |
 |---|:--:|---|---|:--:|---|
 | T-83 | 06·05 | **진짜 멱등**: `kg/save` 에 `draft_id` 유니크 제약 | T-41(done) | **done** | dom:draftId 트리플로 스토어 영속 멱등. 새 KgService(재기동 흉내) 재전송에도 트리플·벡터 불변. 지식 101건. |
-| T-84 | 05 | Idempotency·CircuitBreaker 상태 **외부화 검토** | T-83 | todo | 최소: 단일 인스턴스 가정 **명시+문서화**. 이상: 영속/공유 스토어. 재기동·다중 인스턴스 동작 규정. |
+| T-84 | 05 | Idempotency·CircuitBreaker 상태 **외부화 검토** | T-83 | **done** | 단일 인스턴스 가정 코드 주석 명시(reliability·extraction). 멱등은 T-83 으로 스토어 영속. 다중 인스턴스 확장 시 Breaker 만 외부화. `status/phase3.md`. |
 | T-86 | 08·09 | BFF 테스트 **flaky 근절** | T-82 | todo | **근본수정 또는 격리+출력보존+CI 결정론 중 하나로 닫아 릴리스 블로커화 방지**. 재발 시 **전체 출력 보존**(37회 재현 실패 이력). **원인 확정 전 "수정됨" 선언 금지**. |
 | T-87 | 02·08 | 시드에 **inferred 엣지 생성 질의** 보강 | T-10(done) | **done** | TipChatter 를 거동 위계 has_subbehavior 로 연결 → `/graph?symptom=TipChatter` inferred_edges=3 렌더. AC-4 렌더 확인은 T-70 graph-s3 로 완료(실키 PASS). |
 | 가드 | 04·03 | **컬렉션-임베더 일치 가드**(하드닝, **T-81 앞**) | T-20(done) | **done** | 컬렉션 메타 embedder_model·embed_dim 저장·불일치 시 drop→recreate. MockEmbedder.DIM=settings.embed_dim(256→384 해소). 테스트 2건. 기존 컬렉션 자가치유. |
+
+### 백로그 (포스트-g3 · 릴리스 비차단)
+
+| id | owner | task | deps | 상태 | DoD |
+|---|:--:|---|---|:--:|---|
+| T-89 | 02·04·07 | 저작 OOV 트리아지 + SKOS 어휘층 + 제안 큐 MVP 슬라이스 | g3-release | **backlog** | 어휘층(SKOS altLabel — `_EXTRA_DOMAIN_VOCAB` 화이트리스트를 온톨로지 데이터로 이관) + OOV 트리아지 카드(매핑 제안·관리자 확장 제안 스텁·provenance) + **접지 fail-closed 불변**. 근거 `docs/OOV-용어처리-온톨로지진화-설계제안.md`. **g3-release 후 착수 여부 재현님 결정.** |
 
 ---
 
