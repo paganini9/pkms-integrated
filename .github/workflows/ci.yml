@@ -1,0 +1,94 @@
+name: CI
+
+# 2계층(T-82): (A) 빠른 계약·유닛(mock, no JRE/torch) · (B) 릴리스 스모크(Docker·JRE·모델·키).
+# 게이트 원칙: mock 통과만으로 통과시키지 않는다. 추론 의존 AC 는 HermiT 컨테이너에서 1회.
+# 키는 GitHub Secrets(자동 마스킹) — 없으면 mock 그레이스풀.
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  # ══════════ Tier A — 빠른 계약·유닛 (Docker/JRE/torch 없이) ══════════
+  unit-fast:
+    runs-on: ubuntu-latest
+    env:
+      # T-86 — 임시 데이터 디렉터리 격리(파일락·상태 오염 차단, CI 결정론).
+      OXIGRAPH_PATH: ${{ runner.temp }}/data/oxigraph
+      CHROMA_PATH: ${{ runner.temp }}/data/chroma
+      UPPER_OVERLAY_PATH: ${{ runner.temp }}/data/upper_overlay.ttl
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 계약 검증 + 지식 유닛(mock, no JRE → HermiT skip)
+        working-directory: knowledge
+        run: |
+          python -m pip install -U pip
+          pip install -r requirements-dev.txt
+          python ../_coordination/contracts/validate_contracts.py
+          python -m pytest -q
+
+      - name: Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: BFF typecheck + vitest
+        working-directory: bff
+        run: |
+          npm ci
+          npm run typecheck
+          npm test
+      - name: Frontend typecheck + build
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+  # ══════════ Tier B — 릴리스 스모크 (Docker·JRE·HermiT·실스택) ══════════
+  release-smoke:
+    runs-on: ubuntu-latest
+    needs: unit-fast
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 지식 이미지 빌드(경량) + HermiT 컨테이너 테스트(추론 의존 AC 1회)
+        run: |
+          docker build -t pkms-knowledge ./knowledge
+          # 런타임 이미지에 pytest 를 임시 설치해 JRE 경로(HermiT) 테스트를 컨테이너에서 실행.
+          docker run --rm pkms-knowledge sh -c "/venv/bin/pip install -q pytest && /venv/bin/python -m pytest tests/test_reasoner_hermit.py -q"
+
+      - name: 실 스택 스모크 (Solar 키 있으면 실키, 없으면 mock 그레이스풀)
+        env:
+          Studio_API_Key: ${{ secrets.STUDIO_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$Studio_API_Key" ]; then
+            export AI_MOCK_MODE=false AI_PROVIDER=solar
+            echo "::notice::Solar 실키 스모크"
+          else
+            export AI_MOCK_MODE=true
+            echo "::notice::키 없음 — mock 그레이스풀 스모크(결정론 경로만 판정)"
+          fi
+          docker compose up -d --build
+          # knowledge healthy 대기(healthcheck: reasoner=ok=JRE)
+          for i in $(seq 1 30); do
+            s=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose ps -q knowledge) 2>/dev/null || echo starting)
+            [ "$s" = "healthy" ] && break; sleep 4
+          done
+          curl -sf http://localhost:4000/api/v1/health
+          python -m pip install -q httpx
+          if [ -n "$Studio_API_Key" ]; then
+            python _coordination/qa/run_regression.py --bff http://localhost:4000
+            python _coordination/qa/run_failure_cases.py --bff http://localhost:4000
+          else
+            # mock: LLM 라우팅은 판정에서 제외, 결정론 경로만 스모크.
+            python _coordination/qa/run_regression.py --bff http://localhost:4000 --only sat-bad,sat-good,scope-A,scope-B,graph-s3,gov-builtin-lock,gov-forbidden,rules-dryrun
+          fi
+          docker compose logs knowledge | tail -20   # 실패 시 출력 보존(T-86)
+          docker compose down -v
