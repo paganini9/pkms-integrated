@@ -215,6 +215,23 @@ def test_어휘층_altLabel_소속판정() -> None:
     assert ("unknown_concept", "블레이드") not in codes  # altLabel → WiperBlade
 
 
+def test_oov_후보_생성_및_fail_closed() -> None:
+    """T-89 — OOV 라벨은 매핑 후보를 받되(어휘 유사도), 후보는 provisional(접지엔 미사용)."""
+    from reasoning.oov import candidates
+
+    v = SpecValidator()
+    # 표기 이형 → 후보 제시
+    cands = candidates("재질은", v, embedder=None, k=3)
+    assert cands and cands[0].concept == "WiperMaterial"
+    cands2 = candidates("블레이드는", v, embedder=None, k=3)
+    assert any(c.concept == "WiperBlade" for c in cands2)
+    # 범위 밖 → 후보 없음(정당한 거부)
+    assert candidates("자전거 체인", v, embedder=None, k=3) == []
+    # fail-closed 불변: 후보가 있어도 소속 판정은 여전히 False(승인 전 미접지) → 우회 방어 유지
+    assert v.concept_in_domain("재질은") is False
+    assert v.concept_in_domain("타이어 고무") is False
+
+
 def test_개념_목록에_없는_대상은_경고이고_저장을_막지_않는다() -> None:
     v = SpecValidator()
     violations = v.validate(

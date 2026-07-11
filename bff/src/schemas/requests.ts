@@ -45,6 +45,14 @@ export const abExtractReqSchema = z.object({
   providers: z.array(providerSchema).min(2).max(2).optional(),
 });
 
+// OOV 트리아지(T-89) — 매핑 후보 요청.
+export const oovTriageSchema = z.object({
+  label: z.string().min(1).max(100),
+  sentence: z.string().max(2000).optional(),
+  project_id: z.string().optional(),
+  k: z.number().int().min(1).max(5).optional(),
+});
+
 export const validateReqSchema = z.object({
   concepts: z.array(conceptSchema),
   relations: z.array(relationSchema),
