@@ -3,7 +3,7 @@
 > 단일 진실 소스. 각 Agent 는 자기 task 만 상태 전이하고, 진행 상세는 `status/<agent>.md` 에 쓴다.
 > 계약 변경은 `agents/통신_프로토콜.md` 의 `contract-change` 절차 — 무단 변경 금지.
 
-**현재 페이즈: Phase 3 착수 대기 (G0·G1·G2 통과)**
+**현재 페이즈: Phase 3 진행 중 — 검증·패키징 (QA 게이트 먼저 · DevOps 병렬)**
 
 상태: `todo` · `doing` · `blocked` · `review` · `done`
 
@@ -81,17 +81,44 @@ G2 를 막은 결함은 **8건**이었고 **7건이 mock 에서는 보이지 않
 
 ---
 
-## Phase 3 — 검증 · 패키징
+## Phase 3 — 검증 · 패키징 (QA 먼저 게이트 · DevOps 병렬)
+
+> **배치 원칙**: 08 QA 가 "무엇이 통과인지"를 먼저 고정(T-70) → 그 회귀셋으로 04 T-73 과차단을 측정한 뒤 켠다.
+> 09 DevOps 는 병렬, 단 CI(T-82)는 QA 회귀셋을 게이트로 문다. **판정은 실 스택·실키**(mock 통과 무의미).
+> 결정론 경로에 "값 없으면 그럴듯한 것으로 채우기" 금지. 배치 상세·현황은 `status/phase3.md`.
+
+### 08 QA (게이트, 먼저)
 
 | id | owner | task | deps | 상태 | DoD |
 |---|:--:|---|---|:--:|---|
-| T-70 | 08 | 회귀셋 확장(`regression_set.jsonl`) · 수용기준 AC-1~8 | 상시 | todo | 전건 통과. **가드레일 우회 공격 8종 포함**(integration_log #G2) |
-| T-71 | 08 | LLM-as-Judge 루브릭(정확성·근거성·안전성·RAG충분성) | T-70 | todo | 결정론 100% 일치, 미검증 근거 0. **실키로 검증**(mock 통과는 무의미) |
-| T-73 | 04 | **D8** — `unknown_concept` 를 계약(CD-7 "범주 밖 개념")대로 고친다 | T-70 | todo | 현재는 `concepts[]` 자기참조만 검사한다. 라벨→IRI 해석기·`concept_relations` 가 이미 있어 **새 엔드포인트 불필요**. **과차단 위험**(실 LLM 은 `"겨울철 저온"` 같은 라벨을 낸다) — 회귀셋으로 측정 후 켤 것 |
-| T-72 | 08 | 실패 케이스(타임아웃·range위반·수치누락·도메인밖·롤백) | T-70 | todo | 수용기준 §4 전건 |
-| T-80 | 09 | Dockerfile ×3 + compose(**HermiT JRE 포함**) | G2 | todo | 로컬=Docker 동일 동작 |
-| T-81 | 09 | 시드 자동적재 · 벡터 초기 인덱싱 · env 배선 | T-80 | todo | 최초 기동만으로 6문장 조회 가능 |
-| T-82 | 09 | CI: `validate_contracts.py` + typecheck + 회귀셋 + **실 스택 스모크** | T-80 | todo | 계약 위반 시 빌드 실패. mock 통과만으로 통과시키지 않는다(§3.1). 임시 데이터 디렉터리로 격리. BFF 스위트 flake 재발 시 **출력 보존** |
+| T-70 | 08 | 회귀셋 확장(`regression_set.jsonl`) + AC-1~8 하네스(실 스택 러너) | G2, T-87 | todo | AC-1~8 전건 통과. **가드레일 우회 8종 포함**(integration_log #G2). **inferred 엣지가 실제 렌더되는 질의 포함**(AC-4). |
+| T-71 | 08 | LLM-as-Judge 루브릭(정확성·근거성·안전성·RAG충분성) | T-70 | todo | 결정론 100% 일치, 미검증 근거 0. **실키로 검증**(mock 통과는 무의미). |
+| T-72 | 08 | 실패 케이스(타임아웃·range위반·수치누락·도메인밖·롤백) | T-70 | todo | 수용기준 §4 전건. |
+
+### 04 지식·추론 (QA 측정 후)
+
+| id | owner | task | deps | 상태 | DoD |
+|---|:--:|---|---|:--:|---|
+| T-73 | 04 | **D8** — `unknown_concept` 를 계약(CD-7 "범주 밖 개념"=온톨로지 소속)대로 수정 | T-70 | todo | `spec_validate.py` 현재 `concepts[]` 자기참조만 검사. 라벨→IRI 해석기(`store/lookup.py`)·`concept_relations` **재사용**(새 엔드포인트 없음). **과차단 위험**: 실 LLM 라벨(`"겨울철 저온"`)로 회귀셋 측정 후 켠다. T-71 루브릭과 함께. |
+| T-85 | 04 | 상위 온톨로지 승인 후 **TTL 영속화** | T-55(done) | todo | `POST /upper-ontology/classes` 승인 변경이 TTL 에 반영·재기동 후 유지(현재 승인 게이트까지). |
+
+### 09 DevOps (병렬)
+
+| id | owner | task | deps | 상태 | DoD |
+|---|:--:|---|---|:--:|---|
+| T-80 | 09 | Dockerfile ×3 + compose(**HermiT JRE 포함**) | G2 | todo | 로컬=Docker 동일 동작. `/health.reasoner` 가 JRE 유무 반영. |
+| T-81 | 09 | 시드 자동적재 · 벡터 초기 인덱싱 · env 배선 · **로컬 임베딩 모델 캐시** | T-80 | todo | 최초 기동만으로 6문장 조회. 모델 캐시(이미지/볼륨)로 **오프라인 기동**. |
+| T-82 | 09 | CI: `validate_contracts.py` + typecheck + 회귀셋 + **실 스택 스모크** | T-80, T-70 | todo | 계약 위반 시 빌드 실패. mock 통과만으로 통과 금지(§3.1). 임시 데이터 디렉터리 격리. |
+
+### 승격된 미결 리스크 (신규 정식 태스크)
+
+| id | owner | task | deps | 상태 | DoD |
+|---|:--:|---|---|:--:|---|
+| T-83 | 06·05 | **진짜 멱등**: `kg/save` 에 `draft_id` 유니크 제약 | T-41(done) | todo | BFF 재기동/다중전송에도 중복 저장 0(현재 in-memory idempotency 한계 해소). |
+| T-84 | 05 | Idempotency·CircuitBreaker 상태 **외부화 검토** | T-83 | todo | 최소: 단일 인스턴스 가정 **명시+문서화**. 이상: 영속/공유 스토어. 재기동·다중 인스턴스 동작 규정. |
+| T-86 | 08·09 | BFF 테스트 **flaky 근절** | T-82 | todo | 재발 시 **전체 출력 보존**(37회 재현 실패 이력). T-82 에서 결정론 강제. **원인 확정 전 "수정됨" 선언 금지**. |
+| T-87 | 02·08 | 시드에 **inferred 엣지 생성 질의** 보강 | T-10(done) | todo | 지식맵 점선(AC-4)이 실제 렌더되는 질의를 회귀셋에(현재 inferred 1건, 필터 질의 미노출). |
+| 가드 | 04·03 | **컬렉션-임베더 일치 가드**(하드닝) | T-20(done) | todo | Chroma 컬렉션 메타에 `embedder_model`·`embed_dim` 저장, 불일치 시 drop→recreate. `MockEmbedder.DIM`=`settings.embed_dim`(현재 256≠384 잠복 불일치). provider 전환 "data/chroma 삭제 깜빡" 무증상 오류 구조적 차단. |
 
 ---
 
@@ -108,7 +135,7 @@ Phase 2 의 임계 경로는 **T-55 → T-53/54** 다. T-55 가 늦으면 05 는
 |---|---|---|
 | **JRE 미설치**(호스트) | HermiT 불가 → FR-12 일관성검사 미검증 | owlrl 폴백(T-33, 동작 확인). Docker JRE(T-80). `/health.reasoner="no_jre"` |
 | reasoner 지연 (xpSHACL 사례 ~65s) | NFR 성능 | 시그니처 캐시(T-34, 동작 확인). 현재 시드 규모에선 수십 ms |
-| **보상 롤백의 한계** | 보상 단계 자체가 실패하면 트리플/벡터 불일치 잔존 | 재기동 시 정합성 스윕 or outbox 도입 검토(Phase 3) |
-| **mock 임베딩의 검색 품질** | 동의어·의역 미검색 → C계층 QA 품질 | 순위·`verified` 만 신뢰, 점수 임계값 금지. 운영은 `EMBEDDING_PROVIDER=local` |
+| **보상 롤백의 한계** | 보상 단계 자체가 실패하면 트리플/벡터 불일치 잔존 | → **T-83**(draft_id 멱등)·**T-84**(상태 외부화) 로 승격 |
+| **mock 임베딩의 검색 품질** | 동의어·의역 미검색 → C계층 QA 품질 | 순위·`verified` 만 신뢰, 점수 임계값 금지. 운영은 `EMBEDDING_PROVIDER=local`. 차원 불일치는 **가드**(컬렉션-임베더 일치)로 승격 |
 | 통합 테스트 ↔ 개발 스토어 파일 락 | 서비스 기동 중 테스트 실패(재현함) | T-82 CI 에서 임시 데이터 디렉터리로 격리 |
 | `gh` CLI 부재 | PR 자동화 불가 | 원격 이미 연결됨. PR 은 재현님 요청 시 |
