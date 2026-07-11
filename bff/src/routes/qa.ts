@@ -66,7 +66,14 @@ async function groundQuestion(question: string, kn: KnowledgeClient, gw: AIGatew
   }
   if (concepts.length === 0) return { concepts, recognized: [], hasUnknown: false };
   // 지식서비스가 접지 판정(불변원칙 3 — BFF 는 판정하지 않는다).
-  const val = await kn.validateShacl({ concepts, relations });
+  // 검증이 실패하면(추출이 만든 입력을 지식서비스가 거부하는 드문 경우) **fail-closed** — 전부
+  // 미인식으로 보고 insufficient 로 흘린다(가드레일이 검증 오류에서 새거나 422 로 노출되지 않게).
+  let val;
+  try {
+    val = await kn.validateShacl({ concepts, relations });
+  } catch {
+    return { concepts, recognized: [], hasUnknown: true };
+  }
   const unknown = new Set(val.violations.filter((v) => v.code === "unknown_concept").map((v) => v.offender));
   const recognized = concepts.filter((c) => !unknown.has(c.label));
   return { concepts, recognized, hasUnknown: unknown.size > 0 };
