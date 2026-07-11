@@ -17,7 +17,7 @@ from typing import Protocol, runtime_checkable
 from core.config import settings
 from schemas.models import RagHit
 
-from .embedder import get_embedder
+from .embedder import embedder_signature, get_embedder
 from .sources import SentenceRecord, SentenceSource, TtlSentenceSource
 from .verifier import MockRuleVerifier, RuleVerifier
 
@@ -90,9 +90,26 @@ class ChromaRetriever:
         self._client = chromadb.PersistentClient(
             path=str(path), settings=ChromaSettings(anonymized_telemetry=False)
         )
+        # ── 가드: 컬렉션-임베더 일치 ──────────────────────────────────────────
+        # provider/모델/차원이 바뀌면 벡터 공간이 달라진다. 과거엔 "data/chroma 삭제 깜빡"이
+        # 무증상 오류(차원 불일치·엉뚱한 유사도)로 남았다. 메타(embedder_model·embed_dim)를
+        # 심고, 불일치하면 drop→recreate 해 재인덱싱을 강제한다(결정론·안전).
+        emb_model, emb_dim = embedder_signature(self.embedder)
+        try:
+            existing = self._client.get_collection(collection_name)
+            meta = existing.metadata or {}
+            if meta.get("embedder_model") != emb_model or meta.get("embed_dim") != emb_dim:
+                log.warning(
+                    "컬렉션-임베더 불일치 (컬렉션 %s/%s ≠ 임베더 %s/%s) — drop 후 재생성",
+                    meta.get("embedder_model"), meta.get("embed_dim"), emb_model, emb_dim,
+                )
+                self._client.delete_collection(collection_name)
+        except Exception:  # noqa: BLE001 — 미존재/손상 모두 신규 생성으로 수렴
+            pass
         # 코사인 공간: 거리 ∈ [0,2], 유사도 = 1 - 거리
         self._col = self._client.get_or_create_collection(
-            collection_name, metadata={"hnsw:space": "cosine"}
+            collection_name,
+            metadata={"hnsw:space": "cosine", "embedder_model": emb_model, "embed_dim": emb_dim},
         )
 
     # ── 인덱싱 ───────────────────────────────────────────────────────────

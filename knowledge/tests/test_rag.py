@@ -59,6 +59,45 @@ def test_ensure_indexed_idempotent(retriever):
     assert retriever.count() == 6
 
 
+def test_mock_dim_follows_settings():
+    """가드: MockEmbedder.DIM 은 settings.embed_dim 을 따른다(과거 256≠384 잠복 불일치 차단)."""
+    from core.config import settings
+
+    assert MockEmbedder.DIM == settings.embed_dim
+    assert len(MockEmbedder().encode(["x"])[0]) == settings.embed_dim
+
+
+def test_collection_embedder_mismatch_drops_and_recreates(tmp_path, source):
+    """가드: 컬렉션 메타(embedder_model·embed_dim)가 임베더와 어긋나면 drop→recreate 한다.
+
+    provider 전환 후 'data/chroma 삭제 깜빡' → 차원 불일치·엉뚱한 유사도(무증상)를 구조적으로 막는다.
+    """
+    path = tmp_path / "chroma"
+    r1 = ChromaRetriever(
+        embedder=MockEmbedder(), source=source,
+        verifier=MockRuleVerifier(source.known_rules()),
+        scope_provider=MockProjectScopeProvider(),
+        chroma_path=path, collection_name="guard_sentences",
+    )
+    assert r1.ensure_indexed() == 6
+    assert r1._col.metadata["embed_dim"] == MockEmbedder.DIM
+
+    class TinyMock(MockEmbedder):  # 차원이 다른 임베더로 교체된 상황
+        DIM = 8
+        name = "mock"
+
+    r2 = ChromaRetriever(
+        embedder=TinyMock(), source=source,
+        verifier=MockRuleVerifier(source.known_rules()),
+        scope_provider=MockProjectScopeProvider(),
+        chroma_path=path, collection_name="guard_sentences",
+    )
+    # 불일치 감지 → 컬렉션이 비워졌다(재인덱싱 전 count 0), 메타는 새 차원.
+    assert r2._col.count() == 0
+    assert r2._col.metadata["embed_dim"] == 8
+    assert r2.ensure_indexed() == 6  # 새 공간에 재인덱싱
+
+
 # ── 3. 겨울/고무 검색 → S1 상위 + sufficient ─────────────────────────────────
 def test_search_winter_rubber_s1_top(retriever):
     retriever.ensure_indexed()

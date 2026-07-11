@@ -25,9 +25,11 @@ class MockEmbedder:
     의미(동의어·문맥)는 못 잡으므로 실제 검색 품질은 ST 임베딩보다 낮다(한계는 보고 참조).
     """
 
-    DIM = 256
+    # 가드: 컬렉션 차원과 어긋나지 않도록 설정 차원을 단일 진실원으로 쓴다(과거 256≠384 잠복 불일치).
+    DIM = settings.embed_dim
     NGRAMS = (2, 3)  # 문자 bi/tri-그램
     ROOT_WEIGHT = 4  # 어근(토큰 앞 2글자) 가중 — 한국어 조사 변형 흡수
+    name = "mock"
 
     def encode(self, texts: list[str]) -> list[list[float]]:
         return [self._one(t) for t in texts]
@@ -74,6 +76,10 @@ class StEmbedder:
         self.model_name = model_name or settings.local_embed_model
         self._model = SentenceTransformer(self.model_name)
 
+    @property
+    def name(self) -> str:
+        return self.model_name
+
     def encode(self, texts: list[str]) -> list[list[float]]:
         vecs = self._model.encode(
             texts, normalize_embeddings=True, convert_to_numpy=True
@@ -101,3 +107,12 @@ def get_embedder(mode: str | None = None) -> MockEmbedder | StEmbedder:
         log.warning("EMBEDDING_PROVIDER=solar 는 미구현 — mock 임베딩으로 폴백")
         return MockEmbedder()
     return MockEmbedder()
+
+
+def embedder_signature(embedder: MockEmbedder | StEmbedder) -> tuple[str, int]:
+    """(모델명, 차원) — Chroma 컬렉션 메타에 실어 임베더 교체를 구조적으로 감지한다(가드).
+
+    차원은 실제 인코딩 결과로 확정한다(모델이 표방한 값과 어긋나지 않게).
+    """
+    vec = embedder.encode(["차원 프로브"])[0]
+    return getattr(embedder, "name", type(embedder).__name__), len(vec)
