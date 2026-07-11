@@ -94,7 +94,7 @@ G2 를 막은 결함은 **8건**이었고 **7건이 mock 에서는 보이지 않
 
 | id | owner | task | deps | 상태 | DoD |
 |---|:--:|---|---|:--:|---|
-| T-88 | 05 | Solar provider + `AI_PROVIDER` 스위치(운영 기본 solar) | T-50(done) | todo | `bff/src/services/ai/solarProvider.ts`(OpenAI SDK·`https://api.upstage.ai/v1`·`solar-pro3`·stream·`reasoning_effort`·`response_format` json_schema) + gateway 에 `solar` 등록 + `AI_PROVIDER`(mock\|solar\|claude\|gemini; 키없음/AI_MOCK_MODE→mock 폴백) + `.env AI_PROVIDER=solar`. **실키 스모크(Studio_API_Key)**: chat·SSE·구조화 추출 유효 JSON, json_schema strict 확인(미지원 시 JSON프롬프트+파서 폴백). 이후 실키 판정은 전부 Solar. |
+| T-88 | 05 | Solar provider + `AI_PROVIDER` 스위치(운영 기본 solar) | T-50(done) | **done** | solarProvider(/v1·solar-pro3)+baseHttpProvider 공통화+gateway 등록+`AI_PROVIDER` 폴백+`.env AI_PROVIDER=solar`. **실측: json_schema strict 가 solar-pro3 추론을 눌러 품질 저하 → json_object+프롬프트스키마 채택**(가이드 폴백). /health provider 오보 버그 수정. **우회 8종 Solar 9/9 차단(2라운드)**·결정론 코어 100%. 한계: in-domain 간헐 공집합 추출(안전 fail-closed) → **T-73 후 프롬프트 완화로 개선**. |
 
 ### [A] 08 QA (게이트, 먼저)
 
