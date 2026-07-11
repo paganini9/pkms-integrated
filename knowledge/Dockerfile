@@ -35,7 +35,9 @@ ENV JAVA_HOME=/opt/java/openjdk \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     EMBEDDING_PROVIDER=mock \
-    HF_HOME=/models
+    HF_HOME=/models \
+    HF_HUB_OFFLINE=1 \
+    TRANSFORMERS_OFFLINE=1
 COPY --from=builder /venv /venv
 COPY --from=builder /models /models
 WORKDIR /app
