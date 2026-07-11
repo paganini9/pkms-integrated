@@ -14,13 +14,16 @@ jobs:
   # ══════════ Tier A — 빠른 계약·유닛 (Docker/JRE/torch 없이) ══════════
   unit-fast:
     runs-on: ubuntu-latest
-    env:
-      # T-86 — 임시 데이터 디렉터리 격리(파일락·상태 오염 차단, CI 결정론).
-      OXIGRAPH_PATH: ${{ runner.temp }}/data/oxigraph
-      CHROMA_PATH: ${{ runner.temp }}/data/chroma
-      UPPER_OVERLAY_PATH: ${{ runner.temp }}/data/upper_overlay.ttl
+    # 주의: runner 컨텍스트(${{ runner.temp }})는 job-level env 에서 못 쓴다(step 에서만 가용).
+    # 그래서 첫 스텝에서 $RUNNER_TEMP 로 $GITHUB_ENV 에 써 이후 스텝 전역에 주입한다.
     steps:
       - uses: actions/checkout@v4
+
+      - name: 임시 데이터 디렉터리 격리(T-86)
+        run: |
+          echo "OXIGRAPH_PATH=$RUNNER_TEMP/data/oxigraph" >> "$GITHUB_ENV"
+          echo "CHROMA_PATH=$RUNNER_TEMP/data/chroma" >> "$GITHUB_ENV"
+          echo "UPPER_OVERLAY_PATH=$RUNNER_TEMP/data/upper_overlay.ttl" >> "$GITHUB_ENV"
 
       - name: Python 3.12
         uses: actions/setup-python@v5
