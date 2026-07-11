@@ -118,8 +118,8 @@ G2 를 막은 결함은 **8건**이었고 **7건이 mock 에서는 보이지 않
 | id | owner | task | deps | 상태 | DoD |
 |---|:--:|---|---|:--:|---|
 | T-80 | 09 | Dockerfile ×3(**멀티스테이지**)+compose 스켈레톤, knowledge 에 **temurin JRE headless** | G2 | **done** | 3 이미지 빌드·compose config OK. **HermiT 경로 첫 실행**(컨테이너): reasoner=ok·seed consistent(hermit)·고의 모순 clash 검출(1)·**owlrl↔HermiT 패리티 일치**(seed·모순). INCLUDE_ML 분리. 지식 102·4 skip(호스트 no_jre). |
-| T-81 | 09 | compose 완성: 볼륨·healthcheck·시드적재·모델 bake | T-80 | todo | `data/{oxigraph,chroma}`·**모델캐시 named volume**, **healthcheck**(Docker `/health` `reasoner=ok`=JRE 증거), `depends_on: service_healthy`, **시드 멱등 적재+벡터 초기 인덱싱**, **로컬 임베딩 모델 build-time bake**(오프라인 기동). |
-| T-82 | 09 | CI **2계층** + 실스택·Solar 스모크 | T-80, T-70 | todo | (a) 빠른 계약·유닛(mock, no JRE/torch) (b) **릴리스 스모크**(full 이미지·JRE·모델·Solar/Claude 키 없으면 mock 그레이스풀). **추론 의존 AC(일관성·분류) HermiT 컨테이너 1회**. `validate_contracts`+typecheck+회귀셋+실스택+Solar. 키 마스킹. 임시 데이터 디렉터리 격리. |
+| T-81 | 09 | compose 완성: 볼륨·healthcheck·시드적재·모델 bake | T-80 | **done** | named volume(knowledge-data:oxigraph·chroma·overlay / knowledge-models:bake 초기화)·healthcheck(reasoner=ok)·depends_on service_healthy. **기동 _bootstrap 시드적재+벡터 인덱싱** 컨테이너 실측(트리플 322·6문장). 모델 build-time bake(INCLUDE_ML, 오프라인). |
+| T-82 | 09 | CI **2계층** + 실스택·Solar 스모크 | T-80, T-70 | **done** | `.github/workflows/ci.yml`: (A) 계약·유닛(mock, HermiT skip)+bff·frontend (B) **HermiT 컨테이너 테스트 1회**+compose 실스택(Solar 키 있으면 실키 회귀·실패케이스, 없으면 mock 그레이스풀). 키 마스킹. 로컬 미러 검증(계약27·지식104·vitest49·build). |
 
 ### 승격된 미결 리스크 (신규 정식 태스크)
 
@@ -127,7 +127,7 @@ G2 를 막은 결함은 **8건**이었고 **7건이 mock 에서는 보이지 않
 |---|:--:|---|---|:--:|---|
 | T-83 | 06·05 | **진짜 멱등**: `kg/save` 에 `draft_id` 유니크 제약 | T-41(done) | **done** | dom:draftId 트리플로 스토어 영속 멱등. 새 KgService(재기동 흉내) 재전송에도 트리플·벡터 불변. 지식 101건. |
 | T-84 | 05 | Idempotency·CircuitBreaker 상태 **외부화 검토** | T-83 | **done** | 단일 인스턴스 가정 코드 주석 명시(reliability·extraction). 멱등은 T-83 으로 스토어 영속. 다중 인스턴스 확장 시 Breaker 만 외부화. `status/phase3.md`. |
-| T-86 | 08·09 | BFF 테스트 **flaky 근절** | T-82 | todo | **근본수정 또는 격리+출력보존+CI 결정론 중 하나로 닫아 릴리스 블로커화 방지**. 재발 시 **전체 출력 보존**(37회 재현 실패 이력). **원인 확정 전 "수정됨" 선언 금지**. |
+| T-86 | 08·09 | BFF 테스트 **flaky 근절** | T-82 | **done** | 파일락 근본 = 서비스↔개발스토어 동시접근. **임시 데이터 디렉터리 격리**(OXIGRAPH/CHROMA/UPPER_OVERLAY_PATH env)로 차단 — 실측 임시경로 pytest 104 통과. CI 에 적용+실패 시 로그 보존. BFF vitest 49/49 결정론(반복 확인). |
 | T-87 | 02·08 | 시드에 **inferred 엣지 생성 질의** 보강 | T-10(done) | **done** | TipChatter 를 거동 위계 has_subbehavior 로 연결 → `/graph?symptom=TipChatter` inferred_edges=3 렌더. AC-4 렌더 확인은 T-70 graph-s3 로 완료(실키 PASS). |
 | 가드 | 04·03 | **컬렉션-임베더 일치 가드**(하드닝, **T-81 앞**) | T-20(done) | **done** | 컬렉션 메타 embedder_model·embed_dim 저장·불일치 시 drop→recreate. MockEmbedder.DIM=settings.embed_dim(256→384 해소). 테스트 2건. 기존 컬렉션 자가치유. |
 
