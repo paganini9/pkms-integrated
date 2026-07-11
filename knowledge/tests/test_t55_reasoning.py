@@ -72,6 +72,25 @@ def test_upper_edit_unsupported_op_rejected(uo: UpperOntology) -> None:
         uo.edit([{"op": "delete", "id": "Symptom"}], approved=True)
 
 
+def test_oov_altlabel_승인_영속_접지(tmp_path) -> None:
+    """T-89 part4 — 승인된 altLabel 이 오버레이에 영속돼, 새 SpecValidator(재기동) 접지에 잡힌다."""
+    from reasoning.spec_validate import SpecValidator
+
+    overlay = tmp_path / "upper_overlay.ttl"
+    assert SpecValidator(overlay_path=overlay).concept_in_domain("발수코팅") is False  # 편입 전
+    out = UpperOntology(overlay_path=overlay).approve_altlabel("WiperBlade", "발수코팅", approved=True)
+    assert out["persisted"] is True
+    # 재기동 흉내: 새 검증기가 오버레이를 읽어 접지.
+    assert SpecValidator(overlay_path=overlay).concept_in_domain("발수코팅") is True
+    # 미승인은 409, 잘못된 개념은 422.
+    with pytest.raises(GuardrailBlocked):
+        UpperOntology(overlay_path=overlay).approve_altlabel("WiperBlade", "x", approved=False)
+    from schemas.errors import ValidationError
+
+    with pytest.raises(ValidationError):
+        UpperOntology(overlay_path=overlay).approve_altlabel("없는개념XYZ", "y", approved=True)
+
+
 # ── 영향 분석 (AC-6) — 진짜 구조 분석이다 ────────────────────────────────────
 def test_upper_impact_material_hits_designs(uo: UpperOntology) -> None:
     out = uo.impact([{"id": "Material"}])

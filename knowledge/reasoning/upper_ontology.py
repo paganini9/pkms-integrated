@@ -21,6 +21,7 @@ DOM = Namespace("http://ex.org/domain#")
 ENG = Namespace("http://ex.org/eng#")
 SPMM = Namespace("http://ex.org/spmm#")
 EXT = Namespace("http://ex.org/spmm-ext#")
+SKOS = Namespace("http://www.w3.org/2004/02/skos/core#")
 
 _UPPER_NS = (str(SPMM), str(EXT))
 
@@ -141,6 +142,26 @@ class UpperOntology:
 
         self._save_overlay(overlay)
         return {"applied": applied, "persisted": True, "trace_id": get_trace_id()}
+
+    # ── OOV 승인: altLabel 편입 (T-89 거버넌스·영속) ────────────────────────────
+    def approve_altlabel(self, concept_iri: str, label: str, approved: bool) -> dict:
+        """OOV 표기 이형을 승인해 개념의 skos:altLabel 로 **영속 편입**(오버레이 TTL).
+
+        미승인이면 409. 편입 후엔 SpecValidator 가 오버레이를 읽어 그 라벨이 접지에 잡힌다
+        (get_spec_validator 캐시는 라우트에서 무효화). 잘못된 개념 IRI 는 422.
+        """
+        if not approved:
+            raise GuardrailBlocked(internal="altLabel 미승인 편입 시도")
+        onto = self._onto()
+        subj = URIRef(concept_iri if concept_iri.startswith("http") else f"{DOM}{concept_iri}")
+        if (subj, None, None) not in onto:
+            raise ValidationError(
+                f"대상 개념을 찾을 수 없습니다: {concept_iri}", details={"field": "concept_iri"}
+            )
+        overlay = self._load_overlay()
+        overlay.add((subj, SKOS.altLabel, Literal(label)))
+        self._save_overlay(overlay)
+        return {"approved": {"concept": _local(subj), "altLabel": label}, "persisted": True, "trace_id": get_trace_id()}
 
     def _resolve_new_class(
         self, g: Graph, cid: str, parent: str | None

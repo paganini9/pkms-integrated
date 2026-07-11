@@ -119,6 +119,22 @@ def oov_candidates(
     )
 
 
+class OovApproveRequest(BaseModel):
+    concept_iri: str = Field(min_length=1)
+    label: str = Field(min_length=1)
+    approved: bool = False
+
+
+@router.post("/oov/approve")
+def oov_approve(
+    req: OovApproveRequest, uo: Annotated[UpperOntology, Depends(get_upper_ontology)]
+) -> dict:
+    """OOV 이형을 승인해 altLabel 로 영속 편입(T-89). 미승인 409. 편입 후 접지 캐시 무효화."""
+    out = uo.approve_altlabel(req.concept_iri, req.label, req.approved)
+    get_spec_validator.cache_clear()  # 다음 /validate 부터 새 altLabel 이 접지에 반영된다
+    return out
+
+
 # ── satisfy (FR-04·05) ────────────────────────────────────────────────────
 @router.post("/satisfy", response_model=SatisfyResponse)
 def satisfy(req: SatisfyRequest, engine: Annotated[SatisfyEngine, Depends(get_engine)]) -> SatisfyResponse:

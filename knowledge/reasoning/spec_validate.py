@@ -77,13 +77,17 @@ class SpecValidator:
     owlrl 전체 폐포는 느리다 — `rdfs:subClassOf` 만 전이 폐포로 계산하면 충분하고 결정론적이다.
     """
 
-    def __init__(self, ontology_dir: Path | None = None) -> None:
+    def __init__(self, ontology_dir: Path | None = None, overlay_path: Path | None = None) -> None:
         self._dir = ontology_dir or settings.ontology_dir
+        self._overlay = overlay_path or settings.upper_overlay_path
         self._onto = Graph()
         for name in ("m0.ttl", "m1_wiper.ttl", "lexicon.ttl"):
             path = self._dir / name
             if path.exists():
                 self._onto.parse(path, format="turtle")
+        # 거버넌스 오버레이(T-85·T-89): 승인된 altLabel/개념도 소속 어휘에 포함(영속).
+        if self._overlay.exists():
+            self._onto.parse(self._overlay, format="turtle")
         # 어휘층(T-89): prefLabel(rdfs:label) + altLabel(skos:altLabel) 을 소속 어휘로 색인.
         self._label_to_iri: dict[str, URIRef] = {}
         for subject, label in self._onto.subject_objects(RDFS.label):
