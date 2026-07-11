@@ -12,8 +12,8 @@
 | 가드 | 컬렉션-임베더 일치 | **done** | 메타 model·dim + drop/recreate. DIM=embed_dim(256→384) |
 | T-83 | kg/save draft_id 영속 멱등 | **done** | dom:draftId 트리플. 재기동에도 중복 0. 지식 101건 |
 | T-84 | Idempotency·Breaker 외부화 검토 | **done** | 아래 결정 |
-| T-85 | 상위 온톨로지 승인 TTL 영속화 | todo | |
-| T-73 | unknown_concept 온톨로지 소속 접지 | todo | T-70 양성대조로 과차단 측정 후 |
+| T-73 | unknown_concept 온톨로지 소속 접지 | **done** | **가드레일을 프롬프트 규율에서 분리**(결정론 접지). 프롬프트 완화 뒤에도 우회 9/9 안정(2R)·회귀 24 PASS |
+| T-85 | 상위 온톨로지 승인 TTL 영속화 | todo | (T-73 뒤로 미룸 — admin 독립 기능, 리스크 낮음) |
 | T-71 | LLM-as-Judge (Solar 실키) | todo | |
 | T-72 | 실패 케이스 | todo | |
 | T-80·81·82 | Docker×3·시드적재/캐시·CI | todo | |
