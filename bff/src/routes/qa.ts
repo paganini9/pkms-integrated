@@ -280,7 +280,7 @@ export function createQaRouter(deps: Deps): Router {
     "/",
     asyncHandler(async (req, res) => {
       const body = parseOrThrow(qaReqSchema, req.body);
-      const gw = deps.makeGateway(req.traceId);
+      const gw = deps.makeGateway(req.traceId, undefined, "qa"); // Q&A/chat — 기본 solar
       const kn = deps.makeKnowledge(req.traceId);
 
       // 환각비교: 무근거 LLM 단독 답변을 병렬로 시작한다. (CD-14: verified_answer 와 **다른 함수**.)

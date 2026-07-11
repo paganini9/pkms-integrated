@@ -21,6 +21,17 @@ export const config = {
   /** 운영 provider 선택 (mock|solar|claude|gemini). 미설정 시 자동 우선순위(solar→claude→gemini). */
   aiProvider: (process.env.AI_PROVIDER ?? "").toLowerCase(),
 
+  /**
+   * T-91 후속 — **태스크별 기본 provider**. 저작/구조화 추출(개념·관계 추출·RB 파싱·규칙 추출·인과 프레임)은
+   * 구조 분해·지시 준수가 중요해 기본 **claude**, Q&A/chat 은 기본 **solar**(무료·빠름).
+   * 요청별 override(T-90 선택기)·A/B 는 그대로. 키 없으면 graceful 폴백(claude→solar→mock, 실패 금지).
+   * **가역**: 아래 env(AI_AUTHORING_PROVIDER·AI_QA_PROVIDER)로 즉시 전환 가능하다.
+   * ③ broader A/B 측정(Solar vs Claude)으로 이 기본을 데이터로 **확정/조정**할 예정이다 — 지금은 가설.
+   * 전역 AI_PROVIDER 는 이 태스크 기본을 덮지 않는다(정책이 배포 env 에서도 유효하도록) — 강제하려면 위 두 env 로.
+   */
+  authoringProvider: (process.env.AI_AUTHORING_PROVIDER ?? "claude").toLowerCase(),
+  qaProvider: (process.env.AI_QA_PROVIDER ?? "solar").toLowerCase(),
+
   anthropicApiKey: process.env.ANTHROPIC_API_KEY,
   googleAiApiKey: process.env.GOOGLE_AI_API_KEY,
   /** 앱 AI 기본 = Solar(Upstage, OpenAI 호환). 키 별칭 Studio_API_Key | UPSTAGE_API_KEY. */

@@ -73,7 +73,7 @@ export function createExtractionRouter(deps: Deps): Router {
 
     const requested = parsed.data.provider;
     void (async () => {
-      const gateway = deps.makeGateway(req.traceId, requested);
+      const gateway = deps.makeGateway(req.traceId, requested, "authoring"); // 저작 추출 — 기본 claude
       // T-90 — 어떤 provider 로 추출하는지 첫 status 로 투명하게 알린다(SSE 계약: status* 먼저).
       // 선택 provider 키 부재 시 mock 폴백을 감추지 않는다(비용/근거 투명).
       const actual = gateway.providerName();
