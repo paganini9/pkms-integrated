@@ -11,7 +11,7 @@ import {
   ApiCallError, type PkmsApi, type StreamHandlers, type StreamRequest,
   type StreamController, type ValidateRequest, type SaveRequest,
   type SatisfyRequest, type QaRequest, type RequirementsRequest, type CreateProjectRequest,
-  type ABExtractRequest, type ABExtractResponse,
+  type ABExtractRequest, type ABExtractResponse, type OovTriageRequest, type OovTriageResponse,
 } from "./types";
 
 import health from "../mocks/fixtures/health.json";
@@ -184,10 +184,29 @@ async function extractionAB(req: ABExtractRequest): Promise<ABExtractResponse> {
   return { text: req.text, results, trace_id: "mock" };
 }
 
+async function oovTriage(req: OovTriageRequest): Promise<OovTriageResponse> {
+  await delay(200);
+  const label = req.label;
+  const cand = /블레이드/.test(label)
+    ? [{ concept: "WiperBlade", iri: "http://ex.org/domain#WiperBlade", pref_label: "Wiper Blade", score: 0.85, via: "lexical" }]
+    : /재질/.test(label)
+      ? [{ concept: "WiperMaterial", iri: "http://ex.org/domain#WiperMaterial", pref_label: "WiperMaterial", score: 0.8, via: "lexical" }]
+      : [];
+  return {
+    label, in_domain: false, provisional: true, candidates: cand,
+    provenance: { sentence: req.sentence ?? null, project_id: req.project_id ?? null },
+    triage: cand.length > 0 ? "synonym_variant" : "out_of_scope",
+    admin_proposal: { status: "stub", action: cand.length > 0 ? "altLabel 편입 제안" : "제안 없음(범위 밖)" },
+    clarification: cand.length > 0 ? null : "이 용어는 와이퍼 도메인 밖입니다. 다른 표현이면 바꿔 주세요.",
+    trace_id: "mock",
+  };
+}
+
 export const mockApi: PkmsApi = {
   health: async () => { await delay(150); return strip<HealthResponse>(health); },
   extractionStream,
   extractionAB,
+  oovTriage,
   extractionValidate,
   extractionSave,
   satisfy,
