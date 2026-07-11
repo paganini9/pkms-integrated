@@ -56,7 +56,7 @@ export interface RequirementDraft {
   label: string;
 }
 
-export type ProviderName = "mock" | "claude" | "gemini";
+export type ProviderName = "mock" | "claude" | "gemini" | "solar";
 
 export interface AIProvider {
   readonly name: ProviderName;

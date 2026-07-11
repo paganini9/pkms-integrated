@@ -7,13 +7,28 @@ export const config = {
   knowledgeUrl: process.env.KNOWLEDGE_URL ?? "http://localhost:8000",
   logLevel: process.env.LOG_LEVEL ?? "info",
 
-  /** MOCK 우선 — 키가 없으면 자동으로 mock provider 를 쓴다. */
+  /**
+   * MOCK 우선 — AI_MOCK_MODE=true(기본) 이거나 쓸 수 있는 provider 키가 하나도 없으면 mock.
+   * 운영은 `.env` 에서 AI_MOCK_MODE=false + AI_PROVIDER=solar + Studio_API_Key 로 실 provider 사용.
+   */
   aiMockMode:
     (process.env.AI_MOCK_MODE ?? "true") === "true" ||
-    (!process.env.ANTHROPIC_API_KEY && !process.env.GOOGLE_AI_API_KEY),
+    (!process.env.Studio_API_Key &&
+      !process.env.UPSTAGE_API_KEY &&
+      !process.env.ANTHROPIC_API_KEY &&
+      !process.env.GOOGLE_AI_API_KEY),
+
+  /** 운영 provider 선택 (mock|solar|claude|gemini). 미설정 시 자동 우선순위(solar→claude→gemini). */
+  aiProvider: (process.env.AI_PROVIDER ?? "").toLowerCase(),
 
   anthropicApiKey: process.env.ANTHROPIC_API_KEY,
   googleAiApiKey: process.env.GOOGLE_AI_API_KEY,
+  /** 앱 AI 기본 = Solar(Upstage, OpenAI 호환). 키 별칭 Studio_API_Key | UPSTAGE_API_KEY. */
+  solarApiKey: process.env.Studio_API_Key ?? process.env.UPSTAGE_API_KEY,
+  solarBaseUrl: process.env.SOLAR_BASE_URL ?? "https://api.upstage.ai/v1",
+  solarModel: process.env.SOLAR_CHAT_MODEL ?? "solar-pro3",
+  /** solar-pro3 reasoning_effort (미설정 시 미전송 → 모델 기본). */
+  solarReasoningEffort: process.env.SOLAR_REASONING_EFFORT,
 
   /** 최신 모델 (claude-api 스킬 기준). Opus 4.8 은 temperature 를 받지 않으므로 structured output 로 결정론을 확보한다. */
   anthropicModel: process.env.ANTHROPIC_MODEL ?? "claude-opus-4-8",
@@ -41,5 +56,7 @@ export const config = {
 export function maskSecrets(text: string): string {
   return text
     .replace(/(sk-[A-Za-z0-9_-]{4})[A-Za-z0-9_-]+/g, "$1***")
-    .replace(/(AIza[A-Za-z0-9_-]{4})[A-Za-z0-9_-]+/g, "$1***");
+    .replace(/(AIza[A-Za-z0-9_-]{4})[A-Za-z0-9_-]+/g, "$1***")
+    .replace(/(up[-_][A-Za-z0-9]{4})[A-Za-z0-9_-]+/gi, "$1***") // Upstage Solar 키
+    .replace(/(Bearer\s+[A-Za-z0-9_-]{4})[A-Za-z0-9_.-]+/g, "$1***");
 }

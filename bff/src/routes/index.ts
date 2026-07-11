@@ -11,13 +11,6 @@ import { createMiscRouter } from "./misc.js";
 import { createQaRouter } from "./qa.js";
 import { createSatisfyRouter } from "./satisfy.js";
 
-function llmProvider(): "mock" | "claude" | "gemini" {
-  if (config.aiMockMode) return "mock";
-  if (config.anthropicApiKey) return "claude";
-  if (config.googleAiApiKey) return "gemini";
-  return "mock";
-}
-
 export function createV1Router(deps: Deps = defaultDeps): Router {
   const v1 = Router();
 
@@ -34,7 +27,9 @@ export function createV1Router(deps: Deps = defaultDeps): Router {
         knowledge = { status: "unavailable" };
         if (!(err instanceof KnowledgeUnavailable)) throw err;
       }
-      res.json({ status, llm_provider: llmProvider(), knowledge, trace_id: req.traceId });
+      // 실제 게이트웨이 선택을 반영한다(breaker 폴백 포함). 별도 계산은 실선택과 어긋난다.
+      const llm_provider = deps.makeGateway(req.traceId).providerName();
+      res.json({ status, llm_provider, knowledge, trace_id: req.traceId });
     }),
   );
 

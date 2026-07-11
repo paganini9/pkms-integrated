@@ -9,6 +9,7 @@ import { log } from "../../core/trace.js";
 import { ClaudeProvider } from "./claudeProvider.js";
 import { GeminiProvider } from "./geminiProvider.js";
 import { MockProvider } from "./mockProvider.js";
+import { SolarProvider } from "./solarProvider.js";
 import { CircuitBreaker, TimeoutError, withRetry, withTimeout } from "./reliability.js";
 import { EmptyContextError, type AIProvider, type ExtractionEvent, type ProviderName, type RequirementDraft, type Source } from "./types.js";
 
@@ -131,6 +132,21 @@ export class AIGateway {
 
 function pickPrimary(mock: AIProvider): AIProvider {
   if (config.aiMockMode) return mock;
+  // 명시 선택(AI_PROVIDER) 우선 — 키 없으면 mock 폴백.
+  switch (config.aiProvider) {
+    case "mock":
+      return mock;
+    case "solar":
+      return config.solarApiKey ? new SolarProvider(config.solarApiKey) : mock;
+    case "claude":
+      return config.anthropicApiKey ? new ClaudeProvider(config.anthropicApiKey) : mock;
+    case "gemini":
+      return config.googleAiApiKey ? new GeminiProvider(config.googleAiApiKey) : mock;
+    default:
+      break; // 미설정 → 자동 우선순위
+  }
+  // 운영 기본 = Solar. 없으면 claude → gemini → mock.
+  if (config.solarApiKey) return new SolarProvider(config.solarApiKey);
   if (config.anthropicApiKey) return new ClaudeProvider(config.anthropicApiKey);
   if (config.googleAiApiKey) return new GeminiProvider(config.googleAiApiKey);
   return mock;
