@@ -3,7 +3,7 @@
 > 단일 진실 소스. 각 Agent 는 자기 task 만 상태 전이하고, 진행 상세는 `status/<agent>.md` 에 쓴다.
 > 계약 변경은 `agents/통신_프로토콜.md` 의 `contract-change` 절차 — 무단 변경 금지.
 
-**현재 페이즈: Phase 3 진행 중 — 검증·패키징 (QA 게이트 먼저 · DevOps 병렬)**
+**현재 페이즈: Phase 3 완료 — §5 게이트 전 항목 통과(실 스택·Solar 실키) → 태그 `g3-release`. 다음은 T-89(백로그) 착수 여부 결정.**
 
 상태: `todo` · `doing` · `blocked` · `review` · `done`
 
