@@ -109,7 +109,7 @@ export function createMiscRouter(deps: Deps): Router {
     "/projects/:id/requirements",
     asyncHandler(async (req, res) => {
       const body = parseOrThrow(requirementsReqSchema, req.body);
-      const gw = deps.makeGateway(req.traceId);
+      const gw = deps.makeGateway(req.traceId, undefined, "authoring"); // RB 파싱(구조화) — 기본 claude
       const drafts = await gw.parseRequirements(body.text); // LLM 생성
       const requirements: Array<Record<string, unknown>> = [];
       const unknown_symptoms: string[] = [];

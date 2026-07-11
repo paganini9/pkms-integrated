@@ -13,9 +13,13 @@ import { SolarProvider } from "./solarProvider.js";
 import { CircuitBreaker, TimeoutError, withRetry, withTimeout } from "./reliability.js";
 import { EmptyContextError, type AIProvider, type ExtractionEvent, type ProviderName, type RequirementDraft, type Source } from "./types.js";
 
+/** 태스크 분류 — 태스크별 기본 provider 정책의 축(저작 vs Q&A). */
+export type GatewayTask = "authoring" | "qa";
+
 export interface GatewayOpts {
   primary?: AIProvider; // 테스트 주입용
-  providerName?: ProviderName; // T-90 — 요청별 provider 라우팅(미지정 시 설정 기본 = solar)
+  providerName?: ProviderName; // T-90 — 요청별 provider 라우팅(명시 시 최우선)
+  task?: GatewayTask; // 정책 — providerName 미지정 시 태스크 기본(저작=claude / Q&A=solar)
   mock?: AIProvider;
   timeoutMs?: number;
   retryAttempts?: number;
@@ -39,7 +43,11 @@ export class AIGateway {
     this.mock = opts.mock ?? new MockProvider();
     this.primary =
       opts.primary ??
-      (opts.providerName ? providerByName(opts.providerName, this.mock) : pickPrimary(this.mock));
+      (opts.providerName
+        ? providerByName(opts.providerName, this.mock) // T-90 명시 선택 — 최우선
+        : opts.task
+          ? providerForTask(opts.task, this.mock) // 정책 — 태스크 기본(graceful 폴백)
+          : pickPrimary(this.mock)); // 레거시 자동(태스크 미지정)
     this.timeoutMs = opts.timeoutMs ?? config.timeouts.llmMs;
     this.retryAttempts = opts.retryAttempts ?? config.retry.attempts;
     this.sleep = opts.sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
@@ -151,6 +159,66 @@ export function providerByName(name: ProviderName, mock: AIProvider): AIProvider
     default:
       return pickPrimary(mock);
   }
+}
+
+/** 태스크의 기본 provider 이름(정책). 저작=claude / Q&A=solar. env 로 가역(config). */
+export function taskDefaultProvider(task: GatewayTask): ProviderName {
+  const name = (task === "authoring" ? config.authoringProvider : config.qaProvider) as ProviderName;
+  return name;
+}
+
+/** 사용 가능한 키(테스트 주입 가능). config 기본. */
+export interface ProviderKeys {
+  solar?: boolean;
+  anthropic?: boolean;
+  google?: boolean;
+}
+
+function availableKeys(): ProviderKeys {
+  return { solar: !!config.solarApiKey, anthropic: !!config.anthropicApiKey, google: !!config.googleAiApiKey };
+}
+
+/**
+ * **순수 함수(테스트 용이)** — 선호 provider 에서 키 유무·mock 모드를 반영해 **실제로 쓰일 이름**을 정한다.
+ * graceful 폴백(실패 금지): 선호 키 없으면 다음 순위로 내려가고 최종 mock. 저작 claude→solar→gemini→mock.
+ */
+export function resolveProviderName(
+  preferred: ProviderName,
+  keys: ProviderKeys,
+  mockMode: boolean,
+): ProviderName {
+  if (mockMode || preferred === "mock") return "mock";
+  const has: Record<ProviderName, boolean> = {
+    mock: true,
+    solar: !!keys.solar,
+    claude: !!keys.anthropic,
+    gemini: !!keys.google,
+  };
+  // 선호를 앞에 두고, 나머지는 운영 우선순위(solar→claude→gemini)로 폴백.
+  const order: ProviderName[] = [preferred, "solar", "claude", "gemini"].filter(
+    (n, i, a) => a.indexOf(n) === i,
+  ) as ProviderName[];
+  for (const n of order) if (has[n]) return n;
+  return "mock";
+}
+
+function instanceForName(name: ProviderName, mock: AIProvider): AIProvider {
+  switch (name) {
+    case "solar":
+      return config.solarApiKey ? new SolarProvider(config.solarApiKey) : mock;
+    case "claude":
+      return config.anthropicApiKey ? new ClaudeProvider(config.anthropicApiKey) : mock;
+    case "gemini":
+      return config.googleAiApiKey ? new GeminiProvider(config.googleAiApiKey) : mock;
+    default:
+      return mock;
+  }
+}
+
+/** 태스크 기본 provider 를 graceful 폴백까지 반영해 인스턴스로. (저작=claude 키없으면 solar→mock) */
+export function providerForTask(task: GatewayTask, mock: AIProvider): AIProvider {
+  const name = resolveProviderName(taskDefaultProvider(task), availableKeys(), config.aiMockMode);
+  return instanceForName(name, mock);
 }
 
 function pickPrimary(mock: AIProvider): AIProvider {

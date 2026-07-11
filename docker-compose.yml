@@ -34,6 +34,9 @@ services:
       BFF_PORT: "4000"
       AI_MOCK_MODE: "${AI_MOCK_MODE:-false}"
       AI_PROVIDER: "${AI_PROVIDER:-solar}"
+      # 태스크별 기본 provider(가역 — g3.1). 저작/구조화 추출=claude, Q&A=solar. 키 없으면 graceful 폴백.
+      AI_AUTHORING_PROVIDER: "${AI_AUTHORING_PROVIDER:-claude}"
+      AI_QA_PROVIDER: "${AI_QA_PROVIDER:-solar}"
       # 지식서비스는 이제 완성체 — 결정론 경로는 항상 실 지식으로 태운다(mock LLM 이어도).
       # KNOWLEDGE_MOCK 은 계약-초기 병렬개발 잔재(contracts/mocks 재생). 미설정이면 실 지식.
       KNOWLEDGE_MOCK: "${KNOWLEDGE_MOCK:-}"

@@ -1,18 +1,19 @@
 /** 라우트 의존성 — 테스트에서 gateway·knowledge 를 주입할 수 있게 팩토리로 둔다. */
 import type { NextFunction, Request, RequestHandler, Response } from "express";
 
-import { AIGateway } from "../services/ai/gateway.js";
+import { AIGateway, type GatewayTask } from "../services/ai/gateway.js";
 import type { ProviderName } from "../services/ai/types.js";
 import { createKnowledgeClient, type KnowledgeClient } from "../services/knowledgeClient.js";
 
 export interface Deps {
-  // T-90 — providerName 미지정 시 설정 기본(solar). 지정 시 요청별 라우팅.
-  makeGateway: (traceId: string, providerName?: ProviderName) => AIGateway;
+  // T-90 providerName(명시) > 정책 task 기본(저작=claude / Q&A=solar) > 레거시 자동.
+  makeGateway: (traceId: string, providerName?: ProviderName, task?: GatewayTask) => AIGateway;
   makeKnowledge: (traceId: string) => KnowledgeClient;
 }
 
 export const defaultDeps: Deps = {
-  makeGateway: (traceId, providerName) => new AIGateway(traceId, providerName ? { providerName } : {}),
+  makeGateway: (traceId, providerName, task) =>
+    new AIGateway(traceId, { ...(providerName ? { providerName } : {}), ...(task ? { task } : {}) }),
   makeKnowledge: (traceId) => createKnowledgeClient(traceId),
 };
 
