@@ -74,12 +74,16 @@ jobs:
           Studio_API_Key: ${{ secrets.STUDIO_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
+          # 결정론 경로(satisfy·scope·graph·governance·rules)는 항상 실 지식서비스로 판정한다.
+          # (예전엔 AI_MOCK_MODE=true 가 KNOWLEDGE_MOCK 까지 켜서 BFF 가 contracts/mocks fixture 를
+          #  재생했는데 그 파일은 BFF 이미지에 없어 ENOENT 500 이 났다. 지식서비스는 이미 완성체다.)
+          export KNOWLEDGE_MOCK=false
           if [ -n "$Studio_API_Key" ]; then
             export AI_MOCK_MODE=false AI_PROVIDER=solar
             echo "::notice::Solar 실키 스모크"
           else
             export AI_MOCK_MODE=true
-            echo "::notice::키 없음 — mock 그레이스풀 스모크(결정론 경로만 판정)"
+            echo "::notice::키 없음 — mock LLM + 실 지식 스모크(결정론 경로만 판정)"
           fi
           docker compose up -d --build
           # knowledge healthy 대기(healthcheck: reasoner=ok=JRE)
