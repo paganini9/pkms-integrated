@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import hashlib
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
 
@@ -45,6 +45,11 @@ class CompiledRules:
     applied_rules: list[RuleSpec]
     applied_categories: list[str]
     shapes_hash: str = ""
+    #: T-91 — 규칙에서 파생한 reified 인과 노드(개체 데이터). 지식표현·바인딩 보존·질의용.
+    #: 설계-satisfy 경로(shapes/gates)와 무관하다 — satisfy 는 이 그래프를 보지 않는다.
+    causation: Graph = field(default_factory=Graph)
+    #: T-91 — Causation 구조 SHACL(세 역할 타입·필수). 저작(추출) 검증에 쓴다. 손 SHACL 아님(컴파일러 방출).
+    causation_shape: Graph = field(default_factory=Graph)
     """컴파일 시점에 **한 번** 계산해 고정한다.
 
     매번 다시 계산하면 안 된다 — pySHACL 이 검증 중 shapes 그래프에 트리플을 주입하기 때문에
@@ -104,6 +109,58 @@ def cond_to_sparql(cond: Cond) -> str:
     raise ValueError(f"알 수 없는 연산자: {cond.op}")
 
 
+def _rule_mechanism(rule: RuleSpec) -> URIRef:
+    """규칙의 기전(mechanism) 개념. 재질 eq 조건이 있으면 그 재질, 없으면 설계 주체(WiperBlade).
+
+    (수치 규칙 S3 길이·S4 압력·S6 형상은 재질이 없으니 블레이드를 기전으로 — 임계 판정은
+     설계-satisfy 경로가 그대로 담당한다. 여기 Causation 노드는 지식표현·바인딩용이다.)
+    """
+    for c in rule.conds:
+        if c.path == "hasMaterial" and isinstance(c.val, URIRef):
+            return c.val
+    return DOM.WiperBlade
+
+
+def _rule_condition(rule: RuleSpec) -> URIRef | None:
+    """규칙의 환경 조건(EnvCondition). operatesIn eq 조건이 있을 때만(예: S1 겨울)."""
+    for c in rule.conds:
+        if c.path == "operatesIn" and isinstance(c.val, URIRef):
+            return c.val
+    return None
+
+
+def causation_shape_graph() -> Graph:
+    """Causation 구조 SHACL — 세 역할의 필수·타입 제약. 저작(추출) 검증의 단일 진실원(손 SHACL 아님).
+
+    - manifestsSymptom: 필수(≥1) · 대상은 Symptom
+    - hasMechanism:     필수(≥1)
+    - underCondition:   선택 · 있으면 대상은 EnvCondition
+    """
+    g = Graph()
+    g.bind("sh", SH)
+    g.bind("ext", EXT)
+    g.bind("dom", DOM)
+    shape = DOM.CausationShape
+    g.add((shape, RDF.type, SH.NodeShape))
+    g.add((shape, SH.targetClass, EXT.Causation))
+    specs = [
+        (EXT.manifestsSymptom, 1, EXT.Symptom, "Causation 은 manifestsSymptom(증상)을 하나 이상 가져야 하고 대상은 Symptom 이어야 합니다."),
+        (EXT.hasMechanism, 1, None, "Causation 은 hasMechanism(기전)을 하나 이상 가져야 합니다."),
+        (EXT.underCondition, 0, EXT.EnvCondition, "underCondition(조건)의 대상은 EnvCondition 이어야 합니다."),
+    ]
+    for path, min_count, cls, msg in specs:
+        p = BNode()
+        g.add((shape, SH.property, p))
+        g.add((p, SH.path, path))
+        if min_count:
+            g.add((p, SH.minCount, Literal(min_count)))
+        if cls is not None:
+            g.add((p, SH["class"], cls))
+        g.add((p, SH.message, Literal(msg)))
+        g.add((p, SH.severity, SH.Violation))
+    return g
+
+
 def compile_rules(rules: list[RuleSpec], categories: set[str] | None = None) -> CompiledRules:
     """categories=None 이면 전체. 아니면 해당 카테고리 규칙만 (CD-4)."""
     shapes = Graph()
@@ -111,6 +168,9 @@ def compile_rules(rules: list[RuleSpec], categories: set[str] | None = None) -> 
     shapes.bind("dom", DOM)
     causal = Graph()
     causal.bind("ext", EXT)
+    causation = Graph()
+    causation.bind("ext", EXT)
+    causation.bind("dom", DOM)
     human: list[str] = []
     gates: dict[str, Gate] = {}
     applied: list[RuleSpec] = []
@@ -121,6 +181,18 @@ def compile_rules(rules: list[RuleSpec], categories: set[str] | None = None) -> 
         applied.append(rule)
         human.append(f"{rule.label}  [{rule.polarity}·{rule.basis}·{rule.category}] → {rule.symptom}")
         causal.add((DOM[rule.id], EXT[POLARITY_PREDICATE[rule.polarity]], DOM[rule.symptom]))
+
+        # T-91 — reified 인과 노드(규칙당 하나). (기전·조건·증상)을 한 노드로 묶어 바인딩을 보존한다.
+        # 이항 (X causes S)+(S conditionedOn C) 과 달리 주어=Causation 이라 PartType-conditionedOn 위반이 없다.
+        node = DOM[f"Causation_{rule.id}"]
+        causation.add((node, RDF.type, EXT.Causation))
+        causation.add((node, EXT.manifestsSymptom, DOM[rule.symptom]))
+        causation.add((node, EXT.hasMechanism, _rule_mechanism(rule)))
+        cond = _rule_condition(rule)
+        if cond is not None:
+            causation.add((node, EXT.underCondition, cond))
+        causation.add((node, EXT.causationPolarity, Literal(rule.polarity)))
+        causation.add((node, DOM.fromSentence, DOM[rule.id]))  # 프로비넌스: 파생 규칙 역참조
 
         if not rule.makes_gate:
             # mitigate 는 원인의 여집합 — 게이트를 만들지 않고 근거로만 보존한다.
@@ -158,6 +230,8 @@ def compile_rules(rules: list[RuleSpec], categories: set[str] | None = None) -> 
         applied_rules=applied,
         applied_categories=_ordered_categories(rules, categories),
         shapes_hash=hashlib.sha256(shapes.serialize(format="nt").encode("utf-8")).hexdigest()[:16],
+        causation=causation,
+        causation_shape=causation_shape_graph(),
     )
 
 
