@@ -14,7 +14,12 @@ import type { Concept, Relation } from "../services/ai/types.js";
 import type { Violation } from "../services/knowledgeClient.js";
 import { asyncHandler, type Deps } from "./deps.js";
 
-/** Idempotency (interface_contracts.md §6): draft_id 기준 중복 저장 방지. 프로세스 메모리(재기동 시 소실). */
+/**
+ * Idempotency (interface_contracts.md §6): draft_id 기준 중복 저장 방지.
+ * 이 Map 은 **프로세스 메모리 fast-path**(재기동 시 소실·단일 인스턴스 가정, T-84).
+ * 진짜 멱등 보장은 지식 스토어의 draft_id 유니크(T-83)다 — 재기동/다중전송/다중 인스턴스에도
+ * 중복 저장 0. 즉 이 캐시는 성능 최적화이고, 정합성 backstop 은 스토어에 있다.
+ */
 const savedDrafts = new Map<string, Record<string, unknown>>();
 
 function sse(res: Response, event: string, data: unknown): void {

@@ -123,11 +123,11 @@ G2 를 막은 결함은 **8건**이었고 **7건이 mock 에서는 보이지 않
 
 | id | owner | task | deps | 상태 | DoD |
 |---|:--:|---|---|:--:|---|
-| T-83 | 06·05 | **진짜 멱등**: `kg/save` 에 `draft_id` 유니크 제약 | T-41(done) | todo | BFF 재기동/다중전송에도 중복 저장 0(현재 in-memory idempotency 한계 해소). |
+| T-83 | 06·05 | **진짜 멱등**: `kg/save` 에 `draft_id` 유니크 제약 | T-41(done) | **done** | dom:draftId 트리플로 스토어 영속 멱등. 새 KgService(재기동 흉내) 재전송에도 트리플·벡터 불변. 지식 101건. |
 | T-84 | 05 | Idempotency·CircuitBreaker 상태 **외부화 검토** | T-83 | todo | 최소: 단일 인스턴스 가정 **명시+문서화**. 이상: 영속/공유 스토어. 재기동·다중 인스턴스 동작 규정. |
 | T-86 | 08·09 | BFF 테스트 **flaky 근절** | T-82 | todo | **근본수정 또는 격리+출력보존+CI 결정론 중 하나로 닫아 릴리스 블로커화 방지**. 재발 시 **전체 출력 보존**(37회 재현 실패 이력). **원인 확정 전 "수정됨" 선언 금지**. |
 | T-87 | 02·08 | 시드에 **inferred 엣지 생성 질의** 보강 | T-10(done) | **done** | TipChatter 를 거동 위계 has_subbehavior 로 연결 → `/graph?symptom=TipChatter` inferred_edges=3 렌더. AC-4 렌더 확인은 T-70 graph-s3 로 완료(실키 PASS). |
-| 가드 | 04·03 | **컬렉션-임베더 일치 가드**(하드닝, **T-81 앞**) | T-20(done) | todo | Chroma 컬렉션 메타에 `embedder_model`·`embed_dim` 저장, 불일치 시 drop→recreate. `MockEmbedder.DIM`=`settings.embed_dim`(현재 256≠384 잠복 불일치). provider 전환 "data/chroma 삭제 깜빡" 무증상 오류 구조적 차단. |
+| 가드 | 04·03 | **컬렉션-임베더 일치 가드**(하드닝, **T-81 앞**) | T-20(done) | **done** | 컬렉션 메타 embedder_model·embed_dim 저장·불일치 시 drop→recreate. MockEmbedder.DIM=settings.embed_dim(256→384 해소). 테스트 2건. 기존 컬렉션 자가치유. |
 
 ---
 

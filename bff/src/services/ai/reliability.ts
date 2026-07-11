@@ -71,6 +71,11 @@ export type BreakerState = "closed" | "open" | "half-open";
 /**
  * CircuitBreaker: 연속 N 실패 → open(60s) → half-open 시도.
  * open 동안 호출은 즉시 실패로 처리해 폴백(mock)으로 넘긴다.
+ *
+ * T-84 — **상태는 BFF 프로세스 메모리(단일 인스턴스 가정)**. 재기동 시 closed 로 초기화되고,
+ * 다중 인스턴스면 인스턴스별로 독립 카운트된다. 현재 배포는 단일 BFF 라 문제없다(계약 §6·release
+ * 게이트 신뢰성 항목). 다중 인스턴스로 확장 시 공유 스토어(예: Redis)로 외부화해야 한다.
+ * 반면 **저장 멱등은 T-83 으로 스토어에 영속**돼 재기동·다중전송에 안전하다(이쪽은 이미 해결).
  */
 export class CircuitBreaker {
   private failures = 0;
