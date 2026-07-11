@@ -13,9 +13,10 @@ from reasoning.upper_ontology import UpperOntology
 from schemas.errors import GuardrailBlocked, NotFound
 
 
-@pytest.fixture(scope="module")
-def uo() -> UpperOntology:
-    return UpperOntology()
+@pytest.fixture()
+def uo(tmp_path) -> UpperOntology:
+    # 오버레이는 tmp 로 격리한다(실 data/ 오염 방지, T-85).
+    return UpperOntology(overlay_path=tmp_path / "upper_overlay.ttl")
 
 
 @pytest.fixture(scope="module")
@@ -45,6 +46,30 @@ def test_upper_edit_requires_approval(uo: UpperOntology) -> None:
 def test_upper_edit_approved_accepts(uo: UpperOntology) -> None:
     out = uo.edit([{"op": "add", "id": "Vibration", "parent": "Symptom"}], approved=True)
     assert out["applied"] == 1
+    assert out["persisted"] is True
+
+
+def test_upper_edit_persists_across_restart(tmp_path) -> None:
+    """T-85 — 승인 편집이 오버레이 TTL 에 영속돼 재기동(새 인스턴스) 후에도 유지된다."""
+    overlay = tmp_path / "upper_overlay.ttl"
+    UpperOntology(overlay_path=overlay).edit(
+        [{"op": "add", "id": "Vibration", "parent": "Symptom"}], approved=True
+    )
+    assert overlay.exists(), "오버레이 파일이 생성되지 않았다"
+
+    # 재기동 흉내: 새 인스턴스가 같은 오버레이를 읽는다.
+    fresh = UpperOntology(overlay_path=overlay)
+    ids = {c["id"] for c in fresh.classes()["classes"]}
+    assert "Vibration" in ids, "재기동 후 승인 편집이 사라졌다"
+    vib = next(c for c in fresh.classes()["classes"] if c["id"] == "Vibration")
+    assert vib["parent"] == "Symptom"  # 부모 subClassOf 반영
+
+
+def test_upper_edit_unsupported_op_rejected(uo: UpperOntology) -> None:
+    from schemas.errors import ValidationError
+
+    with pytest.raises(ValidationError):
+        uo.edit([{"op": "delete", "id": "Symptom"}], approved=True)
 
 
 # ── 영향 분석 (AC-6) — 진짜 구조 분석이다 ────────────────────────────────────

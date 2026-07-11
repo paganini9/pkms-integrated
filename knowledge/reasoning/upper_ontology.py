@@ -10,12 +10,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from rdflib import OWL, RDF, RDFS, Graph, Namespace, URIRef
+from rdflib import OWL, RDF, RDFS, Graph, Literal, Namespace, URIRef
 from rdflib.term import BNode
 
 from core.config import settings
 from core.logging import get_trace_id
-from schemas.errors import GuardrailBlocked
+from schemas.errors import GuardrailBlocked, ValidationError
 
 DOM = Namespace("http://ex.org/domain#")
 ENG = Namespace("http://ex.org/eng#")
@@ -36,14 +36,32 @@ def _sentence_sort_key(code: str) -> tuple[int, str]:
 
 
 class UpperOntology:
-    def __init__(self, ontology_dir: Path | None = None) -> None:
+    def __init__(self, ontology_dir: Path | None = None, overlay_path: Path | None = None) -> None:
         self._dir = ontology_dir or settings.ontology_dir
+        # 승인 편집 오버레이(영속, 쓰기 가능). 시드 파일(읽기전용)과 분리한다 (T-85).
+        self._overlay = overlay_path or settings.upper_overlay_path
 
     def _onto(self) -> Graph:
         g = Graph()
         for name in ("m0.ttl", "m1_wiper.ttl", "m2_instances.ttl"):
             g.parse(self._dir / name, format="turtle")
+        self._merge_overlay(g)
         return g
+
+    def _merge_overlay(self, g: Graph) -> None:
+        """승인 편집 오버레이를 얹는다(존재 시). 재기동 후에도 이 파일이 있어 편집이 유지된다."""
+        if self._overlay.exists():
+            g.parse(self._overlay, format="turtle")
+
+    def _load_overlay(self) -> Graph:
+        ov = Graph()
+        if self._overlay.exists():
+            ov.parse(self._overlay, format="turtle")
+        return ov
+
+    def _save_overlay(self, ov: Graph) -> None:
+        self._overlay.parent.mkdir(parents=True, exist_ok=True)
+        ov.serialize(destination=self._overlay, format="turtle")
 
     # ── 조회 ────────────────────────────────────────────────────────────────
     def classes(self) -> dict:
@@ -93,12 +111,60 @@ class UpperOntology:
             )
         return {"classes": classes, "relations": relations, "trace_id": get_trace_id()}
 
-    # ── 편집 게이트 (HITL) ────────────────────────────────────────────────────
+    # ── 편집 게이트 (HITL) + 영속화 (T-85) ────────────────────────────────────
     def edit(self, changes: list[dict], approved: bool) -> dict:
+        """HITL 게이트(미승인 409) 후, 승인 변경을 **오버레이 TTL 에 영속**한다.
+
+        `{"op":"add","id":"Vibration","parent":"Symptom"}` → 상위 클래스 신설(부모 네임스페이스).
+        재기동 후에도 오버레이가 남아 `classes()`·추론에 반영된다.
+        """
         if not approved:
             raise GuardrailBlocked(internal="상위 온톨로지 변경 미승인 저장 시도")
-        # MVP: 승인 게이트만 강제하고 변경을 접수(에코)한다. 실제 TTL 반영은 T-8x(퍼시스턴스 확장).
-        return {"accepted": changes, "applied": len(changes), "trace_id": get_trace_id()}
+
+        seed = self._onto()  # 부모 IRI 해석용(시드+기존 오버레이)
+        overlay = self._load_overlay()
+        applied = 0
+        for ch in changes:
+            op = str(ch.get("op", "add")).lower()
+            cid = ch.get("id")
+            if op != "add" or not cid:
+                raise ValidationError(
+                    f"지원하지 않는 변경: {ch!r} (op='add'·id 필수)", details={"field": "changes"}
+                )
+            parent = ch.get("parent")
+            child_iri, parent_iri = self._resolve_new_class(seed, str(cid), parent)
+            overlay.add((child_iri, RDF.type, OWL.Class))
+            overlay.add((child_iri, RDFS.label, Literal(str(cid))))
+            if parent_iri is not None:
+                overlay.add((child_iri, RDFS.subClassOf, parent_iri))
+            applied += 1
+
+        self._save_overlay(overlay)
+        return {"applied": applied, "persisted": True, "trace_id": get_trace_id()}
+
+    def _resolve_new_class(
+        self, g: Graph, cid: str, parent: str | None
+    ) -> tuple[URIRef, URIRef | None]:
+        """부모 로컬네임 → IRI 해석. 신규 클래스는 **부모와 같은 네임스페이스**에 만든다.
+
+        부모 미지정/미해석이면 상위 확장 네임스페이스(ext:)에 owl:Class 로만 만든다.
+        """
+        parent_iri: URIRef | None = None
+        if parent:
+            for cand in g.subjects(RDF.type, OWL.Class):
+                if isinstance(cand, URIRef) and _local(cand) == parent:
+                    parent_iri = cand
+                    break
+            if parent_iri is None:  # subClassOf 로만 정의된 상위어(ext:Symptom 등)도 부모 후보
+                for s, o in g.subject_objects(RDFS.subClassOf):
+                    for term in (s, o):
+                        if isinstance(term, URIRef) and _local(term) == parent:
+                            parent_iri = term
+                            break
+                    if parent_iri is not None:
+                        break
+        ns = parent_iri.rsplit("#", 1)[0] + "#" if parent_iri else str(EXT)
+        return URIRef(f"{ns}{cid}"), parent_iri
 
     # ── 영향 분석 (AC-6) ──────────────────────────────────────────────────────
     def impact(self, changes: list[dict]) -> dict:
