@@ -81,18 +81,27 @@ G2 를 막은 결함은 **8건**이었고 **7건이 mock 에서는 보이지 않
 
 ---
 
-## Phase 3 — 검증 · 패키징 (QA 먼저 게이트 · DevOps 병렬)
+## Phase 3 — 검증 · 패키징 (QA 먼저 게이트 · DevOps 병렬 · 운영 provider=Solar)
 
 > **배치 원칙**: 08 QA 가 "무엇이 통과인지"를 먼저 고정(T-70) → 그 회귀셋으로 04 T-73 과차단을 측정한 뒤 켠다.
-> 09 DevOps 는 병렬, 단 CI(T-82)는 QA 회귀셋을 게이트로 문다. **판정은 실 스택·실키**(mock 통과 무의미).
-> 결정론 경로에 "값 없으면 그럴듯한 것으로 채우기" 금지. 배치 상세·현황은 `status/phase3.md`.
+> 09 DevOps 는 병렬, 단 CI(T-82)는 QA 회귀셋을 게이트로 문다.
+> **판정은 실 스택·Solar 실키**(운영 provider=Solar; mock·Claude 통과만으론 불충분). 근거 `docs/Solar-AI백엔드-통합가이드.md`.
+> 결정론 경로에 "값 없으면 그럴듯한 것으로 채우기" 금지.
+> **트랙**: [D] 05 Solar(T-88, 먼저/병렬 — 실키 판정의 전제) · [A] 08 QA(T-70→71→72)+04(T-73) · [B] 미결(T-83~87+가드) · [C] 09 DevOps(T-80~82).
+> **교차 의존만**: T-82←T-70 · T-71←T-88 · 가드←T-81(앞). 소유 경로 무중복.
 
-### 08 QA (게이트, 먼저)
+### [D] 05 Solar provider (먼저/병렬 — 실키 판정의 전제)
 
 | id | owner | task | deps | 상태 | DoD |
 |---|:--:|---|---|:--:|---|
-| T-70 | 08 | 회귀셋 확장(`regression_set.jsonl`) + AC-1~8 하네스(실 스택 러너) | G2, T-87 | todo | AC-1~8 전건 통과. **가드레일 우회 8종 포함**(integration_log #G2). **inferred 엣지가 실제 렌더되는 질의 포함**(AC-4). |
-| T-71 | 08 | LLM-as-Judge 루브릭(정확성·근거성·안전성·RAG충분성) | T-70 | todo | 결정론 100% 일치, 미검증 근거 0. **실키로 검증**(mock 통과는 무의미). |
+| T-88 | 05 | Solar provider + `AI_PROVIDER` 스위치(운영 기본 solar) | T-50(done) | todo | `bff/src/services/ai/solarProvider.ts`(OpenAI SDK·`https://api.upstage.ai/v1`·`solar-pro3`·stream·`reasoning_effort`·`response_format` json_schema) + gateway 에 `solar` 등록 + `AI_PROVIDER`(mock\|solar\|claude\|gemini; 키없음/AI_MOCK_MODE→mock 폴백) + `.env AI_PROVIDER=solar`. **실키 스모크(Studio_API_Key)**: chat·SSE·구조화 추출 유효 JSON, json_schema strict 확인(미지원 시 JSON프롬프트+파서 폴백). 이후 실키 판정은 전부 Solar. |
+
+### [A] 08 QA (게이트, 먼저)
+
+| id | owner | task | deps | 상태 | DoD |
+|---|:--:|---|---|:--:|---|
+| T-70 | 08 | 회귀셋 확장(`regression_set.jsonl`) + AC-1~8 하네스(실 스택 러너) | G2, T-87 | **done** | AC-1~8 전건 통과. **가드레일 우회 8종 포함**. **inferred 렌더 질의(AC-4)**. **T-73 과차단용 양성 대조**(정상 도메인 질문, 막히면 안 됨: qa-A·qa-B·rag-verified). 실키 24 PASS·1 SKIP(meta) — 운영 Solar 재판정은 T-88 후. |
+| T-71 | 08 | LLM-as-Judge 루브릭(정확성·근거성·안전성·RAG충분성) | T-70, **T-88** | todo | 결정론 100% 일치, 미검증 근거 0. **Solar 실키로 검증**(mock 통과는 무의미). |
 | T-72 | 08 | 실패 케이스(타임아웃·range위반·수치누락·도메인밖·롤백) | T-70 | todo | 수용기준 §4 전건. |
 
 ### 04 지식·추론 (QA 측정 후)
@@ -108,7 +117,7 @@ G2 를 막은 결함은 **8건**이었고 **7건이 mock 에서는 보이지 않
 |---|:--:|---|---|:--:|---|
 | T-80 | 09 | Dockerfile ×3 + compose(**HermiT JRE 포함**) | G2 | todo | 로컬=Docker 동일 동작. `/health.reasoner` 가 JRE 유무 반영. |
 | T-81 | 09 | 시드 자동적재 · 벡터 초기 인덱싱 · env 배선 · **로컬 임베딩 모델 캐시** | T-80 | todo | 최초 기동만으로 6문장 조회. 모델 캐시(이미지/볼륨)로 **오프라인 기동**. |
-| T-82 | 09 | CI: `validate_contracts.py` + typecheck + 회귀셋 + **실 스택 스모크** | T-80, T-70 | todo | 계약 위반 시 빌드 실패. mock 통과만으로 통과 금지(§3.1). 임시 데이터 디렉터리 격리. |
+| T-82 | 09 | CI: `validate_contracts.py` + typecheck + 회귀셋 + **실 스택 스모크** | T-80, T-70 | todo | 계약 위반 시 빌드 실패. mock 통과만으로 통과 금지(§3.1). 임시 데이터 디렉터리 격리. **추론 의존 AC 는 Docker(HermiT)로 1회 검증**. |
 
 ### 승격된 미결 리스크 (신규 정식 태스크)
 
@@ -116,9 +125,9 @@ G2 를 막은 결함은 **8건**이었고 **7건이 mock 에서는 보이지 않
 |---|:--:|---|---|:--:|---|
 | T-83 | 06·05 | **진짜 멱등**: `kg/save` 에 `draft_id` 유니크 제약 | T-41(done) | todo | BFF 재기동/다중전송에도 중복 저장 0(현재 in-memory idempotency 한계 해소). |
 | T-84 | 05 | Idempotency·CircuitBreaker 상태 **외부화 검토** | T-83 | todo | 최소: 단일 인스턴스 가정 **명시+문서화**. 이상: 영속/공유 스토어. 재기동·다중 인스턴스 동작 규정. |
-| T-86 | 08·09 | BFF 테스트 **flaky 근절** | T-82 | todo | 재발 시 **전체 출력 보존**(37회 재현 실패 이력). T-82 에서 결정론 강제. **원인 확정 전 "수정됨" 선언 금지**. |
-| T-87 | 02·08 | 시드에 **inferred 엣지 생성 질의** 보강 | T-10(done) | todo | 지식맵 점선(AC-4)이 실제 렌더되는 질의를 회귀셋에(현재 inferred 1건, 필터 질의 미노출). |
-| 가드 | 04·03 | **컬렉션-임베더 일치 가드**(하드닝) | T-20(done) | todo | Chroma 컬렉션 메타에 `embedder_model`·`embed_dim` 저장, 불일치 시 drop→recreate. `MockEmbedder.DIM`=`settings.embed_dim`(현재 256≠384 잠복 불일치). provider 전환 "data/chroma 삭제 깜빡" 무증상 오류 구조적 차단. |
+| T-86 | 08·09 | BFF 테스트 **flaky 근절** | T-82 | todo | **근본수정 또는 격리+출력보존+CI 결정론 중 하나로 닫아 릴리스 블로커화 방지**. 재발 시 **전체 출력 보존**(37회 재현 실패 이력). **원인 확정 전 "수정됨" 선언 금지**. |
+| T-87 | 02·08 | 시드에 **inferred 엣지 생성 질의** 보강 | T-10(done) | **done** | TipChatter 를 거동 위계 has_subbehavior 로 연결 → `/graph?symptom=TipChatter` inferred_edges=3 렌더. AC-4 렌더 확인은 T-70 graph-s3 로 완료(실키 PASS). |
+| 가드 | 04·03 | **컬렉션-임베더 일치 가드**(하드닝, **T-81 앞**) | T-20(done) | todo | Chroma 컬렉션 메타에 `embedder_model`·`embed_dim` 저장, 불일치 시 drop→recreate. `MockEmbedder.DIM`=`settings.embed_dim`(현재 256≠384 잠복 불일치). provider 전환 "data/chroma 삭제 깜빡" 무증상 오류 구조적 차단. |
 
 ---
 
