@@ -9,8 +9,8 @@ import { Router, type Response } from "express";
 import { AppError, GuardrailBlocked } from "../core/errors.js";
 import { log } from "../core/trace.js";
 import { parseOrThrow } from "../core/validate.js";
-import { saveReqSchema, streamReqSchema, validateReqSchema } from "../schemas/requests.js";
-import type { Concept, Relation } from "../services/ai/types.js";
+import { abExtractReqSchema, saveReqSchema, streamReqSchema, validateReqSchema } from "../schemas/requests.js";
+import type { Concept, ProviderName, Relation } from "../services/ai/types.js";
 import type { Violation } from "../services/knowledgeClient.js";
 import { asyncHandler, type Deps } from "./deps.js";
 
@@ -29,6 +29,19 @@ function sse(res: Response, event: string, data: unknown): void {
 function errorBody(err: unknown, traceId: string) {
   if (err instanceof AppError) return err.toBody(traceId);
   return { code: "INTERNAL", user_message: "일시적인 오류입니다.", trace_id: traceId };
+}
+
+/** T-90 A/B — 한 provider 로 추출한 concept·relation 을 모아 반환(SSE 아님, 동기 수집). */
+async function collectExtraction(
+  gwExtract: AsyncIterable<{ kind: string; concept?: Concept; relation?: Relation }>,
+): Promise<{ concepts: Concept[]; relations: Relation[] }> {
+  const concepts: Concept[] = [];
+  const relations: Relation[] = [];
+  for await (const ev of gwExtract) {
+    if (ev.kind === "concept" && ev.concept) concepts.push(ev.concept);
+    else if (ev.kind === "relation" && ev.relation) relations.push(ev.relation);
+  }
+  return { concepts, relations };
 }
 
 export function createExtractionRouter(deps: Deps): Router {
@@ -58,8 +71,18 @@ export function createExtractionRouter(deps: Deps): Router {
     });
     res.flushHeaders?.();
 
+    const requested = parsed.data.provider;
     void (async () => {
-      const gateway = deps.makeGateway(req.traceId);
+      const gateway = deps.makeGateway(req.traceId, requested);
+      // T-90 — 어떤 provider 로 추출하는지 첫 status 로 투명하게 알린다(SSE 계약: status* 먼저).
+      // 선택 provider 키 부재 시 mock 폴백을 감추지 않는다(비용/근거 투명).
+      const actual = gateway.providerName();
+      sse(res, "status", {
+        stage: "provider",
+        provider: actual,
+        ...(requested ? { requested_provider: requested } : {}),
+        ...(requested && actual !== requested ? { fallback: true, msg: `${requested} 키가 없어 ${actual} 로 폴백했습니다.` } : {}),
+      });
       const knowledge = deps.makeKnowledge(req.traceId);
       const concepts: Concept[] = [];
       const relations: Relation[] = [];
@@ -106,6 +129,30 @@ export function createExtractionRouter(deps: Deps): Router {
       const knowledge = deps.makeKnowledge(req.traceId);
       const v = await knowledge.validateShacl(body);
       res.json({ conforms: v.conforms, violations: v.violations, trace_id: req.traceId });
+    }),
+  );
+
+  // ── A/B diff — 두 모델로 동시 추출(T-90) ──
+  // 추출 초안 비교만 한다. 저장·검증 게이트는 provider 무관하게 동일 적용(불변원칙 3·아래 /save).
+  r.post(
+    "/ab",
+    asyncHandler(async (req, res) => {
+      const body = parseOrThrow(abExtractReqSchema, req.body);
+      const providers = (body.providers ?? ["solar", "claude"]) as ProviderName[];
+      const results = await Promise.all(
+        providers.map(async (p) => {
+          const gw = deps.makeGateway(req.traceId, p);
+          const actual = gw.providerName();
+          try {
+            const { concepts, relations } = await collectExtraction(gw.extract(body.text));
+            return { requested_provider: p, actual_provider: actual, concepts, relations };
+          } catch (err) {
+            log(req.traceId, "warn", `ab extract ${p} 실패: ${String(err)}`);
+            return { requested_provider: p, actual_provider: actual, concepts: [], relations: [], error: (err instanceof AppError ? err.code : "LLM_ERROR") };
+          }
+        }),
+      );
+      res.json({ text: body.text, results, trace_id: req.traceId });
     }),
   );
 
