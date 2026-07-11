@@ -140,6 +140,27 @@ def test_graph_full_has_real_inferred_edge(client: TestClient) -> None:
     ), "이행 폐포 추론 엣지가 없다"
 
 
+def test_graph_symptom_filter_renders_inferred_edges(client: TestClient) -> None:
+    """T-87 / AC-4 — 증상=TipChatter 필터 뷰에서 이행(점선) 엣지가 실제로 렌더된다.
+
+    시드에서 TipChatter(ext:Symptom ⊑ ext:FailureBehavior ⊑ spmm:Behavior)를 접촉 거동의
+    has_subbehavior 대상으로 두어, 이행 폐포가 상위 거동(Sweep·Wiping)→TipChatter 로 닿는다.
+    이전엔 거동 위계가 TipChatter 이웃과 끊겨 있어 필터 뷰에 inferred 가 노출되지 않았다.
+    """
+    body = client.get("/graph", params={"symptom": "TipChatter"}).json()
+    GraphResponse.model_validate(body)
+    ids = {n["id"] for n in body["nodes"]}
+    # AC-4: S3 클릭 이웃 — 관련 문장·규칙이 함께 하이라이트된다
+    assert {"TipChatter", "S3", "S4", "S6", "ChatterRule"} <= ids
+    inferred = [e for e in body["edges"] if e["inferred"]]
+    assert body["stats"]["inferred_edges"] == len(inferred)
+    assert inferred, "증상 필터 뷰에 이행(점선) 엣지가 하나도 없다 — AC-4 미충족"
+    assert any(
+        e["target"] == "TipChatter" and e["source"] in {"WipingBehavior", "SweepBehavior"}
+        for e in inferred
+    ), "이행 폐포가 TipChatter 로 닿지 않는다"
+
+
 def test_graph_limit_is_applied(client: TestClient) -> None:
     body = client.get("/graph", params={"limit": 3}).json()
     assert len(body["nodes"]) == 3

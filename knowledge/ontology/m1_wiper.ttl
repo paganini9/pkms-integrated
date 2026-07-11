@@ -44,7 +44,10 @@ dom:Noise      ext:conditionedOn dom:Winter .
 ### --- 거동 위계(transitive 데모) ---
 dom:WipingBehavior a spmm:Behavior ; spmm:has_subbehavior dom:SweepBehavior ; rdfs:label "와이핑 거동" .
 dom:SweepBehavior  a spmm:Behavior ; spmm:has_subbehavior dom:ContactBehavior ; rdfs:label "쓸기 거동" .
-dom:ContactBehavior a spmm:Behavior ; rdfs:label "접촉 거동" .
+### 끝단 떨림(TipChatter)은 접촉 거동에서 발현하는 실패 거동(ext:Symptom ⊑ ext:FailureBehavior ⊑ spmm:Behavior).
+### has_subbehavior 는 owl:TransitiveProperty → 이행 폐포가 상위 거동(Sweep·Wiping)에서 TipChatter 로 닿아,
+### 증상=TipChatter 필터 뷰에서 이행 관계가 점선(inferred)으로 렌더된다 (AC-4 / T-87).
+dom:ContactBehavior a spmm:Behavior ; spmm:has_subbehavior dom:TipChatter ; rdfs:label "접촉 거동" .
 
 ### --- 6 지식문장 (증상-인과, 유지) ---
 dom:KnowledgeSentence a owl:Class .
