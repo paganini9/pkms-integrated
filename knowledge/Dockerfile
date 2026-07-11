@@ -15,10 +15,16 @@ WORKDIR /app
 ENV PIP_NO_CACHE_DIR=1
 COPY requirements.txt requirements-ml.txt ./
 ARG INCLUDE_ML
+ENV HF_HOME=/models
 RUN python -m venv /venv \
  && /venv/bin/pip install -U pip \
  && /venv/bin/pip install -r requirements.txt \
  && if [ "$INCLUDE_ML" = "true" ]; then /venv/bin/pip install -r requirements-ml.txt; fi
+# 로컬 임베딩 모델 build-time bake — full 이미지의 오프라인 기동(T-81). 경량은 빈 /models.
+RUN mkdir -p /models \
+ && if [ "$INCLUDE_ML" = "true" ]; then \
+      /venv/bin/python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')"; \
+    fi
 
 # ── runtime ──
 FROM python:3.12-slim AS runtime
@@ -28,8 +34,10 @@ ENV JAVA_HOME=/opt/java/openjdk \
     PATH="/opt/java/openjdk/bin:/venv/bin:${PATH}" \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    EMBEDDING_PROVIDER=mock
+    EMBEDDING_PROVIDER=mock \
+    HF_HOME=/models
 COPY --from=builder /venv /venv
+COPY --from=builder /models /models
 WORKDIR /app
 COPY . .
 EXPOSE 8000

@@ -36,8 +36,30 @@ async def lifespan(app: FastAPI):
         reasoner_status(),
     )
     _wire_layers()
+    _bootstrap()
     yield
     log.info("지식 서비스 종료")
+
+
+def _bootstrap() -> None:
+    """기동 시 시드 멱등 적재 + 벡터 초기 인덱싱 (T-81 — 최초 기동만으로 6문장 조회).
+
+    load_seed·ensure_indexed 는 모두 멱등이라 재기동에 안전하다. 실패해도 서비스 기동은 막지 않는다.
+    """
+    try:
+        from store.routes import get_store
+
+        store = get_store()  # 영속 스토어를 열고 시드를 멱등 적재
+        log.info("시드 적재 완료 — 트리플 %d", store.triple_count())
+    except Exception:  # noqa: BLE001 — 시드 적재 실패가 기동을 막지 않는다
+        log.exception("시드 적재 실패")
+    try:
+        from rag.routes import get_retriever
+
+        n = get_retriever().ensure_indexed()  # 6문장 벡터 초기 인덱싱(멱등)
+        log.info("벡터 초기 인덱싱 완료 — %d 문장", n)
+    except Exception:  # noqa: BLE001
+        log.exception("벡터 초기 인덱싱 실패 — 검색은 첫 요청 때 지연 인덱싱")
 
 
 def _wire_layers() -> None:
