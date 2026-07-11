@@ -1,0 +1,6 @@
+# 선택 — 실제 임베딩 모델 (EMBEDDING_PROVIDER=local). torch 포함으로 용량이 크다.
+# 없으면 EMBEDDING_PROVIDER=mock 으로 전 흐름이 동작해야 한다 (MOCK 우선 원칙).
+# 기본 CI 에 추가하지 말 것 — tests/test_rag.py 의 ST 미설치 폴백 검증이 깨진다.
+-r requirements.txt
+
+sentence-transformers==3.3.1

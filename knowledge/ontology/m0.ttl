@@ -1,0 +1,71 @@
+### ===== M0 : 확장 SPMM 상위 온톨로지 (M0-core + M0-ext) =====
+@prefix spmm: <http://ex.org/spmm#> .
+@prefix ext:  <http://ex.org/spmm-ext#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+spmm: a owl:Ontology ; rdfs:label "M0-core: SPMM FBS Upper Ontology" .
+
+### --- M0-core : SPMM FBS 4대 범주 (상호 disjoint) ---
+spmm:Entity    a owl:Class ; rdfs:label "Entity" .
+spmm:Form      a owl:Class ; rdfs:label "Form" .
+spmm:Behavior  a owl:Class ; rdfs:label "Behavior" .
+spmm:Attribute a owl:Class ; rdfs:label "Attribute" .
+[] a owl:AllDisjointClasses ;
+   owl:members ( spmm:Entity spmm:Form spmm:Behavior spmm:Attribute ) .
+
+spmm:SpecifiedEntity rdfs:subClassOf spmm:Entity .
+spmm:Artifact        rdfs:subClassOf spmm:Entity .
+spmm:Material        rdfs:subClassOf spmm:Form .
+
+spmm:RequiredBehavior rdfs:subClassOf spmm:Behavior .
+spmm:DesignedBehavior rdfs:subClassOf spmm:Behavior .
+spmm:TestBehavior     rdfs:subClassOf spmm:Behavior .
+[] a owl:AllDisjointClasses ;
+   owl:members ( spmm:RequiredBehavior spmm:DesignedBehavior spmm:TestBehavior ) .
+
+### --- M0-core : SPMM 9관계 (핵심) ---
+spmm:is_form_of         a owl:ObjectProperty ; rdfs:domain spmm:Form ;    rdfs:range spmm:Entity .
+spmm:has_req_behavior   a owl:ObjectProperty ; rdfs:range spmm:RequiredBehavior .
+spmm:has_des_behavior   a owl:ObjectProperty ; rdfs:range spmm:DesignedBehavior .
+spmm:has_test_behavior  a owl:ObjectProperty ; rdfs:range spmm:TestBehavior .
+spmm:satisfy_beh_required a owl:ObjectProperty ;
+    rdfs:domain spmm:DesignedBehavior ; rdfs:range spmm:RequiredBehavior ;
+    rdfs:comment "DB→RB : DB ⊑ RB 로 해석(설계가 요구를 만족)." .
+spmm:has_subbehavior    a owl:ObjectProperty , owl:TransitiveProperty ;
+    rdfs:domain spmm:Behavior ; rdfs:range spmm:Behavior .
+spmm:has_attribute      a owl:ObjectProperty ; rdfs:range spmm:Attribute .
+
+### ===== M0-ext : 증상·인과·제품구조 상위어 (SPMM 확장) =====
+ext: a owl:Ontology ; rdfs:label "M0-ext: 증상·인과·제품구조 상위 확장" .
+
+ext:FailureBehavior rdfs:subClassOf spmm:Behavior ;  rdfs:label "Failure Behavior (실패 거동)" .
+ext:Symptom         rdfs:subClassOf ext:FailureBehavior ; rdfs:label "Symptom (증상)" .
+ext:EnvCondition    rdfs:subClassOf spmm:Attribute ; rdfs:label "Env Condition (환경 조건)" .
+ext:PartType        rdfs:subClassOf spmm:Artifact ; rdfs:label "Part Type" .
+ext:Component       rdfs:subClassOf spmm:Artifact ; rdfs:label "Component" .
+ext:VehicleType     rdfs:subClassOf spmm:Artifact ; rdfs:label "Vehicle Type" .
+
+### 인과 상위어 (domain은 열어 둠 — Material 등에도 붙어 disjoint 충돌 방지)
+ext:causes       a owl:ObjectProperty ; rdfs:range ext:FailureBehavior ; rdfs:label "causes" .
+ext:mitigates    a owl:ObjectProperty ; rdfs:range ext:FailureBehavior ; rdfs:label "mitigates" .
+ext:aggravates   a owl:ObjectProperty ; rdfs:range ext:FailureBehavior ; rdfs:label "aggravates" .
+ext:conditionedOn a owl:ObjectProperty ; rdfs:domain ext:FailureBehavior ; rdfs:range ext:EnvCondition .
+ext:exhibits     a owl:ObjectProperty ; rdfs:range ext:FailureBehavior ; rdfs:label "exhibits" .
+
+### ===== M0-ext : 조건부 인과의 reification (T-91 · W3C n-ary 패턴) =====
+### "A가 조건 C 하에서 증상 S를 유발한다"는 본질적 3항 관계다. 이항 트리플
+### (X causes S)+(S conditionedOn C) 우회는 바인딩을 잃고, 추출이 주어를 틀리면
+### (예: PartType 이 conditionedOn 의 주어) 도메인 위반이 난다. 이를 1급 노드로 묶는다.
+### 한 Causation 이 (기전·조건·증상)을 함께 잡으므로 주어=Causation → PartType-conditionedOn 위반이 사라지고,
+### 한 증상에 (원인,조건) 맥락이 여럿이면 Causation 노드가 여럿 → 바인딩 보존.
+### OWL 2 EL 안전(존재 역할만 · 합집합/여집합/카디널리티 없음 — 카디널리티·타입 강제는 SHACL 층 담당).
+ext:Causation a owl:Class ; rdfs:subClassOf spmm:Behavior ; rdfs:label "Causation (조건부 인과)" .
+### 기전(mechanism): 부품(Artifact)·재질(Material)·설계속성(Attribute) 어느 것이든 될 수 있어 range 는 열어 둔다(disjoint 충돌 방지).
+ext:hasMechanism     a owl:ObjectProperty ; rdfs:domain ext:Causation ; rdfs:label "hasMechanism (기전)" .
+ext:underCondition   a owl:ObjectProperty ; rdfs:domain ext:Causation ; rdfs:range ext:EnvCondition ; rdfs:label "underCondition (조건)" .
+ext:manifestsSymptom a owl:ObjectProperty ; rdfs:domain ext:Causation ; rdfs:range ext:Symptom ; rdfs:label "manifestsSymptom (증상)" .
+### 극성(cause|aggravate|mitigate) — rules.ttl 의 polarity 와 정합. 판정이 아니라 지식표현 메타.
+ext:causationPolarity a owl:DatatypeProperty ; rdfs:domain ext:Causation ; rdfs:label "causation polarity" .

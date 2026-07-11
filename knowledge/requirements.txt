@@ -1,0 +1,21 @@
+# 지식·추론 서비스 런타임 의존성 (Python 3.12)
+# 무거운 임베딩 모델은 requirements-ml.txt (선택) — EMBEDDING_PROVIDER=mock 이면 불필요
+
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.0
+httpx==0.28.1
+
+# 트리플스토어 · 추론 · SHACL
+rdflib==7.1.1
+oxrdflib==0.4.0            # Oxigraph 임베디드 스토어 플러그인
+pyoxigraph==0.4.4
+pyshacl==0.29.0
+owlrl==7.1.2               # HermiT 미가용 시 폴백 추론기
+owlready2==0.47            # HermiT(Java) 래퍼 — JRE 필요
+
+# 벡터 인덱스
+# 1.x 는 hnswlib 를 Rust 로 대체해 C++ 빌드툴(MSVC)이 필요 없다.
+# 0.6.x 는 chroma-hnswlib 소스 빌드를 시도해 Windows 개발기에서 설치가 깨진다 — 내리지 말 것.
+chromadb==1.5.9

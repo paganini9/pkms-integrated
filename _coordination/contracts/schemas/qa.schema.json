@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pkms.local/contracts/v1/qa.schema.json",
+  "title": "Q&A · 환각비교 (FR-06~09) v1",
+  "$defs": {
+    "QaRequest": {
+      "type": "object",
+      "required": ["question"],
+      "additionalProperties": false,
+      "properties": {
+        "question": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "mode": { "type": "string", "enum": ["compare", "verified"], "default": "compare" },
+        "project_id": { "type": ["string", "null"] },
+        "thread_id": { "type": "string" }
+      }
+    },
+
+    "VerifiedAnswer": {
+      "type": "object",
+      "required": ["text", "determinism", "sources"],
+      "additionalProperties": false,
+      "properties": {
+        "text": { "type": "string" },
+        "determinism": { "type": "string", "enum": ["sparql", "satisfy", "rag"] },
+        "sources": {
+          "type": "array", "items": { "$ref": "common.schema.json#/$defs/Source" },
+          "description": "RAG(C)의 경우 verified=true 인 hit만 들어온다 (미검증 근거 0)"
+        }
+      }
+    },
+
+    "LlmAnswer": {
+      "type": ["object", "null"],
+      "required": ["text", "model"],
+      "additionalProperties": false,
+      "properties": {
+        "text": { "type": "string" },
+        "model": { "type": "string", "enum": ["mock", "claude", "gemini"] }
+      }
+    },
+
+    "Mismatch": {
+      "type": "object",
+      "required": ["claim", "verdict"],
+      "additionalProperties": false,
+      "properties": {
+        "claim": { "type": "string", "description": "LLM 단독 주장" },
+        "verdict": { "type": "string", "description": "온톨로지 판정" },
+        "evidence": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "Comparison": {
+      "type": ["object", "null"],
+      "required": ["mismatches", "violation_rate", "agreement_rate"],
+      "additionalProperties": false,
+      "properties": {
+        "mismatches": { "type": "array", "items": { "$ref": "#/$defs/Mismatch" } },
+        "violation_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "agreement_rate": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+
+    "QaResponse": {
+      "type": "object",
+      "required": ["layer", "verified_answer", "insufficient_evidence", "trace_id"],
+      "additionalProperties": false,
+      "properties": {
+        "layer": { "type": "string", "enum": ["A", "B", "C"] },
+        "verified_answer": { "$ref": "#/$defs/VerifiedAnswer" },
+        "llm_answer": { "$ref": "#/$defs/LlmAnswer" },
+        "comparison": { "$ref": "#/$defs/Comparison" },
+        "insufficient_evidence": {
+          "type": "boolean",
+          "description": "true면 verified_answer.text 는 '명세 근거 없음'을 명시해야 한다(억지 답 금지)"
+        },
+        "trace_id": { "$ref": "common.schema.json#/$defs/TraceId" }
+      }
+    },
+
+    "RagHit": {
+      "type": "object",
+      "required": ["iri", "text", "score", "verified"],
+      "additionalProperties": false,
+      "properties": {
+        "iri": { "type": "string", "format": "uri" },
+        "sentence": { "type": "string" },
+        "text": { "type": "string" },
+        "score": { "type": "number" },
+        "about_symptom": { "type": ["string", "null"] },
+        "derives_rule": { "type": ["string", "null"] },
+        "verified": { "type": "boolean", "description": "파생 규칙이 SPARQL/SHACL 검증을 통과했는가" }
+      }
+    },
+
+    "RagSearchResponse": {
+      "type": "object",
+      "required": ["hits", "sufficient", "trace_id"],
+      "additionalProperties": false,
+      "properties": {
+        "hits": { "type": "array", "items": { "$ref": "#/$defs/RagHit" } },
+        "sufficient": { "type": "boolean", "description": "verified=true hit ≥ 1" },
+        "trace_id": { "$ref": "common.schema.json#/$defs/TraceId" }
+      }
+    }
+  }
+}

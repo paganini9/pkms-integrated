@@ -1,0 +1,19 @@
+{
+  "_comment": "AC-1P — POST /api/v1/projects/{id}/requirements. 자연어 → RB 파싱(LLM 생성 + 증상 존재 검증). 미지 증상은 unknown_symptoms로 반환하고 저장하지 않는다.",
+  "_request": { "text": "겨울철에도 소음이 없고 중형 SUV에서 떨림이 없어야 한다" },
+  "requirements": [
+    { "id": "RB_Winter", "iri": "http://ex.org/eng#RB_Winter", "label": "겨울 저소음(소음 없음)", "forbids_symptom": "Noise" },
+    { "id": "RB_NoChatter", "iri": "http://ex.org/eng#RB_NoChatter", "label": "끝단 떨림 없음", "forbids_symptom": "TipChatter" }
+  ],
+  "unknown_symptoms": [],
+  "trace_id": "trace-req-0012",
+
+  "_variant_unknown_symptom": {
+    "_request": { "text": "겨울철에 소음이 없고 유막이 남지 않아야 한다" },
+    "requirements": [
+      { "id": "RB_Winter", "iri": "http://ex.org/eng#RB_Winter", "label": "겨울 저소음(소음 없음)", "forbids_symptom": "Noise" }
+    ],
+    "unknown_symptoms": ["유막"],
+    "trace_id": "trace-req-0013"
+  }
+}

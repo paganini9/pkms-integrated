@@ -1,0 +1,16 @@
+{
+  "_comment": "AC-3 / 회귀 qa-A — A계층(규칙질문 → SPARQL). 결정론 100%, 출처 S3.",
+  "_request": { "question": "중형 SUV 안전 길이는?", "mode": "verified" },
+  "layer": "A",
+  "verified_answer": {
+    "text": "중형 SUV의 블레이드 안전 길이는 599mm 이하입니다. 600mm 이상이면 끝단 떨림이 발생할 수 있습니다.",
+    "determinism": "sparql",
+    "sources": [
+      { "sentence": "S3", "iri": "http://ex.org/domain#S3", "text": "중형 SUV에서 블레이드 길이가 600mm 이상이면 끝단 떨림이 발생할 수 있다." }
+    ]
+  },
+  "llm_answer": null,
+  "comparison": null,
+  "insufficient_evidence": false,
+  "trace_id": "trace-qa-0008"
+}

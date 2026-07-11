@@ -1,0 +1,11 @@
+{
+  "status": "ok",
+  "llm_provider": "mock",
+  "knowledge": {
+    "status": "ok",
+    "store": "ok",
+    "reasoner": "no_jre",
+    "rag": "ok"
+  },
+  "trace_id": "trace-health-0001"
+}

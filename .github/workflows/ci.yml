@@ -1,0 +1,114 @@
+name: CI
+
+# 2계층(T-82): (A) 빠른 계약·유닛(mock, no JRE/torch) · (B) 릴리스 스모크(Docker·JRE·모델·키).
+# 게이트 원칙: mock 통과만으로 통과시키지 않는다. 추론 의존 AC 는 HermiT 컨테이너에서 1회.
+# 키는 GitHub Secrets(자동 마스킹) — 없으면 mock 그레이스풀.
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  # ══════════ Tier A — 빠른 계약·유닛 (Docker/JRE/torch 없이) ══════════
+  unit-fast:
+    runs-on: ubuntu-latest
+    # 주의: runner 컨텍스트(${{ runner.temp }})는 job-level env 에서 못 쓴다(step 에서만 가용).
+    # 그래서 첫 스텝에서 $RUNNER_TEMP 로 $GITHUB_ENV 에 써 이후 스텝 전역에 주입한다.
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 임시 데이터 디렉터리 격리(T-86)
+        run: |
+          echo "OXIGRAPH_PATH=$RUNNER_TEMP/data/oxigraph" >> "$GITHUB_ENV"
+          echo "CHROMA_PATH=$RUNNER_TEMP/data/chroma" >> "$GITHUB_ENV"
+          echo "UPPER_OVERLAY_PATH=$RUNNER_TEMP/data/upper_overlay.ttl" >> "$GITHUB_ENV"
+
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # 주의: GitHub 러너(ubuntu-latest)엔 JRE 가 선탑재라 hermit_available()=True →
+      # HermiT 경로도 여기서 함께 돈다(호스트 Windows 는 JRE 없어 owlrl 로 스킵). 두 엔진 모두 통과해야 한다.
+      # 추론 의존 AC 의 '실 스택' 판정은 여전히 Tier B(제어된 JRE 이미지)에서 1회가 정본이다.
+      - name: 계약 검증 + 지식 유닛(mock; 러너 JRE 로 HermiT 경로도 실행)
+        working-directory: knowledge
+        run: |
+          python -m pip install -U pip
+          pip install -r requirements-dev.txt
+          python ../_coordination/contracts/validate_contracts.py
+          python -m pytest -q
+
+      - name: Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: BFF typecheck + vitest
+        working-directory: bff
+        run: |
+          npm ci
+          npm run typecheck
+          npm test
+      - name: Frontend typecheck + build
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+  # ══════════ Tier B — 릴리스 스모크 (Docker·JRE·HermiT·실스택) ══════════
+  release-smoke:
+    runs-on: ubuntu-latest
+    needs: unit-fast
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 지식 이미지 빌드(경량) + HermiT 컨테이너 테스트(추론 의존 AC 1회)
+        run: |
+          docker build -t pkms-knowledge ./knowledge
+          # 런타임 이미지에 pytest 를 임시 설치해 JRE 경로(HermiT) 테스트를 컨테이너에서 실행.
+          docker run --rm pkms-knowledge sh -c "/venv/bin/pip install -q pytest && /venv/bin/python -m pytest tests/test_reasoner_hermit.py -q"
+
+      - name: 실 스택 스모크 (Solar 키 있으면 실키, 없으면 mock 그레이스풀)
+        env:
+          Studio_API_Key: ${{ secrets.STUDIO_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          # 결정론 경로(satisfy·scope·graph·governance·rules)는 항상 실 지식서비스로 판정한다.
+          # (예전엔 AI_MOCK_MODE=true 가 KNOWLEDGE_MOCK 까지 켜서 BFF 가 contracts/mocks fixture 를
+          #  재생했는데 그 파일은 BFF 이미지에 없어 ENOENT 500 이 났다. 지식서비스는 이미 완성체다.)
+          export KNOWLEDGE_MOCK=false
+          if [ -n "$Studio_API_Key" ]; then
+            export AI_MOCK_MODE=false AI_PROVIDER=solar
+            echo "::notice::Solar 실키 스모크"
+          else
+            export AI_MOCK_MODE=true
+            echo "::notice::키 없음 — mock LLM + 실 지식 스모크(결정론 경로만 판정)"
+          fi
+          docker compose up -d --build
+          # knowledge healthy 대기(healthcheck: reasoner=ok=JRE)
+          for i in $(seq 1 30); do
+            s=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose ps -q knowledge) 2>/dev/null || echo starting)
+            [ "$s" = "healthy" ] && break; sleep 4
+          done
+          python -m pip install -q httpx
+          # 스모크는 set -e 로 죽지 않게 rc 로 모아, 실패해도 진단 로그를 반드시 남기고(T-86 의도 복구)
+          # 정리한 뒤 그 결과로 스텝 성패를 정한다(예전엔 set -e 로 로그 스텝이 도달 불가였다).
+          set +e
+          rc=0
+          curl -sf http://localhost:4000/api/v1/health || { echo "::error::BFF /health 실패"; rc=1; }
+          if [ -n "$Studio_API_Key" ]; then
+            python _coordination/qa/run_regression.py --bff http://localhost:4000 || rc=1
+            python _coordination/qa/run_failure_cases.py --bff http://localhost:4000 || rc=1
+          else
+            # mock: LLM 라우팅은 판정에서 제외, 결정론 경로만 스모크.
+            python _coordination/qa/run_regression.py --bff http://localhost:4000 --only sat-bad,sat-good,scope-A,scope-B,graph-s3,gov-builtin-lock,gov-forbidden,rules-dryrun || rc=1
+          fi
+          if [ "$rc" -ne 0 ]; then
+            echo "===== 진단: 지식 /health 상세 ====="; curl -s http://localhost:4000/api/v1/health; echo
+            echo "===== 진단: docker compose ps ====="; docker compose ps
+            echo "===== 진단: knowledge 로그(tail 150) ====="; docker compose logs --no-color knowledge | tail -150
+            echo "===== 진단: bff 로그(tail 80) ====="; docker compose logs --no-color bff | tail -80
+          fi
+          docker compose down -v
+          exit $rc

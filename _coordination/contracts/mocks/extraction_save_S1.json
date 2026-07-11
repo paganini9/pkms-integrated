@@ -1,0 +1,42 @@
+{
+  "_comment": "POST /api/v1/extraction/save — AC-1. 문장이 진실원, rule·shapes·causal_edges는 파생(읽기 전용).",
+  "_request": {
+    "sentence_text": "겨울철 저온에서 고무는 경도가 상승해 소음을 유발한다.",
+    "concepts": [
+      { "label": "겨울철", "type": "EnvCondition" },
+      { "label": "고무", "type": "Material" },
+      { "label": "소음", "type": "Symptom" }
+    ],
+    "relations": [{ "subject": "고무", "predicate": "causes", "object": "소음", "evidence": "S1" }],
+    "category": "소음",
+    "approved": true,
+    "draft_id": "draft-0001"
+  },
+  "sentence": {
+    "id": "S1",
+    "iri": "http://ex.org/domain#S1",
+    "text": "겨울철 저온에서 고무는 경도가 상승해 소음을 유발한다.",
+    "category": "소음",
+    "mentions": ["Winter", "Rubber", "Noise"],
+    "about_symptom": "Noise",
+    "polarity": "cause"
+  },
+  "derived": {
+    "rule": {
+      "id": "NoiseRule",
+      "label": "겨울 + 고무 → 소음",
+      "polarity": "cause",
+      "category": "소음",
+      "about_symptom": "Noise",
+      "basis": "S1",
+      "conds": [
+        { "path": "hasMaterial", "op": "eq", "val": "Rubber" },
+        { "path": "operatesIn", "op": "eq", "val": "Winter" }
+      ]
+    },
+    "shapes": [{ "id": "NoiseShape", "gate_for": "Noise", "sentence": "S1" }],
+    "causal_edges": [{ "subject": "NoiseRule", "predicate": "causes", "object": "Noise", "evidence": "S1" }]
+  },
+  "human_view": ["겨울 + 고무 → 소음  [cause·S1·소음] → Noise"],
+  "trace_id": "trace-save-0003"
+}

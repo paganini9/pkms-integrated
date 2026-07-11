@@ -1,0 +1,6 @@
+{
+  "_comment": "수용기준 §4 'LLM 오류/타임아웃' — Circuit Breaker → Mock 폴백 or 재시도. 폴백까지 실패한 경우의 최종 응답 본문(HTTP 504). SSE에서는 event: error 의 data.",
+  "code": "LLM_TIMEOUT",
+  "user_message": "AI 응답이 지연됩니다. 다시 시도해 주세요.",
+  "trace_id": "trace-error-0015"
+}

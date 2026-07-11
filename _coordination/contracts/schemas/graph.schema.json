@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pkms.local/contracts/v1/graph.schema.json",
+  "title": "지식맵 (FR-10) v1",
+  "$defs": {
+    "GraphQuery": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "layer": { "type": "string", "enum": ["M0", "M1", "M2"] },
+        "symptom": { "type": "string", "description": "예 TipChatter" },
+        "sentence": { "type": "string", "description": "예 S3 — 클릭 시 연결 서브그래프" },
+        "project_id": { "type": "string" },
+        "limit": { "type": "integer", "minimum": 1, "maximum": 2000, "default": 500 }
+      }
+    },
+
+    "Node": {
+      "type": "object",
+      "required": ["id", "label", "kind", "iri"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "kind": {
+          "type": "string",
+          "enum": ["concept", "sentence", "rule", "symptom", "design", "requirement", "class"]
+        },
+        "layer": { "type": "string", "enum": ["M0", "M1", "M2"] },
+        "iri": { "type": "string", "format": "uri" },
+        "inferred": { "type": "boolean", "default": false },
+        "text": { "type": "string", "description": "sentence 노드의 원문" }
+      }
+    },
+
+    "Edge": {
+      "type": "object",
+      "required": ["source", "target", "predicate"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "type": "string" },
+        "target": { "type": "string" },
+        "predicate": { "type": "string" },
+        "inferred": {
+          "type": "boolean", "default": false,
+          "description": "true면 프론트에서 점선 렌더 (AC-4)"
+        },
+        "evidence": { "type": "string", "description": "근거 문장 코드" }
+      }
+    },
+
+    "GraphResponse": {
+      "type": "object",
+      "required": ["nodes", "edges", "stats", "trace_id"],
+      "additionalProperties": false,
+      "properties": {
+        "nodes": { "type": "array", "items": { "$ref": "#/$defs/Node" } },
+        "edges": { "type": "array", "items": { "$ref": "#/$defs/Edge" } },
+        "stats": {
+          "type": "object",
+          "required": ["nodes", "edges"],
+          "additionalProperties": false,
+          "properties": {
+            "nodes": { "type": "integer" },
+            "edges": { "type": "integer" },
+            "inferred_edges": { "type": "integer" },
+            "truncated": { "type": "boolean", "description": "limit 초과로 잘렸는가" }
+          }
+        },
+        "trace_id": { "$ref": "common.schema.json#/$defs/TraceId" }
+      }
+    }
+  }
+}

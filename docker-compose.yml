@@ -1,0 +1,62 @@
+# PKMS 통합 — Docker Compose (T-80 스켈레톤 · T-81 완성)
+# 실행: docker compose up --build
+# 원칙: 키는 이미지에 넣지 않는다 — 호스트 env(Studio_API_Key·ANTHROPIC_API_KEY)로만 주입. 로그 마스킹.
+#   경량(mock) 기본. full(local ML·오프라인 기동): INCLUDE_ML=true EMBEDDING_PROVIDER=local docker compose up --build
+
+services:
+  knowledge:
+    build:
+      context: ./knowledge
+      args:
+        INCLUDE_ML: "${INCLUDE_ML:-false}"
+    environment:
+      EMBEDDING_PROVIDER: "${EMBEDDING_PROVIDER:-mock}"
+    volumes:
+      # 영속 상태: oxigraph 트리플 · chroma 벡터 · 상위 온톨로지 오버레이(T-85) 모두 /app/data 하위.
+      - knowledge-data:/app/data
+      # 로컬 임베딩 모델 캐시 — 이미지에 bake 된 /models 로 초기화되고(오프라인 기동) 이후 영속.
+      - knowledge-models:/models
+    healthcheck:
+      # reasoner=ok = HermiT(JRE) 동작 증거(T-80). status·reasoner 둘 다 ok 여야 healthy.
+      test: ["CMD", "python", "-c", "import urllib.request,json,sys; d=json.load(urllib.request.urlopen('http://localhost:8000/health')); sys.exit(0 if d.get('status')=='ok' and d.get('reasoner')=='ok' else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 40s
+    ports:
+      - "8000:8000"
+
+  bff:
+    build:
+      context: ./bff
+    environment:
+      KNOWLEDGE_URL: "http://knowledge:8000"
+      BFF_PORT: "4000"
+      AI_MOCK_MODE: "${AI_MOCK_MODE:-false}"
+      AI_PROVIDER: "${AI_PROVIDER:-solar}"
+      # 태스크별 기본 provider(가역 — g3.1). 저작/구조화 추출=claude, Q&A=solar. 키 없으면 graceful 폴백.
+      AI_AUTHORING_PROVIDER: "${AI_AUTHORING_PROVIDER:-claude}"
+      AI_QA_PROVIDER: "${AI_QA_PROVIDER:-solar}"
+      # 지식서비스는 이제 완성체 — 결정론 경로는 항상 실 지식으로 태운다(mock LLM 이어도).
+      # KNOWLEDGE_MOCK 은 계약-초기 병렬개발 잔재(contracts/mocks 재생). 미설정이면 실 지식.
+      KNOWLEDGE_MOCK: "${KNOWLEDGE_MOCK:-}"
+      # 키 없으면 gateway 가 mock 으로 그레이스풀 폴백(운영은 Studio_API_Key 주입).
+      Studio_API_Key: "${Studio_API_Key:-}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+    depends_on:
+      knowledge:
+        condition: service_healthy   # 지식이 healthy(시드·인덱싱·JRE 준비) 후 기동
+    ports:
+      - "4000:4000"
+
+  frontend:
+    build:
+      context: ./frontend
+    depends_on:
+      - bff
+    ports:
+      - "8080:80"
+
+volumes:
+  knowledge-data:
+  knowledge-models:

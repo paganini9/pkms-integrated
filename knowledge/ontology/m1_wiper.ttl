@@ -1,0 +1,89 @@
+### ===== M1 : 와이퍼 도메인 (punning) + 6문장 + 규칙 + 요구/설계 거동 =====
+@prefix spmm: <http://ex.org/spmm#> .
+@prefix ext:  <http://ex.org/spmm-ext#> .
+@prefix dom:  <http://ex.org/domain#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+dom: a owl:Ontology ; rdfs:label "M1: 와이퍼 도메인" .
+
+### --- 도메인 속성 ---
+dom:hasMaterial      a owl:ObjectProperty ; rdfs:domain ext:PartType ; rdfs:range spmm:Material .
+dom:mountedOn        a owl:ObjectProperty ; rdfs:range ext:VehicleType .
+dom:operatesIn       a owl:ObjectProperty ; rdfs:range ext:EnvCondition .
+dom:lengthMm         a owl:DatatypeProperty ; rdfs:range xsd:integer .
+dom:maxSafeLengthMm  a owl:DatatypeProperty ; rdfs:range xsd:integer .
+dom:springN          a owl:DatatypeProperty ; rdfs:range xsd:integer .
+dom:armShape         a owl:DatatypeProperty ; rdfs:range xsd:string .
+dom:forbidsSymptom   a owl:ObjectProperty ; rdfs:domain spmm:RequiredBehavior ; rdfs:range ext:Symptom .
+
+### --- 개념 (punning: owl:Class + 상위 개체) ---
+dom:WiperBlade a owl:Class ; rdfs:subClassOf ext:PartType ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty dom:hasMaterial ; owl:someValuesFrom spmm:Material ] ;
+    rdfs:label "Wiper Blade (와이퍼 블레이드)" .
+dom:WiperArm a owl:Class ; rdfs:subClassOf ext:Component ; rdfs:label "Wiper Arm (와이퍼 암)" .
+
+dom:WiperMaterial a owl:Class ; rdfs:subClassOf spmm:Material .
+dom:Rubber   a owl:Class , spmm:Material ; rdfs:subClassOf dom:WiperMaterial ; rdfs:label "Rubber (고무)" .
+dom:Silicone a owl:Class , spmm:Material ; rdfs:subClassOf dom:WiperMaterial ; rdfs:label "Silicone (실리콘)" .
+
+### --- 차종 / 환경 / 증상 (개체) ---
+dom:MidSizeSUV   a ext:VehicleType ; dom:maxSafeLengthMm 599 ; rdfs:label "중형 SUV" .
+dom:CompactSedan a ext:VehicleType ; dom:maxSafeLengthMm 550 ; rdfs:label "소형 세단" .
+dom:Winter a ext:EnvCondition ; rdfs:label "겨울철 저온" .
+dom:Noise      a ext:Symptom ; rdfs:label "소음" .
+dom:TipChatter a ext:Symptom ; rdfs:label "끝단 떨림" .
+
+### --- 인과 지식(상위어 표현, 지식맵용) ---
+dom:Rubber   ext:causes    dom:Noise .
+dom:Silicone ext:mitigates dom:Noise .
+dom:Noise      ext:conditionedOn dom:Winter .
+
+### --- 거동 위계(transitive 데모) ---
+dom:WipingBehavior a spmm:Behavior ; spmm:has_subbehavior dom:SweepBehavior ; rdfs:label "와이핑 거동" .
+dom:SweepBehavior  a spmm:Behavior ; spmm:has_subbehavior dom:ContactBehavior ; rdfs:label "쓸기 거동" .
+### 끝단 떨림(TipChatter)은 접촉 거동에서 발현하는 실패 거동(ext:Symptom ⊑ ext:FailureBehavior ⊑ spmm:Behavior).
+### has_subbehavior 는 owl:TransitiveProperty → 이행 폐포가 상위 거동(Sweep·Wiping)에서 TipChatter 로 닿아,
+### 증상=TipChatter 필터 뷰에서 이행 관계가 점선(inferred)으로 렌더된다 (AC-4 / T-87).
+dom:ContactBehavior a spmm:Behavior ; spmm:has_subbehavior dom:TipChatter ; rdfs:label "접촉 거동" .
+
+### --- 6 지식문장 (증상-인과, 유지) ---
+dom:KnowledgeSentence a owl:Class .
+dom:DesignRule a owl:Class .
+dom:sentenceNo a owl:DatatypeProperty . dom:sentenceText a owl:DatatypeProperty . dom:polarity a owl:DatatypeProperty .
+dom:mentions a owl:ObjectProperty . dom:aboutSymptom a owl:ObjectProperty . dom:derivesRule a owl:ObjectProperty .
+dom:basis a owl:DatatypeProperty .
+
+dom:S1 a dom:KnowledgeSentence ; dom:sentenceNo 1 ; dom:polarity "cause" ;
+    dom:sentenceText "겨울철 저온에서 고무는 경도가 상승해 소음을 유발한다." ;
+    dom:mentions dom:Winter , dom:Rubber , dom:Noise ; dom:aboutSymptom dom:Noise ; dom:derivesRule dom:NoiseRule .
+dom:S2 a dom:KnowledgeSentence ; dom:sentenceNo 2 ; dom:polarity "mitigate" ;
+    dom:sentenceText "실리콘은 저온에서도 탄성을 유지하므로 소음 문제를 해소한다." ;
+    dom:mentions dom:Silicone , dom:Noise ; dom:aboutSymptom dom:Noise ; dom:derivesRule dom:SiliconeRule .
+dom:S3 a dom:KnowledgeSentence ; dom:sentenceNo 3 ; dom:polarity "cause" ;
+    dom:sentenceText "중형 SUV에서 블레이드 길이가 600mm 이상이면 끝단 떨림이 발생할 수 있다." ;
+    dom:mentions dom:MidSizeSUV , dom:TipChatter ; dom:aboutSymptom dom:TipChatter ; dom:derivesRule dom:ChatterRule .
+dom:S4 a dom:KnowledgeSentence ; dom:sentenceNo 4 ; dom:polarity "cause" ;
+    dom:sentenceText "끝단 떨림은 와이퍼 암 스프링 압력이 부족할 때(10N 미만) 악화된다." ;
+    dom:mentions dom:WiperArm , dom:TipChatter ; dom:aboutSymptom dom:TipChatter ; dom:derivesRule dom:SpringRule .
+dom:S5 a dom:KnowledgeSentence ; dom:sentenceNo 5 ; dom:polarity "mitigate" ;
+    dom:sentenceText "소형 세단은 550mm까지는 끝단 떨림 문제가 없다." ;
+    dom:mentions dom:CompactSedan , dom:TipChatter ; dom:aboutSymptom dom:TipChatter ; dom:derivesRule dom:ChatterRule .
+dom:S6 a dom:KnowledgeSentence ; dom:sentenceNo 6 ; dom:polarity "cause" ;
+    dom:sentenceText "와이퍼 암 형상이 단순하면 압력 편차가 커져 떨림이 악화된다." ;
+    dom:mentions dom:WiperArm , dom:TipChatter ; dom:aboutSymptom dom:TipChatter ; dom:derivesRule dom:ArmRule .
+
+### DesignRule 의 정의(label·basis·category·polarity·조건)는 rules.ttl 이 단일 진실원이다 (CD-3).
+### 여기서 중복 선언하면 basis 가 갈린다(예전: NoiseRule basis "S1,S2" vs rules.ttl "S1").
+### 이 파일은 문장→규칙 참조(dom:derivesRule)만 유지한다.
+
+### --- 프로젝트 스키마 (M1 어휘; 인스턴스는 M2 프로젝트 데이터) ---
+dom:Project a owl:Class ; rdfs:label "설계 프로젝트" .
+dom:hasRequirement a owl:ObjectProperty ; rdfs:domain dom:Project ; rdfs:range spmm:RequiredBehavior .
+dom:hasDesign a owl:ObjectProperty ; rdfs:domain dom:Project .
+dom:targetVehicle a owl:ObjectProperty ; rdfs:range ext:VehicleType .
+dom:targetEnv a owl:ObjectProperty ; rdfs:range ext:EnvCondition .
+
+### (요구거동 RB·설계거동 DB 인스턴스는 M2 프로젝트 데이터 → m2_instances.ttl)

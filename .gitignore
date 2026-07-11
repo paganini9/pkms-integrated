@@ -8,3 +8,19 @@ __pycache__/
 .env
 .env.*
 !.env.example
+
+# 런타임 데이터 (Oxigraph · Chroma 임베디드 영속)
+knowledge/data/
+
+# 파생물 — 규칙 컴파일러가 런타임에 생성 (단일 진실원은 rules.ttl)
+knowledge/ontology/shapes_generated.ttl
+knowledge/ontology-ref/_onto_rdfxml.owl
+knowledge/ontology-ref/satisfy_run_output.txt
+
+# ontology-ref/ontology/shapes_generated.ttl 는 참조 번들의 일부로 이미 추적 중이다.
+# 실행 시 재생성되지만 내용이 동일하므로 그대로 둔다(단일 진실원은 rules.ttl).
+
+# 도구 산출물 · 빌드 캐시
+.playwright-mcp/
+*.tsbuildinfo
+.pytest_cache/
