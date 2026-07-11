@@ -11,6 +11,15 @@ export type Provider = "solar" | "claude" | "gemini" | "mock";
 // ── SSE (extraction/stream) ────────────────────────────────────────────────
 export interface StreamRequest { text: string; thread_id?: string; project_id?: string; provider?: Provider }
 
+// OOV 트리아지 (T-89)
+export interface OovTriageRequest { label: string; sentence?: string; project_id?: string }
+export interface OovCandidate { concept: string; iri: string; pref_label: string; score: number; via: string }
+export interface OovTriageResponse {
+  label: string; in_domain: boolean; provisional: boolean; candidates: OovCandidate[];
+  provenance: { sentence: string | null; project_id: string | null };
+  triage: string; admin_proposal: { status: string; action: string }; clarification: string | null; trace_id: string;
+}
+
 // A/B diff (T-90) — 두 모델로 추출 비교.
 export interface ABExtractRequest { text: string; providers?: Provider[] }
 export interface ABResult { requested_provider: Provider; actual_provider: Provider; concepts: Concept[]; relations: Relation[]; error?: string }
@@ -68,6 +77,7 @@ export interface PkmsApi {
   health(): Promise<HealthResponse>;
   extractionStream(req: StreamRequest, h: StreamHandlers): StreamController;
   extractionAB(req: ABExtractRequest): Promise<ABExtractResponse>;
+  oovTriage(req: OovTriageRequest): Promise<OovTriageResponse>;
   extractionValidate(req: ValidateRequest): Promise<ValidateResponse>;
   extractionSave(req: SaveRequest): Promise<SaveResponse>;
   satisfy(req: SatisfyRequest): Promise<SatisfyResponse>;

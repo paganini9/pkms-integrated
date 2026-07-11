@@ -20,6 +20,7 @@ from schemas.models import Concept, ConceptType, Predicate, Violation
 SPMM = Namespace("http://ex.org/spmm#")
 EXT = Namespace("http://ex.org/spmm-ext#")
 DOM = Namespace("http://ex.org/domain#")
+SKOS = Namespace("http://www.w3.org/2004/02/skos/core#")
 
 #: 추출 스키마의 개념 타입 → M0 클래스 IRI
 TYPE_TO_CLASS: dict[str, URIRef] = {
@@ -66,16 +67,8 @@ def local(u: object) -> str:
     return str(u).split("#")[-1]
 
 
-#: 정당한 도메인 어휘 — 온톨로지에 **개체로는 없지만** 6문장이 쓰는 속성어(경도·압력 등)와
-#: 흔한 라벨 변형(겨울철 = "겨울철 저온"). 이 집합 + 온톨로지 라벨이 "도메인 소속"의 정의다.
-#: 우회어(타이어·자전거·귀마개·엔진·노트북·신발…)는 여기에 없으므로 unknown_concept 으로 걸린다.
-_EXTRA_DOMAIN_VOCAB: frozenset[str] = frozenset(
-    {
-        "겨울철",  # = 겨울철 저온
-        "블레이드", "와이퍼", "와이퍼 블레이드", "스프링", "와이퍼 암", "암",
-        "경도", "탄성", "압력", "스프링 압력", "길이", "블레이드 길이", "형상", "암 형상",
-    }
-)
+# (T-89) 하드코딩 도메인 어휘는 온톨로지 `lexicon.ttl` 의 skos:altLabel 로 이관됐다.
+# 소속 판정(concept_in_domain)은 prefLabel(rdfs:label) + altLabel 을 함께 읽는다.
 
 
 class SpecValidator:
@@ -84,21 +77,31 @@ class SpecValidator:
     owlrl 전체 폐포는 느리다 — `rdfs:subClassOf` 만 전이 폐포로 계산하면 충분하고 결정론적이다.
     """
 
-    def __init__(self, ontology_dir: Path | None = None) -> None:
+    def __init__(self, ontology_dir: Path | None = None, overlay_path: Path | None = None) -> None:
         self._dir = ontology_dir or settings.ontology_dir
+        self._overlay = overlay_path or settings.upper_overlay_path
         self._onto = Graph()
-        for name in ("m0.ttl", "m1_wiper.ttl"):
-            self._onto.parse(self._dir / name, format="turtle")
-        self._label_to_iri = {
-            str(label).split("(")[0].strip(): subject
-            for subject, label in self._onto.subject_objects(RDFS.label)
-        }
-        # 한글 라벨도 찾을 수 있게: "Rubber (고무)" → "고무"
+        for name in ("m0.ttl", "m1_wiper.ttl", "lexicon.ttl"):
+            path = self._dir / name
+            if path.exists():
+                self._onto.parse(path, format="turtle")
+        # 거버넌스 오버레이(T-85·T-89): 승인된 altLabel/개념도 소속 어휘에 포함(영속).
+        if self._overlay.exists():
+            self._onto.parse(self._overlay, format="turtle")
+        # 어휘층(T-89): prefLabel(rdfs:label) + altLabel(skos:altLabel) 을 소속 어휘로 색인.
+        self._label_to_iri: dict[str, URIRef] = {}
         for subject, label in self._onto.subject_objects(RDFS.label):
-            text = str(label)
-            if "(" in text and ")" in text:
-                korean = text[text.index("(") + 1 : text.rindex(")")].strip()
-                self._label_to_iri.setdefault(korean, subject)
+            if isinstance(subject, URIRef):
+                self._index_label(subject, str(label))
+        for subject, label in self._onto.subject_objects(SKOS.altLabel):
+            if isinstance(subject, URIRef):
+                self._label_to_iri.setdefault(str(label).strip(), subject)
+
+    def _index_label(self, subject: URIRef, text: str) -> None:
+        """'Rubber (고무)' → 'Rubber' 와 '고무' 둘 다 색인. 일반 라벨은 그대로."""
+        self._label_to_iri.setdefault(text.split("(")[0].strip(), subject)
+        if "(" in text and ")" in text:
+            self._label_to_iri.setdefault(text[text.index("(") + 1 : text.rindex(")")].strip(), subject)
 
     @lru_cache(maxsize=256)  # noqa: B019
     def _ancestors(self, cls: URIRef) -> frozenset[URIRef]:
@@ -129,10 +132,10 @@ class SpecValidator:
         """라벨이 도메인(와이퍼) 온톨로지의 개념/클래스로 해석되는가 — 결정론적 소속 판정(T-73).
 
         접지(가드레일)의 단일 진실원. LLM 추출 규율이 아니라 이 판정이 도메인 경계를 정한다.
-        온톨로지 라벨(정확일치) ∪ 정당한 도메인 어휘(`_EXTRA_DOMAIN_VOCAB`). 부분일치는 쓰지
-        않는다("타이어 고무"가 "고무"에 걸려 새는 우회를 막기 위함).
+        온톨로지 어휘층(prefLabel + skos:altLabel) **정확일치**만 인정한다. 부분일치는 쓰지 않는다
+        ("타이어 고무"는 어떤 라벨과도 정확일치 안 하므로 여전히 차단 = 우회 방어).
         """
-        return self.iri_for(label) is not None or label.strip() in _EXTRA_DOMAIN_VOCAB
+        return self.iri_for(label) is not None
 
     def validate(self, concepts: list[Concept], relations: list) -> list[Violation]:
         violations: list[Violation] = []

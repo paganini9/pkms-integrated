@@ -10,7 +10,7 @@ import {
   ApiCallError, type PkmsApi, type StreamHandlers, type StreamRequest,
   type StreamController, type ValidateRequest, type SaveRequest,
   type SatisfyRequest, type QaRequest, type RequirementsRequest, type CreateProjectRequest,
-  type ABExtractRequest, type ABExtractResponse,
+  type ABExtractRequest, type ABExtractResponse, type OovTriageRequest, type OovTriageResponse,
 } from "./types";
 
 const BASE = "/api/v1";
@@ -104,6 +104,8 @@ export const realApi: PkmsApi = {
   extractionStream,
   extractionAB: (req: ABExtractRequest) =>
     request<ABExtractResponse>("/extraction/ab", { method: "POST", body: JSON.stringify(req) }),
+  oovTriage: (req: OovTriageRequest) =>
+    request<OovTriageResponse>("/oov/triage", { method: "POST", body: JSON.stringify(req) }),
   extractionValidate: (req: ValidateRequest) =>
     request<ValidateResponse>("/extraction/validate", { method: "POST", body: JSON.stringify(req) }),
   extractionSave: (req: SaveRequest) =>

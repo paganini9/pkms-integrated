@@ -70,6 +70,8 @@ export interface GraphQuery {
 export interface KnowledgeClient {
   health(): Promise<Record<string, unknown>>;
   validateShacl(req: unknown): Promise<ValidateRes>;
+  /** T-89 — OOV 라벨 매핑 후보(어휘·임베딩). 후보는 provisional. */
+  oovCandidates(req: { label: string; k?: number }): Promise<Record<string, unknown>>;
   /** satisfy 응답은 **무변형 통과**. 재해석하면 CD-1 정규화가 두 곳에 생긴다. */
   satisfy(req: unknown): Promise<Record<string, unknown>>;
   kgSave(req: unknown): Promise<Record<string, unknown>>;
@@ -137,6 +139,7 @@ function createHttpKnowledgeClient(traceId: string): KnowledgeClient {
   return {
     health: () => get("/health"),
     validateShacl: (req) => post("/validate/shacl", req),
+    oovCandidates: (req) => post("/oov/candidates", req),
     satisfy: (req) => post("/satisfy", req, satisfyMs),
     kgSave: (req) => post("/kg/save", req),
     kgLookup: (query, params) => post("/kg/lookup", { query, params }),

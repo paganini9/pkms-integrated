@@ -7,7 +7,7 @@ import { Router } from "express";
 import { NotFound } from "../core/errors.js";
 import { parseOrThrow } from "../core/validate.js";
 import {
-  createProjectSchema, graphQuerySchema, knowledgeScopeSchema, requirementsReqSchema,
+  createProjectSchema, graphQuerySchema, knowledgeScopeSchema, oovTriageSchema, requirementsReqSchema,
 } from "../schemas/requests.js";
 import { asyncHandler, type Deps } from "./deps.js";
 
@@ -27,6 +27,33 @@ export function createMiscRouter(deps: Deps): Router {
       const kn = deps.makeKnowledge(req.traceId);
       const g = await kn.graph(q);
       res.status(200).json({ ...g, trace_id: req.traceId });
+    }),
+  );
+
+  // ── OOV 트리아지 (T-89) — 매핑 후보 + provenance + 관리자 제안 스텁 ──
+  // 후보는 provisional: 접지에 쓰이지 않는다(fail-closed 불변). 승인은 거버넌스(T-85 오버레이) 경유.
+  r.post(
+    "/oov/triage",
+    asyncHandler(async (req, res) => {
+      const body = parseOrThrow(oovTriageSchema, req.body);
+      const kn = deps.makeKnowledge(req.traceId);
+      const cand = (await kn.oovCandidates({ label: body.label, k: body.k ?? 3 })) as {
+        candidates?: unknown[]; in_domain?: boolean; provisional?: boolean;
+      };
+      const candidates = cand.candidates ?? [];
+      res.status(200).json({
+        label: body.label,
+        in_domain: cand.in_domain ?? false,
+        provisional: cand.provisional ?? true,
+        candidates,
+        // provenance(어디서 왔나) — 편입 검토·반복신호의 근거.
+        provenance: { sentence: body.sentence ?? null, project_id: body.project_id ?? null },
+        // 5분류 트리아지 힌트: 후보 있으면 어휘변이(altLabel 제안), 없으면 범위 밖(정당한 거부).
+        triage: candidates.length > 0 ? "synonym_variant" : "out_of_scope",
+        admin_proposal: { status: "stub", action: candidates.length > 0 ? "altLabel 편입 제안" : "제안 없음(범위 밖)" },
+        clarification: candidates.length === 0 ? "이 용어는 와이퍼 도메인 밖입니다. 다른 표현이면 바꿔 주세요." : null,
+        trace_id: req.traceId,
+      });
     }),
   );
 

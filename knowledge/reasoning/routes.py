@@ -74,6 +74,67 @@ def validate_shacl(
     )
 
 
+# ── OOV 매핑 후보 (T-89) ───────────────────────────────────────────────────
+class OovCandidatesRequest(BaseModel):
+    label: str = Field(min_length=1)
+    k: int = 3
+
+
+class OovCandidate(BaseModel):
+    concept: str
+    iri: str
+    pref_label: str
+    score: float
+    via: str
+
+
+class OovCandidatesResponse(BaseModel):
+    label: str
+    in_domain: bool
+    candidates: list[OovCandidate]
+    provisional: bool = True  # 승인(altLabel 편입) 전엔 접지에 쓰이지 않는다 — fail-closed 불변
+    trace_id: str
+
+
+@router.post("/oov/candidates", response_model=OovCandidatesResponse)
+def oov_candidates(
+    req: OovCandidatesRequest, validator: Annotated[SpecValidator, Depends(get_spec_validator)]
+) -> OovCandidatesResponse:
+    """온톨로지 밖 라벨의 매핑 후보(어휘 유사도 + 임베딩 최근접). 후보는 provisional."""
+    from reasoning.oov import candidates as gen_candidates
+
+    embedder = None
+    try:
+        from rag.routes import get_retriever
+
+        embedder = get_retriever().embedder
+    except Exception:  # noqa: BLE001 — 임베더 없으면 어휘 후보만
+        embedder = None
+    cands = gen_candidates(req.label, validator, embedder, req.k)
+    return OovCandidatesResponse(
+        label=req.label,
+        in_domain=validator.concept_in_domain(req.label),
+        candidates=[OovCandidate(concept=c.concept, iri=c.iri, pref_label=c.pref_label, score=c.score, via=c.via) for c in cands],
+        trace_id=get_trace_id(),
+    )
+
+
+class OovApproveRequest(BaseModel):
+    concept_iri: str = Field(min_length=1)
+    label: str = Field(min_length=1)
+    approved: bool = False
+
+
+@router.post("/oov/approve")
+def oov_approve(
+    req: OovApproveRequest, uo: Annotated[UpperOntology, Depends(get_upper_ontology)]
+) -> dict:
+    """OOV 이형을 승인해 altLabel 로 영속 편입(T-89). 미승인 409. 편입 후 접지 캐시 무효화."""
+    out = uo.approve_altlabel(req.concept_iri, req.label, req.approved)
+    get_spec_validator.cache_clear()  # 다음 /validate 부터 새 altLabel 이 접지에 반영된다
+    return out
+
+
 # ── satisfy (FR-04·05) ────────────────────────────────────────────────────
 @router.post("/satisfy", response_model=SatisfyResponse)
 def satisfy(req: SatisfyRequest, engine: Annotated[SatisfyEngine, Depends(get_engine)]) -> SatisfyResponse:

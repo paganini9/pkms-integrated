@@ -72,6 +72,17 @@ export function createKnowledgeMock(traceId: string): KnowledgeClient {
       return withTrace({ conforms: true, violations: [] as Violation[] });
     },
 
+    async oovCandidates(req) {
+      // mock — "블레이드"·"재질" 이형이면 후보 제시(데모), 그 외 빈 후보(정당한 거부).
+      const label = (req as { label: string }).label ?? "";
+      const cands = /블레이드/.test(label)
+        ? [{ concept: "WiperBlade", iri: "http://ex.org/domain#WiperBlade", pref_label: "Wiper Blade", score: 0.85, via: "lexical" }]
+        : /재질/.test(label)
+          ? [{ concept: "WiperMaterial", iri: "http://ex.org/domain#WiperMaterial", pref_label: "WiperMaterial", score: 0.8, via: "lexical" }]
+          : [];
+      return withTrace({ label, in_domain: false, provisional: true, candidates: cands });
+    },
+
     async satisfy(req) {
       // 계약 하한이 아니라 계약 그 자체 — 실제 SatisfyRequest.require 는 null 을 거부(422)한다.
       const r = req as SatisfyReq & { require?: unknown };

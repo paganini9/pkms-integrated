@@ -2,7 +2,7 @@
 import { useRef, useState } from "react";
 
 import { api, ApiCallError } from "../api/client";
-import type { StreamController, ABExtractResponse } from "../api/types";
+import type { StreamController, ABExtractResponse, OovTriageResponse } from "../api/types";
 import { Button, Card, Chip, ErrorNotice, Spinner, ViolationList } from "../components/ui";
 import { useApp } from "../store";
 import type { Concept, Relation, Violation, SaveResponse } from "../types/contracts";
@@ -29,16 +29,17 @@ export default function KnowledgeInput() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const ctrl = useRef<StreamController | null>(null);
   // T-90 — 저작 provider 선택(세션) + A/B diff
-  const { authorProvider, setAuthorProvider } = useApp();
+  const { authorProvider, setAuthorProvider, project } = useApp();
   const [ab, setAb] = useState<ABExtractResponse | null>(null);
   const [abLoading, setAbLoading] = useState(false);
+  const [triage, setTriage] = useState<OovTriageResponse[]>([]); // T-89 OOV 트리아지
 
   // CD-7: severity=violation 이 하나라도 있으면 저장 차단
   const hasBlocking = violations.some((v) => v.severity === "violation");
 
   function reset() {
     setConcepts([]); setRelations([]); setViolations([]); setConforms(null);
-    setDraftId(null); setError(null); setSaved(null); setApproved(false); setSaveError(null);
+    setDraftId(null); setError(null); setSaved(null); setApproved(false); setSaveError(null); setTriage([]);
   }
 
   function start() {
@@ -55,7 +56,18 @@ export default function KnowledgeInput() {
         ),
       onConcept: (c) => setConcepts((p) => [...p, c]),
       onRelation: (r) => setRelations((p) => [...p, r]),
-      onValidation: (d) => { setConforms(d.conforms); setViolations(d.violations); },
+      onValidation: (d) => {
+        setConforms(d.conforms); setViolations(d.violations);
+        // T-89 — 온톨로지 밖(unknown_concept) 개념은 막기만 하지 않고 매핑 후보를 트리아지한다.
+        const oov = [...new Set(d.violations.filter((v) => v.code === "unknown_concept").map((v) => v.offender))];
+        setTriage([]);
+        oov.forEach(async (label) => {
+          try {
+            const t = await api.oovTriage({ label, sentence: text, project_id: project?.id });
+            setTriage((p) => [...p, t]);
+          } catch { /* 트리아지 실패는 저작을 막지 않는다 */ }
+        });
+      },
       onDone: (d) => { setDraftId(d.draft_id); setPhase("done"); setStatusMsg(""); },
       // §5: error 수신 시 렌더 유지 + 다시 시도. 자동 재연결 금지.
       onError: (e) => { setError(e.user_message); setPhase("error"); setStatusMsg(""); },
@@ -177,6 +189,8 @@ export default function KnowledgeInput() {
         </Card>
       )}
 
+      {triage.length > 0 && <OovTriage triage={triage} />}
+
       {phase === "done" && !saved && (
         <Card title="저장 (HITL 승인)">
           <div className="space-y-3">
@@ -205,6 +219,44 @@ export default function KnowledgeInput() {
 
       {saved && <DerivedSummary saved={saved} />}
     </div>
+  );
+}
+
+/** T-89 — OOV 트리아지. 온톨로지 밖 개념을 막기만 하지 않고 매핑 후보·제안을 보인다(provisional). */
+function OovTriage({ triage }: { triage: OovTriageResponse[] }) {
+  return (
+    <Card title="용어 트리아지 (온톨로지 밖 개념)">
+      <p className="text-xs text-slate-500 mb-3">
+        아래 용어는 온톨로지에 없어 접지에 쓰이지 않습니다(안전). 매핑 후보가 있으면 관리자 편입을 제안하고,
+        범위 밖이면 정당하게 거부합니다. 이 상태로는 저장돼도 해당 개념은 provisional 입니다.
+      </p>
+      <div className="space-y-2">
+        {triage.map((t, i) => (
+          <div key={i} className="rounded-md border border-slate-200 p-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Chip color={t.candidates.length > 0 ? "amber" : "slate"}>{t.label}</Chip>
+              <span className="text-xs text-slate-500">
+                {t.triage === "synonym_variant" ? "어휘 변이 — 매핑 후보" : "범위 밖 — 정당한 거부"}
+              </span>
+              {t.provisional && <span className="text-xs text-slate-400">provisional</span>}
+            </div>
+            {t.candidates.length > 0 ? (
+              <div className="mt-2 flex flex-wrap gap-1.5 items-center">
+                <span className="text-xs text-slate-500">후보:</span>
+                {t.candidates.map((c, j) => (
+                  <Chip key={j} color="blue">{c.pref_label} <span className="opacity-60">· {c.via} {c.score}</span></Chip>
+                ))}
+                <button className="text-xs text-blue-600 underline ml-1" title={`${t.admin_proposal.action}(스텁)`}>
+                  관리자에 확장 제안
+                </button>
+              </div>
+            ) : (
+              <p className="mt-1.5 text-xs text-slate-500">{t.clarification}</p>
+            )}
+          </div>
+        ))}
+      </div>
+    </Card>
   );
 }
 

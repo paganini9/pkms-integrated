@@ -1,0 +1,30 @@
+### ===== 어휘층 (SKOS) — surface 용어 ↔ 논리 개념 분리 (T-89) =====
+# 하드코딩 _EXTRA_DOMAIN_VOCAB 를 온톨로지 데이터로 이관한다(단일 진실원). 로직 불변.
+# T-73 소속 판정은 prefLabel(rdfs:label) + altLabel(skos:altLabel) 을 함께 읽는다.
+# 부분일치는 쓰지 않는다 — "타이어 고무" 는 어떤 라벨과도 정확일치 안 하므로 여전히 차단.
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dom:  <http://ex.org/domain#> .
+@prefix spmm: <http://ex.org/spmm#> .
+@prefix ext:  <http://ex.org/spmm-ext#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+### --- 기존 개념의 표면 이형(altLabel) ---
+dom:WiperBlade   skos:altLabel "블레이드" , "와이퍼 블레이드" , "와이퍼" , "blade" .
+dom:WiperArm     skos:altLabel "암" , "와이퍼 암" .
+dom:Winter       skos:altLabel "겨울" , "겨울철" .
+dom:WiperMaterial skos:altLabel "재질" .
+dom:Rubber       skos:altLabel "고무" .
+dom:Silicone     skos:altLabel "실리콘" .
+dom:MidSizeSUV   skos:altLabel "SUV" , "중형 SUV" .
+dom:CompactSedan skos:altLabel "세단" , "소형 세단" .
+dom:Noise        skos:altLabel "소음" .
+dom:TipChatter   skos:altLabel "떨림" , "끝단 떨림" , "채터" .
+
+### --- 도메인 속성 개념(6문장이 쓰는 속성어) — 개체 + 라벨 ---
+# 상위: spmm:Attribute. satisfy·검증엔 관여하지 않고, 접지(소속) 어휘로만 쓰인다.
+dom:Spring         a ext:Component ; rdfs:label "스프링" .
+dom:Hardness       a spmm:Attribute ; rdfs:label "경도" .
+dom:Elasticity     a spmm:Attribute ; rdfs:label "탄성" .
+dom:SpringPressure a spmm:Attribute ; rdfs:label "압력" ; skos:altLabel "스프링 압력" .
+dom:BladeLength    a spmm:Attribute ; rdfs:label "길이" ; skos:altLabel "블레이드 길이" .
+dom:ArmShapeAttr   a spmm:Attribute ; rdfs:label "형상" ; skos:altLabel "암 형상" .
