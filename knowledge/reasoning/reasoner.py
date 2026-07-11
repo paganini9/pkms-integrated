@@ -109,7 +109,11 @@ class Reasoner:
             try:
                 owlready2.sync_reasoner_hermit(world)
             except owlready2.OwlReadyInconsistentOntologyError as exc:
-                return ConsistencyResult(consistent=False, clashes=[str(exc)], engine="hermit")
+                # HermiT 는 '비일관' 판정만 주고 어떤 개체가 충돌했는지는 열거하지 않는다.
+                # 보고를 owlrl 경로와 동일 포맷으로 맞추기 위해 결정론적 구조분석으로 충돌 개체를 열거한다.
+                # (판정은 이미 HermiT 가 내렸다 — 여기선 진단 메시지만 보강. 구조분석이 못 짚으면 원문 유지.)
+                clashes = disjoint_clashes(expand(graph)) or [str(exc)]
+                return ConsistencyResult(consistent=False, clashes=clashes, engine="hermit")
         return ConsistencyResult(consistent=True, clashes=[], engine="hermit")
 
     def classify(self, iri: str, graph: Graph | None = None) -> list[str]:
