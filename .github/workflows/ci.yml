@@ -87,14 +87,24 @@ jobs:
             s=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose ps -q knowledge) 2>/dev/null || echo starting)
             [ "$s" = "healthy" ] && break; sleep 4
           done
-          curl -sf http://localhost:4000/api/v1/health
           python -m pip install -q httpx
+          # 스모크는 set -e 로 죽지 않게 rc 로 모아, 실패해도 진단 로그를 반드시 남기고(T-86 의도 복구)
+          # 정리한 뒤 그 결과로 스텝 성패를 정한다(예전엔 set -e 로 로그 스텝이 도달 불가였다).
+          set +e
+          rc=0
+          curl -sf http://localhost:4000/api/v1/health || { echo "::error::BFF /health 실패"; rc=1; }
           if [ -n "$Studio_API_Key" ]; then
-            python _coordination/qa/run_regression.py --bff http://localhost:4000
-            python _coordination/qa/run_failure_cases.py --bff http://localhost:4000
+            python _coordination/qa/run_regression.py --bff http://localhost:4000 || rc=1
+            python _coordination/qa/run_failure_cases.py --bff http://localhost:4000 || rc=1
           else
             # mock: LLM 라우팅은 판정에서 제외, 결정론 경로만 스모크.
-            python _coordination/qa/run_regression.py --bff http://localhost:4000 --only sat-bad,sat-good,scope-A,scope-B,graph-s3,gov-builtin-lock,gov-forbidden,rules-dryrun
+            python _coordination/qa/run_regression.py --bff http://localhost:4000 --only sat-bad,sat-good,scope-A,scope-B,graph-s3,gov-builtin-lock,gov-forbidden,rules-dryrun || rc=1
           fi
-          docker compose logs knowledge | tail -20   # 실패 시 출력 보존(T-86)
+          if [ "$rc" -ne 0 ]; then
+            echo "===== 진단: 지식 /health 상세 ====="; curl -s http://localhost:4000/api/v1/health; echo
+            echo "===== 진단: docker compose ps ====="; docker compose ps
+            echo "===== 진단: knowledge 로그(tail 150) ====="; docker compose logs --no-color knowledge | tail -150
+            echo "===== 진단: bff 로그(tail 80) ====="; docker compose logs --no-color bff | tail -80
+          fi
           docker compose down -v
+          exit $rc
