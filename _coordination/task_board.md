@@ -117,7 +117,7 @@ G2 를 막은 결함은 **8건**이었고 **7건이 mock 에서는 보이지 않
 
 | id | owner | task | deps | 상태 | DoD |
 |---|:--:|---|---|:--:|---|
-| T-80 | 09 | Dockerfile ×3(**멀티스테이지**)+compose 스켈레톤, knowledge 에 **temurin JRE headless** | G2 | todo | 로컬=Docker 동일. **HermiT 스모크**(seed `sync_reasoner_hermit` 일관성 + 고의 모순 clash 검출 `engine="hermit"` — 미검증 경로 첫 실행). **owlrl(dev)↔HermiT(Docker) 패리티**(seed 일관성·분류 일치). 이미지 경량(mock)/full(ML)을 **빌드아규먼트 `INCLUDE_ML`** 분리. `/health.reasoner` JRE 반영. |
+| T-80 | 09 | Dockerfile ×3(**멀티스테이지**)+compose 스켈레톤, knowledge 에 **temurin JRE headless** | G2 | **done** | 3 이미지 빌드·compose config OK. **HermiT 경로 첫 실행**(컨테이너): reasoner=ok·seed consistent(hermit)·고의 모순 clash 검출(1)·**owlrl↔HermiT 패리티 일치**(seed·모순). INCLUDE_ML 분리. 지식 102·4 skip(호스트 no_jre). |
 | T-81 | 09 | compose 완성: 볼륨·healthcheck·시드적재·모델 bake | T-80 | todo | `data/{oxigraph,chroma}`·**모델캐시 named volume**, **healthcheck**(Docker `/health` `reasoner=ok`=JRE 증거), `depends_on: service_healthy`, **시드 멱등 적재+벡터 초기 인덱싱**, **로컬 임베딩 모델 build-time bake**(오프라인 기동). |
 | T-82 | 09 | CI **2계층** + 실스택·Solar 스모크 | T-80, T-70 | todo | (a) 빠른 계약·유닛(mock, no JRE/torch) (b) **릴리스 스모크**(full 이미지·JRE·모델·Solar/Claude 키 없으면 mock 그레이스풀). **추론 의존 AC(일관성·분류) HermiT 컨테이너 1회**. `validate_contracts`+typecheck+회귀셋+실스택+Solar. 키 마스킹. 임시 데이터 디렉터리 격리. |
 
