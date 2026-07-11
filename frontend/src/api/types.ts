@@ -5,11 +5,19 @@ import type {
   ValidateResponse, SaveResponse, RequirementsResponse, Design, ProjectResponse,
 } from "../types/contracts";
 
+// ── provider (T-90 모델 스위치) ─────────────────────────────────────────────
+export type Provider = "solar" | "claude" | "gemini" | "mock";
+
 // ── SSE (extraction/stream) ────────────────────────────────────────────────
-export interface StreamRequest { text: string; thread_id?: string; project_id?: string }
+export interface StreamRequest { text: string; thread_id?: string; project_id?: string; provider?: Provider }
+
+// A/B diff (T-90) — 두 모델로 추출 비교.
+export interface ABExtractRequest { text: string; providers?: Provider[] }
+export interface ABResult { requested_provider: Provider; actual_provider: Provider; concepts: Concept[]; relations: Relation[]; error?: string }
+export interface ABExtractResponse { text: string; results: ABResult[]; trace_id: string }
 
 export interface StreamHandlers {
-  onStatus?: (d: { stage: "extract" | "validate"; msg?: string }) => void;
+  onStatus?: (d: { stage: "extract" | "validate" | "provider"; msg?: string; provider?: Provider; requested_provider?: Provider; fallback?: boolean }) => void;
   onConcept?: (c: Concept) => void;
   onRelation?: (r: Relation) => void;
   onValidation?: (d: { conforms: boolean; violations: Violation[] }) => void;
@@ -59,6 +67,7 @@ export interface CreateProjectRequest {
 export interface PkmsApi {
   health(): Promise<HealthResponse>;
   extractionStream(req: StreamRequest, h: StreamHandlers): StreamController;
+  extractionAB(req: ABExtractRequest): Promise<ABExtractResponse>;
   extractionValidate(req: ValidateRequest): Promise<ValidateResponse>;
   extractionSave(req: SaveRequest): Promise<SaveResponse>;
   satisfy(req: SatisfyRequest): Promise<SatisfyResponse>;

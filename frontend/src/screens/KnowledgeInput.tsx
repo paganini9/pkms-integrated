@@ -2,8 +2,9 @@
 import { useRef, useState } from "react";
 
 import { api, ApiCallError } from "../api/client";
-import type { StreamController } from "../api/types";
+import type { StreamController, ABExtractResponse } from "../api/types";
 import { Button, Card, Chip, ErrorNotice, Spinner, ViolationList } from "../components/ui";
+import { useApp } from "../store";
 import type { Concept, Relation, Violation, SaveResponse } from "../types/contracts";
 
 type Phase = "idle" | "streaming" | "done" | "error";
@@ -27,6 +28,10 @@ export default function KnowledgeInput() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const ctrl = useRef<StreamController | null>(null);
+  // T-90 — 저작 provider 선택(세션) + A/B diff
+  const { authorProvider, setAuthorProvider } = useApp();
+  const [ab, setAb] = useState<ABExtractResponse | null>(null);
+  const [abLoading, setAbLoading] = useState(false);
 
   // CD-7: severity=violation 이 하나라도 있으면 저장 차단
   const hasBlocking = violations.some((v) => v.severity === "violation");
@@ -41,8 +46,13 @@ export default function KnowledgeInput() {
     reset();
     setPhase("streaming");
     setStatusMsg("연결 중…");
-    ctrl.current = api.extractionStream({ text }, {
-      onStatus: (d) => setStatusMsg(d.msg ?? d.stage),
+    ctrl.current = api.extractionStream({ text, provider: authorProvider }, {
+      onStatus: (d) =>
+        setStatusMsg(
+          d.stage === "provider"
+            ? d.fallback ? `${d.msg}` : `provider: ${d.provider}`
+            : (d.msg ?? d.stage),
+        ),
       onConcept: (c) => setConcepts((p) => [...p, c]),
       onRelation: (r) => setRelations((p) => [...p, r]),
       onValidation: (d) => { setConforms(d.conforms); setViolations(d.violations); },
@@ -50,6 +60,17 @@ export default function KnowledgeInput() {
       // §5: error 수신 시 렌더 유지 + 다시 시도. 자동 재연결 금지.
       onError: (e) => { setError(e.user_message); setPhase("error"); setStatusMsg(""); },
     });
+  }
+
+  async function runAB() {
+    setAb(null); setAbLoading(true);
+    try {
+      setAb(await api.extractionAB({ text }));
+    } catch {
+      setAb(null);
+    } finally {
+      setAbLoading(false);
+    }
   }
 
   async function save() {
@@ -81,15 +102,35 @@ export default function KnowledgeInput() {
           placeholder="예: 겨울철 저온에서 고무 블레이드는 소음이 발생한다"
           className="w-full rounded-md border border-slate-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
         />
+        {/* T-90 — 추출 모델 선택. Solar 기본(무료), Claude 옵션(유료·명시 opt-in). */}
+        <div className="mt-3 flex items-center gap-2 text-xs">
+          <span className="text-slate-500">추출 모델</span>
+          <div className="inline-flex rounded-md border border-slate-300 overflow-hidden">
+            <button
+              onClick={() => setAuthorProvider("solar")}
+              className={`px-2.5 py-1 ${authorProvider === "solar" ? "bg-slate-900 text-white" : "bg-white text-slate-600"}`}
+            >Solar <span className="opacity-70">· 무료</span></button>
+            <button
+              onClick={() => setAuthorProvider("claude")}
+              className={`px-2.5 py-1 border-l border-slate-300 ${authorProvider === "claude" ? "bg-slate-900 text-white" : "bg-white text-slate-600"}`}
+              title="Claude 는 옵션(유료)입니다. 복합어 분해·지시준수가 강할 수 있으나 비용이 발생합니다."
+            >Claude <span className="opacity-70">· 옵션·유료</span></button>
+          </div>
+        </div>
         <div className="mt-3 flex items-center gap-2 flex-wrap">
           <Button onClick={start} disabled={phase === "streaming" || !text.trim()}>
             {phase === "streaming" ? "추출 중…" : "추출 시작"}
+          </Button>
+          <Button variant="ghost" onClick={runAB} disabled={abLoading || !text.trim()} title="Solar·Claude 두 모델로 추출해 개념·관계를 나란히 비교합니다.">
+            {abLoading ? "두 모델 추출 중…" : "두 모델로 추출 (A/B)"}
           </Button>
           <Button variant="ghost" onClick={() => { setText(SAMPLE_OK); }}>정상 예시</Button>
           <Button variant="ghost" onClick={() => { setText(SAMPLE_BAD); }}>위반 예시(CD-7)</Button>
           {phase === "streaming" && <Spinner label={statusMsg} />}
         </div>
       </Card>
+
+      {ab && <ABDiff ab={ab} />}
 
       {(concepts.length > 0 || relations.length > 0 || phase !== "idle") && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -164,6 +205,44 @@ export default function KnowledgeInput() {
 
       {saved && <DerivedSummary saved={saved} />}
     </div>
+  );
+}
+
+/** T-90 — 두 모델 추출 A/B diff. 개념·관계를 나란히 비교(복합어 분해·인과 프레임 차이). */
+function ABDiff({ ab }: { ab: ABExtractResponse }) {
+  return (
+    <Card title="A/B — 두 모델 추출 비교">
+      <p className="text-xs text-slate-500 mb-3">
+        같은 문장을 두 모델로 추출한 결과입니다. 검증·저장 게이트는 모델과 무관하게 동일하게 적용됩니다(결정론 우선).
+        복합어를 분해했는지, 인과 관계를 어떻게 잡았는지 비교하세요.
+      </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {ab.results.map((r, i) => (
+          <div key={i} className="rounded-md border border-slate-200 p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <Chip color={r.requested_provider === "claude" ? "violet" : "blue"}>{r.requested_provider}</Chip>
+              {r.actual_provider !== r.requested_provider && (
+                <span className="text-xs text-amber-700">→ {r.actual_provider} 폴백(키 없음)</span>
+              )}
+              {r.requested_provider === "claude" && <span className="text-xs text-slate-400">유료</span>}
+              {r.error && <span className="text-xs text-red-600">오류: {r.error}</span>}
+            </div>
+            <p className="text-xs text-slate-500">개념 ({r.concepts.length})</p>
+            <div className="flex flex-wrap gap-1.5 mb-2 min-h-[1.5rem]">
+              {r.concepts.map((c, j) => <Chip key={j} color="blue">{c.label} · {c.type}</Chip>)}
+              {r.concepts.length === 0 && <span className="text-xs text-slate-400">없음</span>}
+            </div>
+            <p className="text-xs text-slate-500">관계 ({r.relations.length})</p>
+            <ul className="min-h-[1.5rem]">
+              {r.relations.map((rel, j) => (
+                <li key={j} className="text-xs font-mono text-slate-700">{rel.subject} —{rel.predicate}→ {rel.object}</li>
+              ))}
+              {r.relations.length === 0 && <span className="text-xs text-slate-400">없음</span>}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </Card>
   );
 }
 

@@ -10,6 +10,7 @@ import {
   ApiCallError, type PkmsApi, type StreamHandlers, type StreamRequest,
   type StreamController, type ValidateRequest, type SaveRequest,
   type SatisfyRequest, type QaRequest, type RequirementsRequest, type CreateProjectRequest,
+  type ABExtractRequest, type ABExtractResponse,
 } from "./types";
 
 const BASE = "/api/v1";
@@ -101,6 +102,8 @@ function dispatch(evt: string, data: unknown, h: StreamHandlers) {
 export const realApi: PkmsApi = {
   health: () => request<HealthResponse>("/health"),
   extractionStream,
+  extractionAB: (req: ABExtractRequest) =>
+    request<ABExtractResponse>("/extraction/ab", { method: "POST", body: JSON.stringify(req) }),
   extractionValidate: (req: ValidateRequest) =>
     request<ValidateResponse>("/extraction/validate", { method: "POST", body: JSON.stringify(req) }),
   extractionSave: (req: SaveRequest) =>

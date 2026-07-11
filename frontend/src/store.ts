@@ -13,9 +13,14 @@ export interface CurrentProject {
   requirements: RequirementBehavior[];
 }
 
+export type AuthorProvider = "solar" | "claude";
+
 interface AppState {
   role: Role;
   setRole: (r: Role) => void;
+  // T-90 — 저작 추출 provider. 기본 solar(무료). claude 는 옵션(유료)·명시적 opt-in. 세션 유지.
+  authorProvider: AuthorProvider;
+  setAuthorProvider: (p: AuthorProvider) => void;
   health: HealthResponse | null;
   healthError: boolean;
   fetchHealth: () => Promise<void>;
@@ -27,6 +32,8 @@ interface AppState {
 export const useApp = create<AppState>((set) => ({
   role: (localStorage.getItem("pkms_role") as Role) ?? "engineer",
   setRole: (r) => { localStorage.setItem("pkms_role", r); set({ role: r }); },
+  authorProvider: (localStorage.getItem("pkms_author_provider") as AuthorProvider) ?? "solar",
+  setAuthorProvider: (p) => { localStorage.setItem("pkms_author_provider", p); set({ authorProvider: p }); },
   health: null,
   healthError: false,
   fetchHealth: async () => {
