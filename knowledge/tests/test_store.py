@@ -143,9 +143,14 @@ def test_kg_save_success(store):
     assert resp.sentence.mentions == ["Winter", "Rubber", "Noise"]
     assert resp.sentence.about_symptom == "Noise"
     assert resp.sentence.polarity == "cause"
-    # rules.ttl 폴백으로 NoiseRule 파생
-    assert resp.derived.rule.id == "NoiseRule"
-    assert resp.derived.shapes[0].id == "NoiseShape"
+    # T-93 — derived 는 **이 문장이 실제로 파생한 규칙**이다(문장별 고유 id).
+    # 예전엔 증상·극성이 같은 시드 규칙(NoiseRule)을 "추측"해 돌려줬다. 그 추측이 포스트-g3 검증에서
+    # 증상 오귀속(문장이 달라도 전부 `소음Rule`)으로 드러났다.
+    # 이 요청의 관계는 (고무 causes 소음) 뿐이라 조건은 재질 하나 — NoiseRule(겨울 ∧ 고무)과 등가가 아니다.
+    assert resp.derived.rule.id == "S7Rule"
+    assert resp.derived.rule.about_symptom == "Noise"
+    assert [(c.path, c.val) for c in resp.derived.rule.conds] == [("hasMaterial", "Rubber")]
+    assert resp.derived.shapes[0].id == "S7Shape"
 
 
 def test_kg_save_idempotent_by_draft_id(store):

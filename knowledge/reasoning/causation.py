@@ -60,7 +60,9 @@ class CausationReifier:
         found = self.validator.iri_for(label)
         return URIRef(found) if found else None
 
-    def reify(self, concepts: list[Concept], relations: list) -> list[CausationNode]:
+    def reify(
+        self, concepts: list[Concept], relations: list, sentence_code: str | None = None
+    ) -> list[CausationNode]:
         """인과 프레임 감지 → Causation 노드. 한 증상에 (기전,조건) 맥락이 여럿이면 노드도 여럿(바인딩 보존).
 
         패턴: (mechanism causes/aggravates symptom) 를 축으로, 같은 증상에 붙은
@@ -88,9 +90,11 @@ class CausationReifier:
                     continue
                 seen.add(key)
                 idx = len(nodes) + 1
+                # T-93 — 저장 그래프에 남길 때는 문장별 고유 IRI 여야 한다(문장끼리 노드가 겹치면 안 된다).
+                local = f"Causation_{sentence_code}_{idx}" if sentence_code else f"_authored_causation_{idx}"
                 nodes.append(
                     CausationNode(
-                        iri=DOM[f"_authored_causation_{idx}"],
+                        iri=DOM[local],
                         mechanism=self._iri(mech_label),
                         condition=self._iri(cond_label) if cond_label else None,
                         symptom=self._iri(sym_label),

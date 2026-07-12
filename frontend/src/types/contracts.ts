@@ -37,7 +37,7 @@ export interface Design {
   length_mm?: number | null;
   spring_n?: number | null;
   arm_shape?: "simple" | "complex" | null;
-  env?: "Winter" | null;
+  env?: string | null; // CD-15 — 개방(온톨로지 EnvCondition)
 }
 
 // ── SSE (api_standard.md §4.1) ────────────────────────────────────────────

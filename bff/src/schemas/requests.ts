@@ -78,7 +78,8 @@ export const designSchema = z.object({
   length_mm: z.number().positive().nullable().optional(),
   spring_n: z.number().positive().nullable().optional(),
   arm_shape: z.enum(["simple", "complex"]).nullable().optional(),
-  env: z.enum(["Winter"]).nullable().optional(),
+  // CD-15 — 환경조건은 닫힌 enum 이 아니다(거버넌스로 신설: Winter·Ozone…). 소속 판정은 온톨로지가 한다.
+  env: z.string().min(1).nullable().optional(),
 });
 
 export const satisfyReqSchema = z.object({

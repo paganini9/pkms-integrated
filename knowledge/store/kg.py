@@ -8,6 +8,9 @@
 """
 from __future__ import annotations
 
+from rdflib import Namespace as _RdflibNamespace
+from rdflib import URIRef as RDFLIB_URIREF
+
 from core.logging import get_trace_id
 from schemas.errors import StoreError
 from schemas.models import (
@@ -27,11 +30,15 @@ from store.oxigraph import DOM, OxigraphStore, _localname
 _POL_PRED = {"cause": "causes", "aggravate": "aggravates", "mitigate": "mitigates"}
 _PRED_POL = {"causes": "cause", "aggravates": "aggravate", "mitigates": "mitigate"}
 
+RDFLIB_DOM = _RdflibNamespace(DOM)
+
 
 class KgService:
     """트리플·벡터 원자성 저장/삭제."""
 
-    def __init__(self, store: OxigraphStore, retriever=None, rule_compiler=None) -> None:  # noqa: ANN001
+    def __init__(  # noqa: ANN001
+        self, store: OxigraphStore, retriever=None, rule_compiler=None, authoring_store=None, reifier=None
+    ) -> None:
         self.store = store
         if retriever is None:
             from core.mocks import MockRetriever
@@ -39,6 +46,13 @@ class KgService:
             retriever = MockRetriever()
         self.retriever = retriever
         self.rule_compiler = rule_compiler  # 04 미완이면 None → rules.ttl 폴백
+        # T-93 — 저작 파생 규칙 오버레이 + Causation reify. 주입 안 되면 기본(캐시된) 구현을 쓴다.
+        # reifier 는 온톨로지를 파싱하므로 요청마다 새로 만들지 않는다(get_reifier = lru_cache).
+        from reasoning.authoring import AuthoringRuleStore
+        from reasoning.causation import get_reifier
+
+        self.authoring_store = authoring_store or AuthoringRuleStore()
+        self.reifier = reifier or get_reifier()
 
     # ── 저장 ────────────────────────────────────────────────────────────
     def save(self, req: SaveRequest) -> SaveResponse:
@@ -69,7 +83,11 @@ class KgService:
             mention_labels=mention_labels,
         )
 
-        # (2) 벡터 upsert — 실패 시 (1) 보상 롤백
+        # (2) 저작 파생 — 규칙(오버레이 영속) + Causation reify(저장 그래프 기록). T-93.
+        rule = self._derive_and_persist_rule(sentence, req)
+        causation_iris = self._persist_causation(sentence, req)
+
+        # (3) 벡터 upsert — 실패 시 (1)(2) 전부 보상 롤백
         try:
             self.retriever.upsert(
                 [
@@ -84,9 +102,13 @@ class KgService:
             )
         except Exception as exc:  # noqa: BLE001 — 어떤 벡터 오류든 트리플을 되돌린다
             self.store.delete(sentence.iri)
+            for iri in causation_iris:
+                self.store.remove_about(iri)
+            if rule is not None:
+                self.authoring_store.remove(rule.id)
             raise StoreError(internal=f"vector upsert failed, triples rolled back: {exc}") from exc
 
-        derived = self._build_derived(sentence, req)
+        derived = self._build_derived(sentence, req, rule)
         human_view = self._human_view(derived)
         return SaveResponse(
             sentence=sentence,
@@ -94,6 +116,55 @@ class KgService:
             human_view=human_view,
             trace_id=get_trace_id(),
         )
+
+    # ── T-93: 저작 파생 (규칙 · Causation) ──────────────────────────────
+    def _derive_and_persist_rule(self, sentence: SavedSentence, req: SaveRequest):  # noqa: ANN202
+        """승인 문장 → 구조화 규칙 → **오버레이 영속**. 컴파일러가 다음 판정부터 이 규칙을 소비한다.
+
+        이미 등가 규칙(시드든 저작이든)이 있으면 새로 만들지 않는다 — 같은 사실을 다시 말한 것뿐이다.
+        (안 그러면 게이트가 둘로 늘어 같은 위반이 두 번 잡히고, 시드 등가 문장이 시드 회귀를 깬다.)
+        """
+        from reasoning.authoring import derive_rule, find_equivalent
+
+        rule = derive_rule(
+            sentence_code=sentence.id,
+            sentence_text=sentence.text,
+            category=sentence.category,
+            concepts=req.concepts,
+            relations=req.relations,
+            validator=self.reifier.validator,
+        )
+        if rule is None:
+            return None
+        existing = find_equivalent(rule, self._existing_rules())
+        if existing is not None:
+            return existing  # 새 규칙 없음 — 기존 규칙이 이 문장의 derived 다
+        self.authoring_store.upsert(rule)
+        return rule
+
+    def _existing_rules(self) -> list:
+        """현재 컴파일 대상 규칙 전체(시드 + 저작 오버레이)."""
+        if self.rule_compiler is not None:
+            return list(self.rule_compiler.rules)
+        from core.config import settings
+        from reasoning.rules import load_rules
+
+        return [*load_rules(settings.ontology_dir / "rules.ttl"), *self.authoring_store.rules()]
+
+    def _persist_causation(self, sentence: SavedSentence, req: SaveRequest) -> list[str]:
+        """T-91 배선 — 인과 프레임을 Causation 노드로 재화해 **저장 그래프에 실제로 기록**한다.
+
+        예전엔 reifier 가 유닛 테스트에서만 불렸다(저장 그래프의 Causation 0행). 이제 저작이 만든
+        (기전·조건·증상) 바인딩이 그래프에 남는다.
+        """
+        nodes = self.reifier.reify(req.concepts, req.relations, sentence_code=sentence.id)
+        if not nodes:
+            return []
+        graph = self.reifier.to_graph(nodes)
+        for node in nodes:
+            graph.add((node.iri, RDFLIB_DOM.fromSentence, RDFLIB_URIREF(sentence.iri)))
+        self.store.add_rdflib_graph(graph)
+        return [str(n.iri) for n in nodes]
 
     # ── 삭제 ────────────────────────────────────────────────────────────
     def delete(self, iris: list[str]) -> int:
@@ -162,25 +233,44 @@ class KgService:
         return None, "cause"
 
     # ── derived 구성 ────────────────────────────────────────────────────
-    def _build_derived(self, sentence: SavedSentence, req: SaveRequest) -> Derived:
-        if self.rule_compiler is not None:
-            derived = self._derived_from_compiler(sentence, req)
-            if derived is not None:
-                return derived
-        # 폴백: rules.ttl 에서 규칙 조회 → 최소 형태
+    def _build_derived(self, sentence: SavedSentence, req: SaveRequest, rule=None) -> Derived:  # noqa: ANN001
+        # T-93 — 저작이 실제로 파생·영속한 규칙이 있으면 **그것**이 derived 다.
+        # (예전엔 카테고리명 규칙(소음Rule)을 지어내 증상을 카테고리로 오귀속했다.)
+        if rule is not None:
+            return self._derived_from_rule(rule, sentence)
+        # 시드 문장(S1~S6) 재저장 등: rules.ttl 의 규칙 조회 → 최소 형태
         rule_iri = self._lookup_rule(sentence)
         if rule_iri is not None:
             return self._derived_from_rules_ttl(rule_iri, sentence)
         return self._derived_minimal(sentence, req)
 
-    def _derived_from_compiler(self, sentence: SavedSentence, req: SaveRequest):  # noqa: ANN202
-        """04 RuleCompiler 가 주입된 경우 위임. 실패/미지원 시 None 반환(폴백)."""
-        try:
-            self.rule_compiler.compile({sentence.category})
-        except Exception:  # noqa: BLE001
-            return None
-        # 실제 CompiledRules→Derived 매핑은 04 확정 스키마에 의존 → 현재는 폴백에 위임
-        return None
+    def _derived_from_rule(self, rule, sentence: SavedSentence) -> Derived:  # noqa: ANN001
+        """파생 RuleSpec → 계약 형태(Derived). 게이트·인과엣지는 규칙이 말하는 그대로."""
+        return Derived(
+            rule=DerivedRule(
+                id=rule.id,
+                label=rule.label,
+                polarity=rule.polarity,
+                category=rule.category,
+                about_symptom=rule.symptom,
+                basis=rule.basis,
+                conds=[
+                    DesignRuleCond(path=c.path, op=c.op, val=_localname(str(c.val)) if c.val is not None else None)
+                    for c in rule.conds
+                ],
+            ),
+            shapes=[DerivedShape(id=rule.shape_id, gate_for=rule.symptom, sentence=rule.basis)]
+            if rule.makes_gate
+            else [],
+            causal_edges=[
+                Relation(
+                    subject=rule.id,
+                    predicate=_POL_PRED[rule.polarity],  # type: ignore[arg-type]
+                    object=rule.symptom,
+                    evidence=rule.basis,
+                )
+            ],
+        )
 
     def _lookup_rule(self, sentence: SavedSentence) -> str | None:
         """이 문장의 규칙 IRI 를 rules.ttl(시드)에서 찾는다.

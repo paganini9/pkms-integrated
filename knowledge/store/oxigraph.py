@@ -80,6 +80,22 @@ def _to_rdflib_term(term: object):  # noqa: ANN201
     raise TypeError(f"지원하지 않는 term: {term!r}")
 
 
+def _to_ox(term: object):  # noqa: ANN201
+    """rdflib term → pyoxigraph term (add_rdflib_graph 브리지)."""
+    from rdflib import Literal as RLiteral
+    from rdflib import URIRef as RURIRef
+
+    if isinstance(term, RURIRef):
+        return ox.NamedNode(str(term))
+    if isinstance(term, RLiteral):
+        if term.language:
+            return ox.Literal(str(term), language=term.language)
+        if term.datatype is not None:
+            return ox.Literal(str(term), datatype=ox.NamedNode(str(term.datatype)))
+        return ox.Literal(str(term))
+    raise TypeError(f"지원하지 않는 term: {term!r}")
+
+
 class OxigraphStore:
     """`core.protocols.Store` 구현. 임베디드 pyoxigraph 영속 스토어."""
 
@@ -254,6 +270,21 @@ class OxigraphStore:
         """remove_about 이 돌려준 quad 들을 원래 그래프에 되돌린다."""
         if quads:
             self._store.extend(quads)
+
+    def add_rdflib_graph(self, graph: "Graph") -> int:
+        """rdflib 그래프를 default graph 에 커밋한다(T-93 — 저작 Causation 노드 기록).
+
+        블랭크노드는 건너뛴다 — Causation 은 IRI 로 식별되는 1급 노드다(바인딩 보존이 목적).
+        """
+        from rdflib import BNode as RBNode
+
+        quads = [
+            ox.Quad(_to_ox(s), _to_ox(p), _to_ox(o))
+            for s, p, o in graph
+            if not isinstance(s, RBNode) and not isinstance(o, RBNode)
+        ]
+        self._store.extend(quads)
+        return len(quads)
 
     def delete(self, iri: str) -> None:
         """IRI 주변 트리플 제거(Store Protocol). 반환 없음."""

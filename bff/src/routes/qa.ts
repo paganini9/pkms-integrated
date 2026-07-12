@@ -112,7 +112,7 @@ interface PartialDesign {
   length_mm?: number;
   spring_n?: number;
   arm_shape?: "simple" | "complex";
-  env?: "Winter";
+  env?: string; // CD-15 — 개방(온톨로지 EnvCondition)
 }
 
 function parseDesign(question: string): PartialDesign {

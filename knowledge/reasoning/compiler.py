@@ -255,27 +255,54 @@ def _ordered_categories(rules: list[RuleSpec], categories: set[str] | None) -> l
 
 
 class RuleCompiler:
-    """`core.protocols.RuleCompiler` 구현. 컴파일 결과는 카테고리 조합 단위로 캐시한다."""
+    """`core.protocols.RuleCompiler` 구현. 컴파일 결과는 카테고리 조합 단위로 캐시한다.
 
-    def __init__(self, ontology_dir: Path | None = None) -> None:
+    T-93 — 규칙의 진실원은 **시드 `rules.ttl` + 저작 오버레이**다. 저작이 규칙을 추가하면
+    (오버레이 파일 변경) 다음 컴파일에서 자동으로 반영된다(mtime 재로드 + 캐시 무효화).
+    오버레이가 비어 있으면 시드와 완전히 같은 결과 → **시드 회귀 불변**.
+    """
+
+    def __init__(self, ontology_dir: Path | None = None, authoring_rules_path: Path | None = None) -> None:
         self._dir = ontology_dir or settings.ontology_dir
-        self._rules = load_rules(self._dir / "rules.ttl")
+        self._authoring_path = authoring_rules_path or settings.authoring_rules_path
         self._sentence_polarity = load_sentence_polarity(self._dir / "m1_wiper.ttl")
+        self._seed_rules = load_rules(self._dir / "rules.ttl")
+        self._authored_rules: list[RuleSpec] = []
+        self._authoring_mtime: float | None = None
+        self._reload_authored()
+
+    def _authoring_stamp(self) -> float | None:
+        return self._authoring_path.stat().st_mtime if self._authoring_path.exists() else None
+
+    def _reload_authored(self) -> None:
+        self._authoring_mtime = self._authoring_stamp()
+        self._authored_rules = (
+            load_rules(self._authoring_path) if self._authoring_path.exists() else []
+        )
+
+    def _maybe_reload(self) -> None:
+        """저작 오버레이가 바뀌었으면 다시 읽고 컴파일 캐시를 버린다(저작 → 판정 즉시 반영)."""
+        if self._authoring_stamp() != self._authoring_mtime:
+            self._reload_authored()
+            self._compile_cached.cache_clear()
 
     @property
     def rules(self) -> list[RuleSpec]:
-        return self._rules
+        self._maybe_reload()
+        return [*self._seed_rules, *self._authored_rules]
 
     @property
     def sentence_polarity(self) -> dict[str, str]:
         return self._sentence_polarity
 
     def compile(self, categories: set[str] | None = None) -> CompiledRules:
+        self._maybe_reload()
         return self._compile_cached(frozenset(categories) if categories is not None else None)
 
     @lru_cache(maxsize=32)  # noqa: B019 — 인스턴스 수명 = 프로세스 수명
     def _compile_cached(self, categories: frozenset[str] | None) -> CompiledRules:
-        return compile_rules(self._rules, set(categories) if categories is not None else None)
+        rules = [*self._seed_rules, *self._authored_rules]
+        return compile_rules(rules, set(categories) if categories is not None else None)
 
     def gate_count(self, categories: set[str] | None = None) -> int:
         return len(self.compile(categories).gates)
