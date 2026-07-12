@@ -9,13 +9,16 @@ CD-7: `severity="violation"` 이면 UI amber + 저장 차단. `warning` 이면 �
 """
 from __future__ import annotations
 
+import logging
 from functools import lru_cache
 from pathlib import Path
 
-from rdflib import RDFS, Graph, Namespace, URIRef
+from rdflib import RDF, RDFS, Graph, Namespace, URIRef
 
 from core.config import settings
 from schemas.models import Concept, ConceptType, Predicate, Violation
+
+log = logging.getLogger("knowledge.spec_validate")
 
 SPMM = Namespace("http://ex.org/spmm#")
 EXT = Namespace("http://ex.org/spmm-ext#")
@@ -103,6 +106,47 @@ class SpecValidator:
         if "(" in text and ")" in text:
             self._label_to_iri.setdefault(text[text.index("(") + 1 : text.rindex(")")].strip(), subject)
 
+    # ── T-94: 온톨로지 canonical type ────────────────────────────────────
+    @lru_cache(maxsize=512)  # noqa: B019
+    def _type_ancestors(self, iri: URIRef) -> frozenset[URIRef]:
+        """개념 IRI 가 속한 M0 클래스 전부.
+
+        온톨로지가 punning 이라 두 경로를 함께 본다:
+          · 개체  `dom:Winter a ext:EnvCondition`      → rdf:type 의 조상
+          · 클래스 `dom:WiperBlade rdfs:subClassOf ext:PartType` → subClassOf 의 조상
+        """
+        out: set[URIRef] = set()
+        for cls in self._onto.objects(iri, RDF.type):
+            if isinstance(cls, URIRef):
+                out |= self._ancestors(cls)
+        for parent in self._onto.objects(iri, RDFS.subClassOf):
+            if isinstance(parent, URIRef):
+                out |= self._ancestors(parent)
+        return frozenset(out)
+
+    def canonical_type(self, label: str) -> ConceptType | None:
+        """라벨 → **온톨로지가 아는 개념 타입**. 모르는 라벨이면 None(OOV 경로).
+
+        T-94: 검증·타입 판정의 진실원은 온톨로지다. LLM 이 붙인 type 은 힌트일 뿐이다.
+        (실측: Solar·Claude 둘 다 `블레이드`를 Component 로 줬지만 온톨로지는 `WiperBlade ⊑ ext:PartType`
+         이라 hasMaterial 도메인 위반이 나고 "고무 블레이드" 지식이 아예 저장되지 않았다.)
+        여러 후보가 맞으면 **가장 구체적인 것**을 고른다(Symptom ⊑ FailureBehavior ⊑ Behavior → Symptom).
+        """
+        iri = self.iri_for(label)
+        if iri is None:
+            return None
+        ancestors = self._type_ancestors(URIRef(iri))
+        matched = [(ct, cls) for ct, cls in TYPE_TO_CLASS.items() if cls in ancestors]
+        if not matched:
+            return None
+        # 조상이 많을수록 깊다 = 구체적이다.
+        best = max(matched, key=lambda pair: (len(self._ancestors(pair[1])), pair[0]))
+        return best[0]  # type: ignore[return-value]
+
+    def effective_type(self, concept: Concept) -> ConceptType:
+        """검증에 쓸 타입 — 온톨로지가 알면 온톨로지 것, 모르면 LLM 힌트."""
+        return self.canonical_type(concept.label) or concept.type
+
     @lru_cache(maxsize=256)  # noqa: B019
     def _ancestors(self, cls: URIRef) -> frozenset[URIRef]:
         """cls 와 그 모든 상위 클래스 (rdfs:subClassOf 전이 폐포)."""
@@ -141,11 +185,25 @@ class SpecValidator:
         violations: list[Violation] = []
         by_label: dict[str, Concept] = {}
 
-        # disjoint — 같은 라벨이 배타 범주 둘에 배정됐는가
+        # T-94 — 검증에 쓰는 타입은 **온톨로지 canonical type**(알면), LLM type 은 힌트.
+        # 온톨로지가 아는 라벨은 LLM 이 뭐라 붙였든 한 타입으로 수렴하므로 disjoint 후보도 되지 않는다.
+        eff_type: dict[str, ConceptType] = {}
         seen_types: dict[str, set[ConceptType]] = {}
         for concept in concepts:
-            seen_types.setdefault(concept.label, set()).add(concept.type)
+            canonical = self.canonical_type(concept.label)
+            eff_type[concept.label] = canonical or concept.type
+            if canonical is None:
+                seen_types.setdefault(concept.label, set()).add(concept.type)
+            else:
+                seen_types.setdefault(concept.label, set()).add(canonical)
             by_label[concept.label] = concept
+
+        # 타입 재해석은 관측 가능해야 한다. 다만 `ViolationCode` 는 계약(common.schema.json)의 닫힌
+        # enum 이라 새 코드를 무단 추가하지 않는다 — 로그로 남기고, UI 노출은 계약 변경 절차로 뒤에 뺀다.
+        for label, concept in by_label.items():
+            canonical = self.canonical_type(label)
+            if canonical is not None and canonical != concept.type:
+                log.info("타입 재해석(T-94) %r: 추출 %s → 온톨로지 %s", label, concept.type, canonical)
 
         # T-73 (CD-7 "범주 밖 개념") — 추출 개념이 **도메인 온톨로지에 없으면** unknown_concept.
         # 목적: 접지(가드레일)를 LLM 추출 규율이 아니라 **결정론적 온톨로지 소속**으로 판정하게 한다.
@@ -203,7 +261,9 @@ class SpecValidator:
                         )
                     )
                     continue
-                if constraint is None or self._satisfies(concept.type, constraint):
+                # T-94 — 제약 판정은 온톨로지 타입으로 한다(LLM 이 오타이핑해도 온톨로지가 이긴다).
+                actual_type = eff_type.get(label, concept.type)
+                if constraint is None or self._satisfies(actual_type, constraint):
                     continue
 
                 code = "causes_range" if relation.predicate in {"causes", "mitigates", "aggravates"} and role == "대상" else "shacl_constraint"
@@ -216,7 +276,7 @@ class SpecValidator:
                         offender_iri=self.iri_for(label),
                         message=(
                             f"'{predicate_ko}'의 {role}은(는) {expected}이어야 하는데 "
-                            f"'{label}'은(는) {concept.type}입니다."
+                            f"'{label}'은(는) {actual_type}입니다."
                         ),
                         source_shape=f"{relation.predicate.capitalize()}RangeShape"
                         if role == "대상"
