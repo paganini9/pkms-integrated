@@ -143,11 +143,14 @@ class OxigraphStore:
         polarity: str = "cause",
         code: str | None = None,
         draft_id: str | None = None,
+        mention_labels: dict[str, str] | None = None,
     ) -> SavedSentence:
         """지식 문장 트리플을 default graph 에 커밋하고 SavedSentence 를 반환한다.
 
         `code` 미지정 시 기존 S1..Sn 최대값+1 로 발급(S7, S8 …).
         `draft_id` 지정 시 `dom:draftId` 로 심어 **영속 멱등 키**로 쓴다(T-83).
+        `mentions` 는 **IRI 안전 로컬네임**이어야 한다(T-92 — 호출자가 `slug_localname` 으로 만든다).
+        `mention_labels` 는 새로 발행한 개념의 표면형 → `rdfs:label` 로 보존한다(IRI 는 식별자일 뿐).
         """
         code = code or self.next_sentence_code()
         iri = f"{DOM}{code}"
@@ -169,7 +172,12 @@ class OxigraphStore:
                 ox.Quad(node, ox.NamedNode(f"{DOM}aboutSymptom"), ox.NamedNode(f"{DOM}{about_symptom}"))
             )
         for m in mentions:
-            quads.append(ox.Quad(node, ox.NamedNode(f"{DOM}mentions"), ox.NamedNode(f"{DOM}{m}")))
+            concept = ox.NamedNode(f"{DOM}{m}")
+            quads.append(ox.Quad(node, ox.NamedNode(f"{DOM}mentions"), concept))
+            # T-92 — 새로 발행한 개념(어휘층에서 해석 안 된 것)의 표면형을 라벨로 보존한다.
+            surface = (mention_labels or {}).get(m)
+            if surface:
+                quads.append(ox.Quad(concept, ox.NamedNode(RDFS_LABEL), ox.Literal(surface)))
         if draft_id:
             quads.append(ox.Quad(node, ox.NamedNode(f"{DOM}draftId"), ox.Literal(draft_id)))
         self._store.extend(quads)

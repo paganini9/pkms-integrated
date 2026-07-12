@@ -20,6 +20,7 @@ from schemas.models import (
     SaveResponse,
     SavedSentence,
 )
+from store.naming import slug_localname
 from store.oxigraph import DOM, OxigraphStore, _localname
 
 # 극성 → 인과 술어(gen_shacl.py POL 과 동일)
@@ -54,7 +55,7 @@ class KgService:
                     trace_id=get_trace_id(),
                 )
 
-        mentions = self._resolve_mentions(req)
+        mentions, mention_labels = self._resolve_mentions(req)
         about_symptom, polarity = self._infer_symptom_polarity(req)
 
         # (1) 트리플 커밋
@@ -65,6 +66,7 @@ class KgService:
             about_symptom=about_symptom,
             polarity=polarity,
             draft_id=req.draft_id,
+            mention_labels=mention_labels,
         )
 
         # (2) 벡터 upsert — 실패 시 (1) 보상 롤백
@@ -107,12 +109,24 @@ class KgService:
         return len(iris)
 
     # ── mentions / symptom 해석 ─────────────────────────────────────────
-    def _resolve_mentions(self, req: SaveRequest) -> list[str]:
-        """개념 라벨 → 도메인 로컬네임(best-effort). 못 찾으면 라벨 그대로."""
+    def _resolve_mentions(self, req: SaveRequest) -> tuple[list[str], dict[str, str]]:
+        """개념 라벨 → (로컬네임 목록, 새 개념의 표면형 라벨).
+
+        T-92: 어휘층에서 해석되면 시드 로컬네임(WiperBlade)을 쓰고, 아니면 **라벨을 슬러그화**한다.
+        예전엔 라벨을 그대로 IRI 에 이어붙여 공백 하나에 저장이 500 으로 죽었다.
+        새로 발행한 개념의 표면형은 `rdfs:label` 로 보존한다(라벨→IRI 는 단방향 손실이므로).
+        """
         out: list[str] = []
+        labels: dict[str, str] = {}
         for c in req.concepts:
-            out.append(self._label_to_localname(c.label) or c.label)
-        return out
+            known = self._label_to_localname(c.label)
+            if known:
+                out.append(known)
+                continue
+            minted = slug_localname(c.label)
+            out.append(minted)
+            labels[minted] = c.label
+        return out, labels
 
     def _label_to_localname(self, label: str) -> str | None:
         """rdfs:label 정확일치 → 부분일치 순으로 도메인 로컬네임을 찾는다.
@@ -142,7 +156,8 @@ class KgService:
         """관계에서 about_symptom·polarity 를 유추한다."""
         for rel in req.relations:
             if rel.predicate in _PRED_POL:
-                sym = self._label_to_localname(rel.object)
+                # T-92 — 미해석 증상도 슬러그로 심는다(라벨 그대로면 IRI 가 깨진다).
+                sym = self._label_to_localname(rel.object) or slug_localname(rel.object)
                 return sym, _PRED_POL[rel.predicate]
         return None, "cause"
 
