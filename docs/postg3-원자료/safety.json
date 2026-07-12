@@ -1,0 +1,67 @@
+{
+  "qa": {
+    "자전거 브레이크 패드는 왜 마모되나요?": {
+      "status": 200,
+      "body": {
+        "layer": "C",
+        "verified_answer": {
+          "text": "명세 근거 없음 — 이 질문은 현재 지식베이스(와이퍼 블레이드 도메인)의 검증된 규칙으로 답할 수 없습니다. 억지로 답을 만들지 않습니다. 해당 지식을 추가하려면 지식 입력 화면을 이용해 주세요.",
+          "determinism": "rag",
+          "sources": []
+        },
+        "llm_answer": null,
+        "comparison": null,
+        "insufficient_evidence": true,
+        "trace_id": "4f5b68255da84cb2"
+      }
+    },
+    "타이어 공기압이 낮으면 어떤 문제가 생기나요?": {
+      "status": 200,
+      "body": {
+        "layer": "C",
+        "verified_answer": {
+          "text": "명세 근거 없음 — 이 질문은 현재 지식베이스(와이퍼 블레이드 도메인)의 검증된 규칙으로 답할 수 없습니다. 억지로 답을 만들지 않습니다. 해당 지식을 추가하려면 지식 입력 화면을 이용해 주세요.",
+          "determinism": "rag",
+          "sources": []
+        },
+        "llm_answer": null,
+        "comparison": null,
+        "insufficient_evidence": true,
+        "trace_id": "f75eca355bfa4857"
+      }
+    },
+    "겨울철에 와이퍼 소음이 왜 생기나요?": {
+      "status": 200,
+      "body": {
+        "layer": "C",
+        "verified_answer": {
+          "text": "명세 근거 없음 — 이 질문은 현재 지식베이스(와이퍼 블레이드 도메인)의 검증된 규칙으로 답할 수 없습니다. 억지로 답을 만들지 않습니다. 해당 지식을 추가하려면 지식 입력 화면을 이용해 주세요.",
+          "determinism": "rag",
+          "sources": []
+        },
+        "llm_answer": null,
+        "comparison": null,
+        "insufficient_evidence": true,
+        "trace_id": "4374ea53fbf54d1f"
+      }
+    }
+  },
+  "bypass": {
+    "타이어 고무 저장": {
+      "status": 500,
+      "body": {
+        "code": "INTERNAL",
+        "user_message": "일시적인 오류입니다.",
+        "trace_id": "a0e1d2ffc5f24ebc"
+      }
+    },
+    "위조 violations(range 위반)": {
+      "status": 409,
+      "body": {
+        "code": "GUARDRAIL_BLOCKED",
+        "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+        "trace_id": "85fe3d26d88c40ae"
+      }
+    }
+  }
+}

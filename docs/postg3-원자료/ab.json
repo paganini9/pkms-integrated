@@ -1,0 +1,2849 @@
+{
+  "K1": {
+    "text": "고속 주행 시 스포일러 없는 블레이드는 들뜸이 발생한다.",
+    "ab_status": 200,
+    "ms": 4582,
+    "results": {
+      "solar": {
+        "actual_provider": "solar",
+        "concepts": [
+          {
+            "label": "고속 주행",
+            "type": "EnvCondition"
+          },
+          {
+            "label": "스포일러",
+            "type": "Component"
+          },
+          {
+            "label": "블레이드",
+            "type": "Component"
+          },
+          {
+            "label": "들뜸",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "블레이드",
+            "predicate": "causes",
+            "object": "들뜸",
+            "evidence": "고속 주행 시 스포일러 없는 블레이드는 들뜸이 발생한다."
+          },
+          {
+            "subject": "블레이드",
+            "predicate": "hasMaterial",
+            "object": "",
+            "evidence": ""
+          },
+          {
+            "subject": "들뜸",
+            "predicate": "conditionedOn",
+            "object": "고속 주행",
+            "evidence": "고속 주행 시 스포일러 없는 블레이드는 들뜸이 발생한다."
+          }
+        ],
+        "error": null,
+        "validate": {
+          "code": "VALIDATION_ERROR",
+          "user_message": "입력값을 확인해 주세요.",
+          "trace_id": "431b317c365f4065",
+          "details": {
+            "field": "relations.1.object"
+          }
+        },
+        "save": {
+          "status": 422,
+          "body": {
+            "code": "VALIDATION_ERROR",
+            "user_message": "입력값을 확인해 주세요.",
+            "trace_id": "3a7452a9d80447d8",
+            "details": {
+              "field": "relations.1.object"
+            }
+          }
+        }
+      },
+      "claude": {
+        "actual_provider": "claude",
+        "concepts": [
+          {
+            "label": "고속 주행",
+            "type": "EnvCondition"
+          },
+          {
+            "label": "스포일러",
+            "type": "Component"
+          },
+          {
+            "label": "블레이드",
+            "type": "Component"
+          },
+          {
+            "label": "들뜸",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "블레이드",
+            "predicate": "causes",
+            "object": "들뜸",
+            "evidence": "스포일러 없는 블레이드는 들뜸이 발생한다"
+          },
+          {
+            "subject": "들뜸",
+            "predicate": "conditionedOn",
+            "object": "고속 주행",
+            "evidence": "고속 주행 시 들뜸이 발생한다"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": true,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "고속 주행",
+              "offender_iri": null,
+              "message": "'고속 주행' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "스포일러",
+              "offender_iri": null,
+              "message": "'스포일러' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "들뜸",
+              "offender_iri": null,
+              "message": "'들뜸' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            }
+          ],
+          "trace_id": "dde09b8eae0141e6"
+        },
+        "save": {
+          "status": 500,
+          "body": {
+            "code": "INTERNAL",
+            "user_message": "일시적인 오류입니다.",
+            "trace_id": "0b6a1a30cb694ab4"
+          }
+        }
+      }
+    }
+  },
+  "K2": {
+    "text": "오존 노출이 기준을 초과하면 고무 블레이드에 균열이 생긴다.",
+    "ab_status": 200,
+    "ms": 3895,
+    "results": {
+      "solar": {
+        "actual_provider": "solar",
+        "concepts": [
+          {
+            "label": "오존 노출",
+            "type": "EnvCondition"
+          },
+          {
+            "label": "고무",
+            "type": "Material"
+          },
+          {
+            "label": "블레이드",
+            "type": "Component"
+          },
+          {
+            "label": "균열",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "블레이드",
+            "predicate": "hasMaterial",
+            "object": "고무"
+          },
+          {
+            "subject": "오존 노출",
+            "predicate": "causes",
+            "object": "균열"
+          },
+          {
+            "subject": "균열",
+            "predicate": "conditionedOn",
+            "object": "오존 노출"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "오존 노출",
+              "offender_iri": null,
+              "message": "'오존 노출' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "균열",
+              "offender_iri": null,
+              "message": "'균열' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "블레이드",
+              "offender_iri": "http://ex.org/domain#WiperBlade",
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '블레이드'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            }
+          ],
+          "trace_id": "5a27ffd68819444c"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "1387b888ac0a4da5"
+          }
+        }
+      },
+      "claude": {
+        "actual_provider": "claude",
+        "concepts": [
+          {
+            "label": "오존 노출",
+            "type": "EnvCondition"
+          },
+          {
+            "label": "블레이드",
+            "type": "Component"
+          },
+          {
+            "label": "고무",
+            "type": "Material"
+          },
+          {
+            "label": "균열",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "블레이드",
+            "predicate": "hasMaterial",
+            "object": "고무"
+          },
+          {
+            "subject": "고무",
+            "predicate": "causes",
+            "object": "균열"
+          },
+          {
+            "subject": "균열",
+            "predicate": "conditionedOn",
+            "object": "오존 노출"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "오존 노출",
+              "offender_iri": null,
+              "message": "'오존 노출' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "균열",
+              "offender_iri": null,
+              "message": "'균열' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "블레이드",
+              "offender_iri": "http://ex.org/domain#WiperBlade",
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '블레이드'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            }
+          ],
+          "trace_id": "cfecb9c1539040a1"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "186151e0f6b34f0e"
+          }
+        }
+      }
+    }
+  },
+  "K3": {
+    "text": "영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다.",
+    "ab_status": 200,
+    "ms": 4517,
+    "results": {
+      "solar": {
+        "actual_provider": "solar",
+        "concepts": [
+          {
+            "label": "영하 40도",
+            "type": "EnvCondition"
+          },
+          {
+            "label": "고무",
+            "type": "Material"
+          },
+          {
+            "label": "와이퍼",
+            "type": "Component"
+          },
+          {
+            "label": "경화",
+            "type": "Attribute"
+          },
+          {
+            "label": "작동 불량",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "와이퍼",
+            "predicate": "hasMaterial",
+            "object": "고무",
+            "evidence": "영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다."
+          },
+          {
+            "subject": "경화",
+            "predicate": "conditionedOn",
+            "object": "영하 40도",
+            "evidence": "영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다."
+          },
+          {
+            "subject": "와이퍼",
+            "predicate": "causes",
+            "object": "작동 불량",
+            "evidence": "영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다."
+          },
+          {
+            "subject": "작동 불량",
+            "predicate": "conditionedOn",
+            "object": "영하 40도",
+            "evidence": "영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다."
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "영하 40도",
+              "offender_iri": null,
+              "message": "'영하 40도' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "경화",
+              "offender_iri": null,
+              "message": "'경화' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "작동 불량",
+              "offender_iri": null,
+              "message": "'작동 불량' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "와이퍼",
+              "offender_iri": "http://ex.org/domain#WiperBlade",
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '와이퍼'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "경화",
+              "offender_iri": null,
+              "message": "'조건(conditionedOn)'의 주어은(는) 증상(Symptom)이어야 하는데 '경화'은(는) Attribute입니다.",
+              "sentence": null,
+              "source_shape": "ConditionedonDomainShape"
+            }
+          ],
+          "trace_id": "ba17086911e0445e"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "1db9b60766a5411c"
+          }
+        }
+      },
+      "claude": {
+        "actual_provider": "claude",
+        "concepts": [
+          {
+            "label": "영하 40도",
+            "type": "EnvCondition"
+          },
+          {
+            "label": "고무",
+            "type": "Material"
+          },
+          {
+            "label": "와이퍼",
+            "type": "Component"
+          },
+          {
+            "label": "경화",
+            "type": "Behavior"
+          },
+          {
+            "label": "작동 불량",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "와이퍼",
+            "predicate": "hasMaterial",
+            "object": "고무"
+          },
+          {
+            "subject": "고무",
+            "predicate": "causes",
+            "object": "경화"
+          },
+          {
+            "subject": "경화",
+            "predicate": "causes",
+            "object": "작동 불량"
+          },
+          {
+            "subject": "작동 불량",
+            "predicate": "conditionedOn",
+            "object": "영하 40도"
+          },
+          {
+            "subject": "경화",
+            "predicate": "conditionedOn",
+            "object": "영하 40도"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "영하 40도",
+              "offender_iri": null,
+              "message": "'영하 40도' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "경화",
+              "offender_iri": null,
+              "message": "'경화' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "작동 불량",
+              "offender_iri": null,
+              "message": "'작동 불량' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "와이퍼",
+              "offender_iri": "http://ex.org/domain#WiperBlade",
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '와이퍼'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            },
+            {
+              "code": "causes_range",
+              "severity": "violation",
+              "offender": "경화",
+              "offender_iri": null,
+              "message": "'유발(causes)'의 대상은(는) 증상(Symptom)이어야 하는데 '경화'은(는) Behavior입니다.",
+              "sentence": null,
+              "source_shape": "CausesRangeShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "경화",
+              "offender_iri": null,
+              "message": "'조건(conditionedOn)'의 주어은(는) 증상(Symptom)이어야 하는데 '경화'은(는) Behavior입니다.",
+              "sentence": null,
+              "source_shape": "ConditionedonDomainShape"
+            }
+          ],
+          "trace_id": "90e4e0a573334d51"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "e09e692bd4ba482e"
+          }
+        }
+      }
+    }
+  },
+  "K4": {
+    "text": "염화칼슘에 반복 노출되면 블레이드 프레임에 부식이 발생한다.",
+    "ab_status": 200,
+    "ms": 5001,
+    "results": {
+      "solar": {
+        "actual_provider": "solar",
+        "concepts": [
+          {
+            "label": "염화칼슘",
+            "type": "Material"
+          },
+          {
+            "label": "블레이드 프레임",
+            "type": "Component"
+          },
+          {
+            "label": "부식",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "블레이드 프레임",
+            "predicate": "hasMaterial",
+            "object": "염화칼슘"
+          },
+          {
+            "subject": "블레이드 프레임",
+            "predicate": "causes",
+            "object": "부식"
+          },
+          {
+            "subject": "부식",
+            "predicate": "conditionedOn",
+            "object": "염화칼슘"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "염화칼슘",
+              "offender_iri": null,
+              "message": "'염화칼슘' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "블레이드 프레임",
+              "offender_iri": null,
+              "message": "'블레이드 프레임' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "부식",
+              "offender_iri": null,
+              "message": "'부식' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "블레이드 프레임",
+              "offender_iri": null,
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '블레이드 프레임'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "염화칼슘",
+              "offender_iri": null,
+              "message": "'조건(conditionedOn)'의 대상은(는) EnvCondition이어야 하는데 '염화칼슘'은(는) Material입니다.",
+              "sentence": null,
+              "source_shape": "ConditionedonRangeShape"
+            }
+          ],
+          "trace_id": "6725d33ebeae4110"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "54dd8130c0d14c51"
+          }
+        }
+      },
+      "claude": {
+        "actual_provider": "claude",
+        "concepts": [
+          {
+            "label": "염화칼슘",
+            "type": "Material"
+          },
+          {
+            "label": "반복 노출",
+            "type": "EnvCondition"
+          },
+          {
+            "label": "블레이드 프레임",
+            "type": "Component"
+          },
+          {
+            "label": "프레임",
+            "type": "Component"
+          },
+          {
+            "label": "블레이드",
+            "type": "Component"
+          },
+          {
+            "label": "부식",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "염화칼슘",
+            "predicate": "causes",
+            "object": "부식",
+            "evidence": "염화칼슘에 반복 노출되면 블레이드 프레임에 부식이 발생한다"
+          },
+          {
+            "subject": "부식",
+            "predicate": "conditionedOn",
+            "object": "반복 노출",
+            "evidence": "염화칼슘에 반복 노출되면"
+          },
+          {
+            "subject": "블레이드 프레임",
+            "predicate": "has_part",
+            "object": "프레임"
+          },
+          {
+            "subject": "프레임",
+            "predicate": "mountedOn",
+            "object": "블레이드"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "염화칼슘",
+              "offender_iri": null,
+              "message": "'염화칼슘' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "반복 노출",
+              "offender_iri": null,
+              "message": "'반복 노출' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "블레이드 프레임",
+              "offender_iri": null,
+              "message": "'블레이드 프레임' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "프레임",
+              "offender_iri": null,
+              "message": "'프레임' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "부식",
+              "offender_iri": null,
+              "message": "'부식' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "블레이드",
+              "offender_iri": "http://ex.org/domain#WiperBlade",
+              "message": "'장착(mountedOn)'의 대상은(는) VehicleType이어야 하는데 '블레이드'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "MountedonRangeShape"
+            }
+          ],
+          "trace_id": "e2e67ba96aba4169"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "fee0b9d5c2154938"
+          }
+        }
+      }
+    }
+  },
+  "K5": {
+    "text": "블레이드 길이가 커넥터 규격과 맞지 않으면 주행 중 이탈이 발생한다.",
+    "ab_status": 200,
+    "ms": 4536,
+    "results": {
+      "solar": {
+        "actual_provider": "solar",
+        "concepts": [
+          {
+            "label": "블레이드",
+            "type": "Component"
+          },
+          {
+            "label": "길이",
+            "type": "Attribute"
+          },
+          {
+            "label": "커넥터 규격",
+            "type": "Attribute"
+          },
+          {
+            "label": "이탈",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "블레이드",
+            "predicate": "hasMaterial",
+            "object": "고무"
+          },
+          {
+            "subject": "블레이드",
+            "predicate": "causes",
+            "object": "이탈"
+          },
+          {
+            "subject": "이탈",
+            "predicate": "conditionedOn",
+            "object": "길이 불일치"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "커넥터 규격",
+              "offender_iri": null,
+              "message": "'커넥터 규격' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "이탈",
+              "offender_iri": null,
+              "message": "'이탈' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "블레이드",
+              "offender_iri": "http://ex.org/domain#WiperBlade",
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '블레이드'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "고무",
+              "offender_iri": null,
+              "message": "관계의 대상 '고무' 이(가) 추출된 개념 목록에 없습니다. 이 관계는 저장되지 않습니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "길이 불일치",
+              "offender_iri": null,
+              "message": "관계의 대상 '길이 불일치' 이(가) 추출된 개념 목록에 없습니다. 이 관계는 저장되지 않습니다.",
+              "sentence": null,
+              "source_shape": null
+            }
+          ],
+          "trace_id": "ba6c09a560f04c62"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "99d501c0383b40a2"
+          }
+        }
+      },
+      "claude": {
+        "actual_provider": "claude",
+        "concepts": [
+          {
+            "label": "블레이드",
+            "type": "Component"
+          },
+          {
+            "label": "길이",
+            "type": "Attribute"
+          },
+          {
+            "label": "커넥터",
+            "type": "Component"
+          },
+          {
+            "label": "규격",
+            "type": "Attribute"
+          },
+          {
+            "label": "주행 중",
+            "type": "EnvCondition"
+          },
+          {
+            "label": "이탈",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "블레이드",
+            "predicate": "has_part",
+            "object": "길이"
+          },
+          {
+            "subject": "커넥터",
+            "predicate": "has_part",
+            "object": "규격"
+          },
+          {
+            "subject": "길이",
+            "predicate": "causes",
+            "object": "이탈",
+            "evidence": "블레이드 길이가 커넥터 규격과 맞지 않으면 이탈이 발생한다"
+          },
+          {
+            "subject": "이탈",
+            "predicate": "conditionedOn",
+            "object": "주행 중"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": true,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "커넥터",
+              "offender_iri": null,
+              "message": "'커넥터' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "규격",
+              "offender_iri": null,
+              "message": "'규격' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "주행 중",
+              "offender_iri": null,
+              "message": "'주행 중' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "이탈",
+              "offender_iri": null,
+              "message": "'이탈' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            }
+          ],
+          "trace_id": "a962c07e85a24363"
+        },
+        "save": {
+          "status": 500,
+          "body": {
+            "code": "INTERNAL",
+            "user_message": "일시적인 오류입니다.",
+            "trace_id": "2870bfa832724b90"
+          }
+        }
+      }
+    }
+  },
+  "R1": {
+    "text": "블레이드는 고속 주행 중 들뜸 현상이 발생하지 않아야 한다.",
+    "ab_status": 200,
+    "ms": 3591,
+    "results": {
+      "solar": {
+        "actual_provider": "solar",
+        "concepts": [
+          {
+            "label": "블레이드",
+            "type": "Component"
+          },
+          {
+            "label": "고속 주행",
+            "type": "EnvCondition"
+          },
+          {
+            "label": "들뜸 현상",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "블레이드",
+            "predicate": "hasMaterial",
+            "object": "고무",
+            "evidence": "블레이드"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "고속 주행",
+              "offender_iri": null,
+              "message": "'고속 주행' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "들뜸 현상",
+              "offender_iri": null,
+              "message": "'들뜸 현상' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "블레이드",
+              "offender_iri": "http://ex.org/domain#WiperBlade",
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '블레이드'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "고무",
+              "offender_iri": null,
+              "message": "관계의 대상 '고무' 이(가) 추출된 개념 목록에 없습니다. 이 관계는 저장되지 않습니다.",
+              "sentence": null,
+              "source_shape": null
+            }
+          ],
+          "trace_id": "37b0e3e794e94532"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "7952df8973b04797"
+          }
+        }
+      },
+      "claude": {
+        "actual_provider": "claude",
+        "concepts": [
+          {
+            "label": "블레이드",
+            "type": "Component"
+          },
+          {
+            "label": "고속 주행",
+            "type": "EnvCondition"
+          },
+          {
+            "label": "들뜸 현상",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "블레이드",
+            "predicate": "causes",
+            "object": "들뜸 현상"
+          },
+          {
+            "subject": "들뜸 현상",
+            "predicate": "conditionedOn",
+            "object": "고속 주행"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": true,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "고속 주행",
+              "offender_iri": null,
+              "message": "'고속 주행' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "들뜸 현상",
+              "offender_iri": null,
+              "message": "'들뜸 현상' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            }
+          ],
+          "trace_id": "f91e53f294044493"
+        },
+        "save": {
+          "status": 500,
+          "body": {
+            "code": "INTERNAL",
+            "user_message": "일시적인 오류입니다.",
+            "trace_id": "e34675febeae40a5"
+          }
+        }
+      }
+    }
+  },
+  "R2": {
+    "text": "와이퍼 가동 시 유리 표면에 물끌림이나 얼룩이 남지 않아야 한다.",
+    "ab_status": 200,
+    "ms": 5363,
+    "results": {
+      "solar": {
+        "actual_provider": "solar",
+        "concepts": [
+          {
+            "label": "와이퍼",
+            "type": "Component"
+          },
+          {
+            "label": "물끌림",
+            "type": "Symptom"
+          },
+          {
+            "label": "얼룩",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "와이퍼",
+            "predicate": "hasMaterial",
+            "object": "고무",
+            "evidence": "와이퍼 가동 시 유리 표면에 물끌림이나 얼룩이 남지 않아야 한다."
+          },
+          {
+            "subject": "와이퍼",
+            "predicate": "causes",
+            "object": "물끌림",
+            "evidence": "와이퍼 가동 시 유리 표면에 물끌림이나 얼룩이 남지 않아야 한다."
+          },
+          {
+            "subject": "와이퍼",
+            "predicate": "causes",
+            "object": "얼룩",
+            "evidence": "와이퍼 가동 시 유리 표면에 물끌림이나 얼룩이 남지 않아야 한다."
+          },
+          {
+            "subject": "와이퍼",
+            "predicate": "conditionedOn",
+            "object": "유리 표면",
+            "evidence": "와이퍼 가동 시 유리 표면에 물끌림이나 얼룩이 남지 않아야 한다."
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "물끌림",
+              "offender_iri": null,
+              "message": "'물끌림' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "얼룩",
+              "offender_iri": null,
+              "message": "'얼룩' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "와이퍼",
+              "offender_iri": "http://ex.org/domain#WiperBlade",
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '와이퍼'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "고무",
+              "offender_iri": null,
+              "message": "관계의 대상 '고무' 이(가) 추출된 개념 목록에 없습니다. 이 관계는 저장되지 않습니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "와이퍼",
+              "offender_iri": "http://ex.org/domain#WiperBlade",
+              "message": "'조건(conditionedOn)'의 주어은(는) 증상(Symptom)이어야 하는데 '와이퍼'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "ConditionedonDomainShape"
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "유리 표면",
+              "offender_iri": null,
+              "message": "관계의 대상 '유리 표면' 이(가) 추출된 개념 목록에 없습니다. 이 관계는 저장되지 않습니다.",
+              "sentence": null,
+              "source_shape": null
+            }
+          ],
+          "trace_id": "38035afa6d644a0b"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "2a265c4d20e44448"
+          }
+        }
+      },
+      "claude": {
+        "actual_provider": "claude",
+        "concepts": [
+          {
+            "label": "와이퍼",
+            "type": "Component"
+          },
+          {
+            "label": "유리 표면",
+            "type": "Component"
+          },
+          {
+            "label": "물끌림",
+            "type": "Symptom"
+          },
+          {
+            "label": "얼룩",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "와이퍼",
+            "predicate": "causes",
+            "object": "물끌림",
+            "evidence": "와이퍼 가동 시 유리 표면에 물끌림이 남지 않아야 한다"
+          },
+          {
+            "subject": "와이퍼",
+            "predicate": "causes",
+            "object": "얼룩",
+            "evidence": "와이퍼 가동 시 유리 표면에 얼룩이 남지 않아야 한다"
+          },
+          {
+            "subject": "물끌림",
+            "predicate": "conditionedOn",
+            "object": "유리 표면",
+            "evidence": "유리 표면에 물끌림이 남지 않아야 한다"
+          },
+          {
+            "subject": "얼룩",
+            "predicate": "conditionedOn",
+            "object": "유리 표면",
+            "evidence": "유리 표면에 얼룩이 남지 않아야 한다"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "유리 표면",
+              "offender_iri": null,
+              "message": "'유리 표면' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "물끌림",
+              "offender_iri": null,
+              "message": "'물끌림' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "얼룩",
+              "offender_iri": null,
+              "message": "'얼룩' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "유리 표면",
+              "offender_iri": null,
+              "message": "'조건(conditionedOn)'의 대상은(는) EnvCondition이어야 하는데 '유리 표면'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "ConditionedonRangeShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "유리 표면",
+              "offender_iri": null,
+              "message": "'조건(conditionedOn)'의 대상은(는) EnvCondition이어야 하는데 '유리 표면'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "ConditionedonRangeShape"
+            }
+          ],
+          "trace_id": "497b844e75a84a89"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "ec556a9e002d4746"
+          }
+        }
+      }
+    }
+  },
+  "R3": {
+    "text": "와이퍼 1회 왕복 후 운전자의 시야가 즉시 확보되어야 한다.",
+    "ab_status": 200,
+    "ms": 4300,
+    "results": {
+      "solar": {
+        "actual_provider": "solar",
+        "concepts": [
+          {
+            "label": "와이퍼",
+            "type": "Component"
+          },
+          {
+            "label": "운전자",
+            "type": "PartType"
+          },
+          {
+            "label": "시야",
+            "type": "Attribute"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "와이퍼",
+            "predicate": "has_part",
+            "object": "운전자"
+          },
+          {
+            "subject": "와이퍼",
+            "predicate": "hasMaterial",
+            "object": "시야"
+          },
+          {
+            "subject": "운전자",
+            "predicate": "conditionedOn",
+            "object": "시야"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "운전자",
+              "offender_iri": null,
+              "message": "'운전자' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "시야",
+              "offender_iri": null,
+              "message": "'시야' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "와이퍼",
+              "offender_iri": "http://ex.org/domain#WiperBlade",
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '와이퍼'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "시야",
+              "offender_iri": null,
+              "message": "'재질(hasMaterial)'의 대상은(는) Material이어야 하는데 '시야'은(는) Attribute입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialRangeShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "운전자",
+              "offender_iri": null,
+              "message": "'조건(conditionedOn)'의 주어은(는) 증상(Symptom)이어야 하는데 '운전자'은(는) PartType입니다.",
+              "sentence": null,
+              "source_shape": "ConditionedonDomainShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "시야",
+              "offender_iri": null,
+              "message": "'조건(conditionedOn)'의 대상은(는) EnvCondition이어야 하는데 '시야'은(는) Attribute입니다.",
+              "sentence": null,
+              "source_shape": "ConditionedonRangeShape"
+            }
+          ],
+          "trace_id": "0053e15acb1c437d"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "29c6eb1d03ff4676"
+          }
+        }
+      },
+      "claude": {
+        "actual_provider": "claude",
+        "concepts": [
+          {
+            "label": "와이퍼",
+            "type": "Component"
+          },
+          {
+            "label": "1회 왕복",
+            "type": "Behavior"
+          },
+          {
+            "label": "운전자 시야 확보",
+            "type": "Attribute"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "와이퍼",
+            "predicate": "causes",
+            "object": "운전자 시야 확보",
+            "evidence": "와이퍼 1회 왕복 후 운전자의 시야가 즉시 확보되어야 한다"
+          },
+          {
+            "subject": "운전자 시야 확보",
+            "predicate": "conditionedOn",
+            "object": "1회 왕복",
+            "evidence": "와이퍼 1회 왕복 후 운전자의 시야가 즉시 확보되어야 한다"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "1회 왕복",
+              "offender_iri": null,
+              "message": "'1회 왕복' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "운전자 시야 확보",
+              "offender_iri": null,
+              "message": "'운전자 시야 확보' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "causes_range",
+              "severity": "violation",
+              "offender": "운전자 시야 확보",
+              "offender_iri": null,
+              "message": "'유발(causes)'의 대상은(는) 증상(Symptom)이어야 하는데 '운전자 시야 확보'은(는) Attribute입니다.",
+              "sentence": null,
+              "source_shape": "CausesRangeShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "운전자 시야 확보",
+              "offender_iri": null,
+              "message": "'조건(conditionedOn)'의 주어은(는) 증상(Symptom)이어야 하는데 '운전자 시야 확보'은(는) Attribute입니다.",
+              "sentence": null,
+              "source_shape": "ConditionedonDomainShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "1회 왕복",
+              "offender_iri": null,
+              "message": "'조건(conditionedOn)'의 대상은(는) EnvCondition이어야 하는데 '1회 왕복'은(는) Behavior입니다.",
+              "sentence": null,
+              "source_shape": "ConditionedonRangeShape"
+            }
+          ],
+          "trace_id": "53ca6b7b4bd840d7"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "bdab5093db6044ed"
+          }
+        }
+      }
+    }
+  },
+  "R4": {
+    "text": "고무 블레이드는 최소 50만 회 이상의 왕복 작동 후에도 초기 성능 기준을 만족해야 한다.",
+    "ab_status": 200,
+    "ms": 3898,
+    "results": {
+      "solar": {
+        "actual_provider": "solar",
+        "concepts": [
+          {
+            "label": "고무 블레이드",
+            "type": "Component"
+          },
+          {
+            "label": "50만 회",
+            "type": "Attribute"
+          },
+          {
+            "label": "왕복 작동",
+            "type": "Behavior"
+          },
+          {
+            "label": "초기 성능 기준",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "고무 블레이드",
+            "predicate": "hasMaterial",
+            "object": "고무"
+          },
+          {
+            "subject": "고무 블레이드",
+            "predicate": "causes",
+            "object": "초기 성능 기준"
+          },
+          {
+            "subject": "고무 블레이드",
+            "predicate": "has_part",
+            "object": "왕복 작동"
+          },
+          {
+            "subject": "왕복 작동",
+            "predicate": "conditionedOn",
+            "object": "50만 회"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "고무 블레이드",
+              "offender_iri": null,
+              "message": "'고무 블레이드' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "50만 회",
+              "offender_iri": null,
+              "message": "'50만 회' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "왕복 작동",
+              "offender_iri": null,
+              "message": "'왕복 작동' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "초기 성능 기준",
+              "offender_iri": null,
+              "message": "'초기 성능 기준' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "고무 블레이드",
+              "offender_iri": null,
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '고무 블레이드'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "고무",
+              "offender_iri": null,
+              "message": "관계의 대상 '고무' 이(가) 추출된 개념 목록에 없습니다. 이 관계는 저장되지 않습니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "왕복 작동",
+              "offender_iri": null,
+              "message": "'조건(conditionedOn)'의 주어은(는) 증상(Symptom)이어야 하는데 '왕복 작동'은(는) Behavior입니다.",
+              "sentence": null,
+              "source_shape": "ConditionedonDomainShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "50만 회",
+              "offender_iri": null,
+              "message": "'조건(conditionedOn)'의 대상은(는) EnvCondition이어야 하는데 '50만 회'은(는) Attribute입니다.",
+              "sentence": null,
+              "source_shape": "ConditionedonRangeShape"
+            }
+          ],
+          "trace_id": "99318bd614ab4b21"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "87ce194385e6467b"
+          }
+        }
+      },
+      "claude": {
+        "actual_provider": "claude",
+        "concepts": [
+          {
+            "label": "블레이드",
+            "type": "Component"
+          },
+          {
+            "label": "고무",
+            "type": "Material"
+          },
+          {
+            "label": "왕복 작동",
+            "type": "Behavior"
+          },
+          {
+            "label": "초기 성능 기준",
+            "type": "Attribute"
+          },
+          {
+            "label": "작동 횟수 50만 회",
+            "type": "Attribute"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "블레이드",
+            "predicate": "hasMaterial",
+            "object": "고무"
+          },
+          {
+            "subject": "블레이드",
+            "predicate": "has_part",
+            "object": "왕복 작동"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "왕복 작동",
+              "offender_iri": null,
+              "message": "'왕복 작동' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "초기 성능 기준",
+              "offender_iri": null,
+              "message": "'초기 성능 기준' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "작동 횟수 50만 회",
+              "offender_iri": null,
+              "message": "'작동 횟수 50만 회' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "블레이드",
+              "offender_iri": "http://ex.org/domain#WiperBlade",
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '블레이드'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            }
+          ],
+          "trace_id": "43ade04aeb9f4a00"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "bf79d56b5efd46eb"
+          }
+        }
+      }
+    }
+  },
+  "R5": {
+    "text": "블레이드 고무 재질은 기준치 이상의 오존 및 자외선 노출 환경에서 균열이나 경화가 발생하지 않아야 한다.",
+    "ab_status": 200,
+    "ms": 4836,
+    "results": {
+      "solar": {
+        "actual_provider": "solar",
+        "concepts": [
+          {
+            "label": "블레이드",
+            "type": "Component"
+          },
+          {
+            "label": "고무",
+            "type": "Material"
+          },
+          {
+            "label": "기준치",
+            "type": "EnvCondition"
+          },
+          {
+            "label": "오존",
+            "type": "EnvCondition"
+          },
+          {
+            "label": "자외선",
+            "type": "EnvCondition"
+          },
+          {
+            "label": "균열",
+            "type": "Symptom"
+          },
+          {
+            "label": "경화",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "블레이드",
+            "predicate": "hasMaterial",
+            "object": "고무",
+            "evidence": "블레이드 고무 재질"
+          },
+          {
+            "subject": "블레이드",
+            "predicate": "conditionedOn",
+            "object": "기준치",
+            "evidence": "기준치 이상의 오존 및 자외선 노출 환경"
+          },
+          {
+            "subject": "기준치",
+            "predicate": "conditionedOn",
+            "object": "오존",
+            "evidence": "기준치 이상의 오존 및 자외선 노출 환경"
+          },
+          {
+            "subject": "기준치",
+            "predicate": "conditionedOn",
+            "object": "자외선",
+            "evidence": "기준치 이상의 오존 및 자외선 노출 환경"
+          },
+          {
+            "subject": "블레이드",
+            "predicate": "causes",
+            "object": "균열",
+            "evidence": "블레이드 고무 재질은 기준치 이상의 오존 및 자외선 노출 환경에서 균열이나 경화가 발생하지 않아야 한다"
+          },
+          {
+            "subject": "블레이드",
+            "predicate": "causes",
+            "object": "경화",
+            "evidence": "블레이드 고무 재질은 기준치 이상의 오존 및 자외선 노출 환경에서 균열이나 경화가 발생하지 않아야 한다"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "기준치",
+              "offender_iri": null,
+              "message": "'기준치' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "오존",
+              "offender_iri": null,
+              "message": "'오존' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "자외선",
+              "offender_iri": null,
+              "message": "'자외선' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "균열",
+              "offender_iri": null,
+              "message": "'균열' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "경화",
+              "offender_iri": null,
+              "message": "'경화' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "블레이드",
+              "offender_iri": "http://ex.org/domain#WiperBlade",
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '블레이드'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "블레이드",
+              "offender_iri": "http://ex.org/domain#WiperBlade",
+              "message": "'조건(conditionedOn)'의 주어은(는) 증상(Symptom)이어야 하는데 '블레이드'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "ConditionedonDomainShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "기준치",
+              "offender_iri": null,
+              "message": "'조건(conditionedOn)'의 주어은(는) 증상(Symptom)이어야 하는데 '기준치'은(는) EnvCondition입니다.",
+              "sentence": null,
+              "source_shape": "ConditionedonDomainShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "기준치",
+              "offender_iri": null,
+              "message": "'조건(conditionedOn)'의 주어은(는) 증상(Symptom)이어야 하는데 '기준치'은(는) EnvCondition입니다.",
+              "sentence": null,
+              "source_shape": "ConditionedonDomainShape"
+            }
+          ],
+          "trace_id": "fe00b591dc114392"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "25cdb50f9255470b"
+          }
+        }
+      },
+      "claude": {
+        "actual_provider": "claude",
+        "concepts": [
+          {
+            "label": "블레이드",
+            "type": "Component"
+          },
+          {
+            "label": "고무",
+            "type": "Material"
+          },
+          {
+            "label": "오존 노출",
+            "type": "EnvCondition"
+          },
+          {
+            "label": "자외선 노출",
+            "type": "EnvCondition"
+          },
+          {
+            "label": "균열",
+            "type": "Symptom"
+          },
+          {
+            "label": "경화",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "블레이드",
+            "predicate": "hasMaterial",
+            "object": "고무"
+          },
+          {
+            "subject": "고무",
+            "predicate": "causes",
+            "object": "균열"
+          },
+          {
+            "subject": "고무",
+            "predicate": "causes",
+            "object": "경화"
+          },
+          {
+            "subject": "균열",
+            "predicate": "conditionedOn",
+            "object": "오존 노출"
+          },
+          {
+            "subject": "균열",
+            "predicate": "conditionedOn",
+            "object": "자외선 노출"
+          },
+          {
+            "subject": "경화",
+            "predicate": "conditionedOn",
+            "object": "오존 노출"
+          },
+          {
+            "subject": "경화",
+            "predicate": "conditionedOn",
+            "object": "자외선 노출"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "오존 노출",
+              "offender_iri": null,
+              "message": "'오존 노출' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "자외선 노출",
+              "offender_iri": null,
+              "message": "'자외선 노출' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "균열",
+              "offender_iri": null,
+              "message": "'균열' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "경화",
+              "offender_iri": null,
+              "message": "'경화' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "블레이드",
+              "offender_iri": "http://ex.org/domain#WiperBlade",
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '블레이드'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            }
+          ],
+          "trace_id": "6652eae5dae14250"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "8b99e5ef92534a98"
+          }
+        }
+      }
+    }
+  },
+  "R6": {
+    "text": "영하 40도 환경에서도 고무의 유연성을 유지해야 하며 프레임 결빙으로 인한 작동 불량이 없어야 한다.",
+    "ab_status": 200,
+    "ms": 5060,
+    "results": {
+      "solar": {
+        "actual_provider": "solar",
+        "concepts": [
+          {
+            "label": "영하 40도",
+            "type": "EnvCondition"
+          },
+          {
+            "label": "고무",
+            "type": "Material"
+          },
+          {
+            "label": "유연성",
+            "type": "Attribute"
+          },
+          {
+            "label": "프레임",
+            "type": "Component"
+          },
+          {
+            "label": "결빙",
+            "type": "Symptom"
+          },
+          {
+            "label": "작동 불량",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "고무",
+            "predicate": "hasMaterial",
+            "object": "영하 40도",
+            "evidence": "영하 40도 환경에서도 고무의 유연성을 유지해야 하며"
+          },
+          {
+            "subject": "고무",
+            "predicate": "hasMaterial",
+            "object": "유연성",
+            "evidence": "고무의 유연성을 유지해야 하며"
+          },
+          {
+            "subject": "프레임",
+            "predicate": "hasMaterial",
+            "object": "결빙",
+            "evidence": "프레임 결빙으로 인한 작동 불량이 없어야 한다"
+          },
+          {
+            "subject": "결빙",
+            "predicate": "causes",
+            "object": "작동 불량",
+            "evidence": "프레임 결빙으로 인한 작동 불량이 없어야 한다"
+          },
+          {
+            "subject": "작동 불량",
+            "predicate": "conditionedOn",
+            "object": "영하 40도",
+            "evidence": "영하 40도 환경에서도 ... 프레임 결빙으로 인한 작동 불량이 없어야 한다"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "영하 40도",
+              "offender_iri": null,
+              "message": "'영하 40도' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "유연성",
+              "offender_iri": null,
+              "message": "'유연성' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "프레임",
+              "offender_iri": null,
+              "message": "'프레임' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "결빙",
+              "offender_iri": null,
+              "message": "'결빙' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "작동 불량",
+              "offender_iri": null,
+              "message": "'작동 불량' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "고무",
+              "offender_iri": "http://ex.org/domain#Rubber",
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '고무'은(는) Material입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "영하 40도",
+              "offender_iri": null,
+              "message": "'재질(hasMaterial)'의 대상은(는) Material이어야 하는데 '영하 40도'은(는) EnvCondition입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialRangeShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "고무",
+              "offender_iri": "http://ex.org/domain#Rubber",
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '고무'은(는) Material입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "유연성",
+              "offender_iri": null,
+              "message": "'재질(hasMaterial)'의 대상은(는) Material이어야 하는데 '유연성'은(는) Attribute입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialRangeShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "프레임",
+              "offender_iri": null,
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '프레임'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "결빙",
+              "offender_iri": null,
+              "message": "'재질(hasMaterial)'의 대상은(는) Material이어야 하는데 '결빙'은(는) Symptom입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialRangeShape"
+            }
+          ],
+          "trace_id": "3bfe5d6da6e04b36"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "a40a0b7e9e444432"
+          }
+        }
+      },
+      "claude": {
+        "actual_provider": "claude",
+        "concepts": [
+          {
+            "label": "영하 40도 환경",
+            "type": "EnvCondition"
+          },
+          {
+            "label": "고무",
+            "type": "Material"
+          },
+          {
+            "label": "유연성",
+            "type": "Attribute"
+          },
+          {
+            "label": "프레임",
+            "type": "Component"
+          },
+          {
+            "label": "결빙",
+            "type": "Symptom"
+          },
+          {
+            "label": "작동 불량",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "고무",
+            "predicate": "hasMaterial",
+            "object": "고무"
+          },
+          {
+            "subject": "유연성",
+            "predicate": "conditionedOn",
+            "object": "영하 40도 환경"
+          },
+          {
+            "subject": "고무",
+            "predicate": "has_part",
+            "object": "유연성"
+          },
+          {
+            "subject": "프레임",
+            "predicate": "causes",
+            "object": "결빙"
+          },
+          {
+            "subject": "결빙",
+            "predicate": "causes",
+            "object": "작동 불량"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "영하 40도 환경",
+              "offender_iri": null,
+              "message": "'영하 40도 환경' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "유연성",
+              "offender_iri": null,
+              "message": "'유연성' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "프레임",
+              "offender_iri": null,
+              "message": "'프레임' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "결빙",
+              "offender_iri": null,
+              "message": "'결빙' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "작동 불량",
+              "offender_iri": null,
+              "message": "'작동 불량' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "고무",
+              "offender_iri": "http://ex.org/domain#Rubber",
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '고무'은(는) Material입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "유연성",
+              "offender_iri": null,
+              "message": "'조건(conditionedOn)'의 주어은(는) 증상(Symptom)이어야 하는데 '유연성'은(는) Attribute입니다.",
+              "sentence": null,
+              "source_shape": "ConditionedonDomainShape"
+            }
+          ],
+          "trace_id": "e693578223d74cc3"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "0f819ceb2a004cd3"
+          }
+        }
+      }
+    }
+  },
+  "R7": {
+    "text": "워셔액·세차제·염화칼슘 등 외부 화학 물질 노출에 의한 변형이나 부식이 발생하지 않아야 한다.",
+    "ab_status": 200,
+    "ms": 4943,
+    "results": {
+      "solar": {
+        "actual_provider": "solar",
+        "concepts": [
+          {
+            "label": "워셔액",
+            "type": "Material"
+          },
+          {
+            "label": "세차제",
+            "type": "Material"
+          },
+          {
+            "label": "염화칼슘",
+            "type": "Material"
+          }
+        ],
+        "relations": [],
+        "error": null,
+        "validate": {
+          "conforms": true,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "워셔액",
+              "offender_iri": null,
+              "message": "'워셔액' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "세차제",
+              "offender_iri": null,
+              "message": "'세차제' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "염화칼슘",
+              "offender_iri": null,
+              "message": "'염화칼슘' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            }
+          ],
+          "trace_id": "9f163040710f49e8"
+        },
+        "save": {
+          "status": 201,
+          "body": {
+            "sentence": {
+              "id": "S7",
+              "iri": "http://ex.org/domain#S7",
+              "text": "워셔액·세차제·염화칼슘 등 외부 화학 물질 노출에 의한 변형이나 부식이 발생하지 않아야 한다.",
+              "category": "소음",
+              "mentions": [
+                "워셔액",
+                "세차제",
+                "염화칼슘"
+              ],
+              "about_symptom": null,
+              "polarity": "cause"
+            },
+            "derived": {
+              "rule": {
+                "id": "소음Rule",
+                "label": "워셔액·세차제·염화칼슘 등 외부 화학 물질 노출에 의한 변형이나 부식이 발생하지 않아야 한다.",
+                "polarity": "cause",
+                "category": "소음",
+                "about_symptom": null,
+                "basis": "S7",
+                "conds": []
+              },
+              "shapes": [
+                {
+                  "id": "소음Shape",
+                  "gate_for": "소음",
+                  "sentence": "S7"
+                }
+              ],
+              "causal_edges": [
+                {
+                  "subject": "소음Rule",
+                  "predicate": "causes",
+                  "object": "소음",
+                  "evidence": "S7",
+                  "confidence": null
+                }
+              ]
+            },
+            "human_view": [
+              "워셔액·세차제·염화칼슘 등 외부 화학 물질 노출에 의한 변형이나 부식이 발생하지 않아야 한다.  [cause·S7·소음] → "
+            ],
+            "trace_id": "34dfb3e60066471c"
+          }
+        }
+      },
+      "claude": {
+        "actual_provider": "claude",
+        "concepts": [
+          {
+            "label": "워셔액",
+            "type": "Material"
+          },
+          {
+            "label": "세차제",
+            "type": "Material"
+          },
+          {
+            "label": "염화칼슘",
+            "type": "Material"
+          },
+          {
+            "label": "외부 화학 물질 노출",
+            "type": "EnvCondition"
+          },
+          {
+            "label": "변형",
+            "type": "Symptom"
+          },
+          {
+            "label": "부식",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "외부 화학 물질 노출",
+            "predicate": "causes",
+            "object": "변형",
+            "evidence": "외부 화학 물질 노출에 의한 변형이나 부식이 발생"
+          },
+          {
+            "subject": "외부 화학 물질 노출",
+            "predicate": "causes",
+            "object": "부식",
+            "evidence": "외부 화학 물질 노출에 의한 변형이나 부식이 발생"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": true,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "워셔액",
+              "offender_iri": null,
+              "message": "'워셔액' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "세차제",
+              "offender_iri": null,
+              "message": "'세차제' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "염화칼슘",
+              "offender_iri": null,
+              "message": "'염화칼슘' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "외부 화학 물질 노출",
+              "offender_iri": null,
+              "message": "'외부 화학 물질 노출' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "변형",
+              "offender_iri": null,
+              "message": "'변형' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "부식",
+              "offender_iri": null,
+              "message": "'부식' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            }
+          ],
+          "trace_id": "35b61928da174fa9"
+        },
+        "save": {
+          "status": 500,
+          "body": {
+            "code": "INTERNAL",
+            "user_message": "일시적인 오류입니다.",
+            "trace_id": "0a616b9d7bc3432e"
+          }
+        }
+      }
+    }
+  },
+  "R8": {
+    "text": "다양한 차량용 와이퍼 암 커넥터와 유격 없이 견고하게 체결되어 주행 중 이탈되지 않아야 한다.",
+    "ab_status": 200,
+    "ms": 7285,
+    "results": {
+      "solar": {
+        "actual_provider": "solar",
+        "concepts": [
+          {
+            "label": "차량용 와이퍼 암 커넥터",
+            "type": "Component"
+          },
+          {
+            "label": "유격",
+            "type": "Attribute"
+          },
+          {
+            "label": "견고성",
+            "type": "Attribute"
+          },
+          {
+            "label": "주행 중 이탈",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "차량용 와이퍼 암 커넥터",
+            "predicate": "has_part",
+            "object": "유격"
+          },
+          {
+            "subject": "차량용 와이퍼 암 커넥터",
+            "predicate": "hasMaterial",
+            "object": "견고성"
+          },
+          {
+            "subject": "차량용 와이퍼 암 커넥터",
+            "predicate": "causes",
+            "object": "주행 중 이탈"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "차량용 와이퍼 암 커넥터",
+              "offender_iri": null,
+              "message": "'차량용 와이퍼 암 커넥터' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "유격",
+              "offender_iri": null,
+              "message": "'유격' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "견고성",
+              "offender_iri": null,
+              "message": "'견고성' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "주행 중 이탈",
+              "offender_iri": null,
+              "message": "'주행 중 이탈' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "차량용 와이퍼 암 커넥터",
+              "offender_iri": null,
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '차량용 와이퍼 암 커넥터'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "견고성",
+              "offender_iri": null,
+              "message": "'재질(hasMaterial)'의 대상은(는) Material이어야 하는데 '견고성'은(는) Attribute입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialRangeShape"
+            }
+          ],
+          "trace_id": "5f729e6af7d74afe"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "ffc3038cd2894dbc"
+          }
+        }
+      },
+      "claude": {
+        "actual_provider": "claude",
+        "concepts": [
+          {
+            "label": "차량",
+            "type": "VehicleType"
+          },
+          {
+            "label": "와이퍼 암",
+            "type": "Component"
+          },
+          {
+            "label": "커넥터",
+            "type": "Component"
+          },
+          {
+            "label": "유격 없음",
+            "type": "Attribute"
+          },
+          {
+            "label": "견고한 체결",
+            "type": "Attribute"
+          },
+          {
+            "label": "주행 중 이탈",
+            "type": "Symptom"
+          }
+        ],
+        "relations": [
+          {
+            "subject": "커넥터",
+            "predicate": "mountedOn",
+            "object": "와이퍼 암",
+            "evidence": "와이퍼 암 커넥터와 견고하게 체결"
+          },
+          {
+            "subject": "견고한 체결",
+            "predicate": "mitigates",
+            "object": "주행 중 이탈",
+            "evidence": "견고하게 체결되어 주행 중 이탈되지 않아야 한다"
+          },
+          {
+            "subject": "유격 없음",
+            "predicate": "mitigates",
+            "object": "주행 중 이탈",
+            "evidence": "유격 없이 견고하게 체결되어 주행 중 이탈되지 않아야 한다"
+          }
+        ],
+        "error": null,
+        "validate": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "차량",
+              "offender_iri": null,
+              "message": "'차량' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "커넥터",
+              "offender_iri": null,
+              "message": "'커넥터' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "유격 없음",
+              "offender_iri": null,
+              "message": "'유격 없음' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "견고한 체결",
+              "offender_iri": null,
+              "message": "'견고한 체결' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "주행 중 이탈",
+              "offender_iri": null,
+              "message": "'주행 중 이탈' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "와이퍼 암",
+              "offender_iri": "http://ex.org/domain#WiperArm",
+              "message": "'장착(mountedOn)'의 대상은(는) VehicleType이어야 하는데 '와이퍼 암'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "MountedonRangeShape"
+            }
+          ],
+          "trace_id": "39e9f439f9c34ad8"
+        },
+        "save": {
+          "status": 409,
+          "body": {
+            "code": "GUARDRAIL_BLOCKED",
+            "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+            "trace_id": "20f430a68e2742b0"
+          }
+        }
+      }
+    }
+  }
+}

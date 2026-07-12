@@ -1,0 +1,284 @@
+{
+  "R1": {
+    "text": "블레이드는 고속 주행 중 들뜸 현상이 발생하지 않아야 한다.",
+    "events": [
+      {
+        "event": "status",
+        "data": {
+          "stage": "provider",
+          "provider": "claude"
+        }
+      },
+      {
+        "event": "status",
+        "data": {
+          "stage": "extract",
+          "msg": "개념 추출 중"
+        }
+      },
+      {
+        "event": "concept",
+        "data": {
+          "label": "블레이드",
+          "type": "Component"
+        }
+      },
+      {
+        "event": "concept",
+        "data": {
+          "label": "고속 주행",
+          "type": "EnvCondition"
+        }
+      },
+      {
+        "event": "concept",
+        "data": {
+          "label": "들뜸",
+          "type": "Symptom"
+        }
+      },
+      {
+        "event": "relation",
+        "data": {
+          "subject": "블레이드",
+          "predicate": "causes",
+          "object": "들뜸"
+        }
+      },
+      {
+        "event": "relation",
+        "data": {
+          "subject": "들뜸",
+          "predicate": "conditionedOn",
+          "object": "고속 주행"
+        }
+      },
+      {
+        "event": "status",
+        "data": {
+          "stage": "validate",
+          "msg": "명세 검증 중"
+        }
+      },
+      {
+        "event": "validation",
+        "data": {
+          "conforms": true,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "고속 주행",
+              "offender_iri": null,
+              "message": "'고속 주행' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "들뜸",
+              "offender_iri": null,
+              "message": "'들뜸' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            }
+          ]
+        }
+      },
+      {
+        "event": "done",
+        "data": {
+          "thread_id": "10f4e438-c5e1-4aac-9936-e4a2f58be8ec",
+          "draft_id": "7ed30a565c59",
+          "trace_id": "1320c8b39c124015"
+        }
+      }
+    ]
+  },
+  "R5": {
+    "text": "블레이드 고무 재질은 기준치 이상의 오존 및 자외선 노출 환경에서 균열이나 경화가 발생하지 않아야 한다.",
+    "events": [
+      {
+        "event": "status",
+        "data": {
+          "stage": "provider",
+          "provider": "claude"
+        }
+      },
+      {
+        "event": "status",
+        "data": {
+          "stage": "extract",
+          "msg": "개념 추출 중"
+        }
+      },
+      {
+        "event": "concept",
+        "data": {
+          "label": "블레이드",
+          "type": "Component"
+        }
+      },
+      {
+        "event": "concept",
+        "data": {
+          "label": "고무",
+          "type": "Material"
+        }
+      },
+      {
+        "event": "concept",
+        "data": {
+          "label": "오존 노출",
+          "type": "EnvCondition"
+        }
+      },
+      {
+        "event": "concept",
+        "data": {
+          "label": "자외선 노출",
+          "type": "EnvCondition"
+        }
+      },
+      {
+        "event": "concept",
+        "data": {
+          "label": "균열",
+          "type": "Symptom"
+        }
+      },
+      {
+        "event": "concept",
+        "data": {
+          "label": "경화",
+          "type": "Symptom"
+        }
+      },
+      {
+        "event": "relation",
+        "data": {
+          "subject": "블레이드",
+          "predicate": "hasMaterial",
+          "object": "고무"
+        }
+      },
+      {
+        "event": "relation",
+        "data": {
+          "subject": "고무",
+          "predicate": "causes",
+          "object": "균열"
+        }
+      },
+      {
+        "event": "relation",
+        "data": {
+          "subject": "고무",
+          "predicate": "causes",
+          "object": "경화"
+        }
+      },
+      {
+        "event": "relation",
+        "data": {
+          "subject": "균열",
+          "predicate": "conditionedOn",
+          "object": "오존 노출"
+        }
+      },
+      {
+        "event": "relation",
+        "data": {
+          "subject": "균열",
+          "predicate": "conditionedOn",
+          "object": "자외선 노출"
+        }
+      },
+      {
+        "event": "relation",
+        "data": {
+          "subject": "경화",
+          "predicate": "conditionedOn",
+          "object": "오존 노출"
+        }
+      },
+      {
+        "event": "relation",
+        "data": {
+          "subject": "경화",
+          "predicate": "conditionedOn",
+          "object": "자외선 노출"
+        }
+      },
+      {
+        "event": "status",
+        "data": {
+          "stage": "validate",
+          "msg": "명세 검증 중"
+        }
+      },
+      {
+        "event": "validation",
+        "data": {
+          "conforms": false,
+          "violations": [
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "오존 노출",
+              "offender_iri": null,
+              "message": "'오존 노출' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "자외선 노출",
+              "offender_iri": null,
+              "message": "'자외선 노출' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "균열",
+              "offender_iri": null,
+              "message": "'균열' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "unknown_concept",
+              "severity": "warning",
+              "offender": "경화",
+              "offender_iri": null,
+              "message": "'경화' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+              "sentence": null,
+              "source_shape": null
+            },
+            {
+              "code": "shacl_constraint",
+              "severity": "violation",
+              "offender": "블레이드",
+              "offender_iri": "http://ex.org/domain#WiperBlade",
+              "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '블레이드'은(는) Component입니다.",
+              "sentence": null,
+              "source_shape": "HasmaterialDomainShape"
+            }
+          ]
+        }
+      },
+      {
+        "event": "done",
+        "data": {
+          "thread_id": "79949d19-041a-43af-808b-a4efb1dec5dc",
+          "draft_id": "7990375aa9d0",
+          "trace_id": "3eb5788933214840"
+        }
+      }
+    ]
+  }
+}

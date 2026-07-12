@@ -24,3 +24,4 @@ knowledge/ontology-ref/satisfy_run_output.txt
 .playwright-mcp/
 *.tsbuildinfo
 .pytest_cache/
+frontend/.vite/

@@ -1,0 +1,73 @@
+{
+  "R1": {
+    "status": 201,
+    "body": {
+      "requirements": [],
+      "unknown_symptoms": [
+        "고속 주행 중 들뜸 현상"
+      ],
+      "trace_id": "f8554d590a044395"
+    }
+  },
+  "R2": {
+    "status": 201,
+    "body": {
+      "requirements": [],
+      "unknown_symptoms": [
+        "물끌림",
+        "얼룩"
+      ],
+      "trace_id": "5891e9e37f074bdf"
+    }
+  },
+  "R3": {
+    "status": 201,
+    "body": {
+      "requirements": [],
+      "unknown_symptoms": [
+        "와이퍼 1회 왕복 후 시야 확보 지연"
+      ],
+      "trace_id": "5c10fa29cdd543d6"
+    }
+  },
+  "R4": {
+    "status": 201,
+    "body": {
+      "requirements": [],
+      "unknown_symptoms": [],
+      "trace_id": "ba86829d0c3948cf"
+    }
+  },
+  "R5": {
+    "status": 201,
+    "body": {
+      "requirements": [],
+      "unknown_symptoms": [],
+      "trace_id": "780458ccfbbe4d0a"
+    }
+  },
+  "R6": {
+    "status": 201,
+    "body": {
+      "requirements": [],
+      "unknown_symptoms": [],
+      "trace_id": "704092eadb514751"
+    }
+  },
+  "R7": {
+    "status": 201,
+    "body": {
+      "requirements": [],
+      "unknown_symptoms": [],
+      "trace_id": "90fcac5f63b843aa"
+    }
+  },
+  "R8": {
+    "status": 201,
+    "body": {
+      "requirements": [],
+      "unknown_symptoms": [],
+      "trace_id": "2b49d2bfdefb4eb8"
+    }
+  }
+}
