@@ -229,6 +229,44 @@ def test_요구가_균열을_금지하면_최종_satisfies_가_뒤집힌다(env)
     assert result.violations == [saved.sentence.id]  # 근거 = 저작 문장
 
 
+def test_조건이_접지되지_않으면_규칙을_만들지_않는다(env) -> None:  # noqa: ANN001
+    """fail-closed — 조건을 빼고 규칙을 만들면 **문장보다 넓은 규칙**이 된다(없는 지식의 날조).
+
+    라이브에서 잡았다: "오존 노출"(미승인 altLabel)이 접지되지 않자 조건 없는 규칙("모든 고무 → 균열")이
+    파생됐다. 조건은 거버넌스로 편입한 뒤에 규칙이 된다.
+    """
+    _approve_new_concepts(env["upper"])  # Ozone·Crack 은 편입하되 "오존 노출"(이형)은 미승인
+    validator = _validator(env)
+    relations = [
+        {"subject": "블레이드", "predicate": "hasMaterial", "object": "고무"},
+        {"subject": "고무", "predicate": "causes", "object": "균열"},
+        {"subject": "균열", "predicate": "conditionedOn", "object": "오존 노출"},  # ← 미접지 조건
+    ]
+    concepts = [*K2_CONCEPTS[1:], {"label": "오존 노출", "type": "EnvCondition"}]
+    saved = _kg(env, validator).save(
+        SaveRequest(sentence_text=K2_TEXT, concepts=concepts, relations=relations,
+                    category="소음", approved=True, draft_id="t93-ungrounded-cond")
+    )
+    assert env["authoring"].rules() == [], "미접지 조건인데 규칙이 파생됐다(문장보다 넓은 규칙)"
+    assert saved.sentence.id  # 지식 문장 자체는 저장된다(판정에 참여하지 않을 뿐)
+
+
+def test_승인된_신규개념으로_만든_Causation_이_구조검증을_통과한다(env) -> None:  # noqa: ANN001
+    """`/validate/shacl` 이 실제로 태우는 경로 — 라이브 스택이 여기서 409 로 막혔다.
+
+    원인: 거버넌스 신설 개념이 **클래스**(a owl:Class)이기만 해서 CausationShape 의 `sh:class`
+    (증상=Symptom · 조건=EnvCondition) 검사가 실패했다. 시드는 punning(`dom:Rubber a owl:Class, spmm:Material`)
+    이라 통과했다. 신설 개념도 같은 punning 을 갖도록 고친 뒤의 회귀 테스트다.
+    """
+    _approve_new_concepts(env["upper"])
+    reifier = CausationReifier(_validator(env))
+    req = SaveRequest(sentence_text=K2_TEXT, concepts=K2_CONCEPTS, relations=K2_RELATIONS,
+                      category="소음", approved=True)
+    nodes = reifier.reify(req.concepts, req.relations)
+    assert nodes, "인과 프레임이 잡히지 않았다"
+    assert reifier.validate(nodes) == [], "승인된 신규 개념인데 Causation 구조검증이 막았다"
+
+
 # ── Causation 배선: 저장 그래프에 실제로 기록된다(0행 금지) ──────────────────
 def test_Causation_노드가_저장_그래프에_기록된다(env) -> None:  # noqa: ANN001
     _approve_new_concepts(env["upper"])

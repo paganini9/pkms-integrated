@@ -190,7 +190,9 @@ class KgService:
         out: list[str] = []
         labels: dict[str, str] = {}
         for c in req.concepts:
-            known = self._label_to_localname(c.label)
+            # 어휘층(prefLabel + 승인된 altLabel) 이 1순위다 — 스토어 라벨 조회는 altLabel 을 모른다.
+            # (안 그러면 "오존 노출"(altLabel of Ozone)이 mentions 에선 새 IRI 로 발행돼 그래프가 어긋난다.)
+            known = self._iri_localname(c.label) or self._label_to_localname(c.label)
             if known:
                 out.append(known)
                 continue
@@ -198,6 +200,10 @@ class KgService:
             out.append(minted)
             labels[minted] = c.label
         return out, labels
+
+    def _iri_localname(self, label: str) -> str | None:
+        iri = self.reifier.validator.iri_for(label)
+        return _localname(iri) if iri else None
 
     def _label_to_localname(self, label: str) -> str | None:
         """rdfs:label 정확일치 → 부분일치 순으로 도메인 로컬네임을 찾는다.

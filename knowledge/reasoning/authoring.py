@@ -78,10 +78,17 @@ def derive_rule(
     if material is not None:
         conds.append(Cond(path=_MATERIAL_PATH, op="eq", val=material))
     for rel in relations:
-        if rel.predicate == "conditionedOn" and rel.subject == symptom_label and is_type(rel.object, "EnvCondition"):
-            env = iri_of(rel.object)
-            if env is not None and not any(c.path == _ENV_PATH for c in conds):
-                conds.append(Cond(path=_ENV_PATH, op="eq", val=env))
+        if rel.predicate != "conditionedOn" or rel.subject != symptom_label:
+            continue
+        if not is_type(rel.object, "EnvCondition"):
+            # **fail-closed**: 문장이 조건을 말하는데 그 조건이 접지되지 않았다. 조건을 빼고 규칙을 만들면
+            # 문장보다 **넓은** 규칙("모든 고무 → 균열")이 되어, 없는 지식을 지어내는 것과 같다.
+            # 조건을 온톨로지에 편입(거버넌스)한 뒤에 규칙이 된다.
+            log.info("규칙 파생 없음(%s) — 조건 %r 이 접지되지 않았다(EnvCondition 아님)", sentence_code, rel.object)
+            return None
+        env = iri_of(rel.object)
+        if env is not None and not any(c.path == _ENV_PATH for c in conds):
+            conds.append(Cond(path=_ENV_PATH, op="eq", val=env))
 
     if not conds:
         log.info("규칙 파생 없음(%s) — 조건(재질·환경)이 없다 → 과차단 방지", sentence_code)
