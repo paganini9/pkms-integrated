@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     ontology_dir: Path = KNOWLEDGE_DIR / "ontology"
     # 상위 온톨로지 승인 편집 오버레이(영속) — 시드(읽기전용)와 분리, 재기동 후 유지 (T-85)
     upper_overlay_path: Path = KNOWLEDGE_DIR / "data" / "upper_overlay.ttl"
+    # 저작(문장 승인)에서 파생된 구조화 규칙의 오버레이(영속) — T-93.
+    # 시드 rules.ttl(읽기전용)과 분리하고, 컴파일러가 둘을 **함께** 소비한다(단일 진실원 = 시드+오버레이).
+    authoring_rules_path: Path = KNOWLEDGE_DIR / "data" / "authoring_rules.ttl"
 
     # MOCK 우선 — 키·모델 없이 전 흐름이 동작해야 한다
     embedding_provider: str = "mock"  # mock | local | solar

@@ -80,6 +80,22 @@ def _to_rdflib_term(term: object):  # noqa: ANN201
     raise TypeError(f"지원하지 않는 term: {term!r}")
 
 
+def _to_ox(term: object):  # noqa: ANN201
+    """rdflib term → pyoxigraph term (add_rdflib_graph 브리지)."""
+    from rdflib import Literal as RLiteral
+    from rdflib import URIRef as RURIRef
+
+    if isinstance(term, RURIRef):
+        return ox.NamedNode(str(term))
+    if isinstance(term, RLiteral):
+        if term.language:
+            return ox.Literal(str(term), language=term.language)
+        if term.datatype is not None:
+            return ox.Literal(str(term), datatype=ox.NamedNode(str(term.datatype)))
+        return ox.Literal(str(term))
+    raise TypeError(f"지원하지 않는 term: {term!r}")
+
+
 class OxigraphStore:
     """`core.protocols.Store` 구현. 임베디드 pyoxigraph 영속 스토어."""
 
@@ -143,11 +159,14 @@ class OxigraphStore:
         polarity: str = "cause",
         code: str | None = None,
         draft_id: str | None = None,
+        mention_labels: dict[str, str] | None = None,
     ) -> SavedSentence:
         """지식 문장 트리플을 default graph 에 커밋하고 SavedSentence 를 반환한다.
 
         `code` 미지정 시 기존 S1..Sn 최대값+1 로 발급(S7, S8 …).
         `draft_id` 지정 시 `dom:draftId` 로 심어 **영속 멱등 키**로 쓴다(T-83).
+        `mentions` 는 **IRI 안전 로컬네임**이어야 한다(T-92 — 호출자가 `slug_localname` 으로 만든다).
+        `mention_labels` 는 새로 발행한 개념의 표면형 → `rdfs:label` 로 보존한다(IRI 는 식별자일 뿐).
         """
         code = code or self.next_sentence_code()
         iri = f"{DOM}{code}"
@@ -169,7 +188,12 @@ class OxigraphStore:
                 ox.Quad(node, ox.NamedNode(f"{DOM}aboutSymptom"), ox.NamedNode(f"{DOM}{about_symptom}"))
             )
         for m in mentions:
-            quads.append(ox.Quad(node, ox.NamedNode(f"{DOM}mentions"), ox.NamedNode(f"{DOM}{m}")))
+            concept = ox.NamedNode(f"{DOM}{m}")
+            quads.append(ox.Quad(node, ox.NamedNode(f"{DOM}mentions"), concept))
+            # T-92 — 새로 발행한 개념(어휘층에서 해석 안 된 것)의 표면형을 라벨로 보존한다.
+            surface = (mention_labels or {}).get(m)
+            if surface:
+                quads.append(ox.Quad(concept, ox.NamedNode(RDFS_LABEL), ox.Literal(surface)))
         if draft_id:
             quads.append(ox.Quad(node, ox.NamedNode(f"{DOM}draftId"), ox.Literal(draft_id)))
         self._store.extend(quads)
@@ -246,6 +270,21 @@ class OxigraphStore:
         """remove_about 이 돌려준 quad 들을 원래 그래프에 되돌린다."""
         if quads:
             self._store.extend(quads)
+
+    def add_rdflib_graph(self, graph: "Graph") -> int:
+        """rdflib 그래프를 default graph 에 커밋한다(T-93 — 저작 Causation 노드 기록).
+
+        블랭크노드는 건너뛴다 — Causation 은 IRI 로 식별되는 1급 노드다(바인딩 보존이 목적).
+        """
+        from rdflib import BNode as RBNode
+
+        quads = [
+            ox.Quad(_to_ox(s), _to_ox(p), _to_ox(o))
+            for s, p, o in graph
+            if not isinstance(s, RBNode) and not isinstance(o, RBNode)
+        ]
+        self._store.extend(quads)
+        return len(quads)
 
     def delete(self, iri: str) -> None:
         """IRI 주변 트리플 제거(Store Protocol). 반환 없음."""

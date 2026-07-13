@@ -138,6 +138,10 @@ class UpperOntology:
             overlay.add((child_iri, RDFS.label, Literal(str(cid))))
             if parent_iri is not None:
                 overlay.add((child_iri, RDFS.subClassOf, parent_iri))
+                # **시드와 같은 punning**(m1: `dom:Rubber a owl:Class, spmm:Material`).
+                # 이게 없으면 신설 개념은 클래스이기만 해서 `sh:class` 검사(CausationShape 의 증상·조건
+                # 타입)가 실패한다 — T-93 라이브에서 저작 저장이 통째로 409 로 막혔다.
+                overlay.add((child_iri, RDF.type, parent_iri))
             applied += 1
 
         self._save_overlay(overlay)

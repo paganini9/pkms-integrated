@@ -68,7 +68,9 @@ class Design(Strict):
     length_mm: Annotated[int, Field(gt=0, le=2000)] | None = None
     spring_n: Annotated[int, Field(gt=0, le=1000)] | None = None
     arm_shape: Literal["simple", "complex"] | None = None
-    env: Literal["Winter"] | None = None
+    #: CD-15 — 환경조건은 닫힌 enum 이 아니다. 거버넌스로 온톨로지가 자라면(Ozone…) 설계도 그것을
+    #: 표현할 수 있어야 한다. 온톨로지가 모르는 값은 어떤 규칙과도 매칭되지 않을 뿐이다(무해).
+    env: str | None = None
 
 
 # ── 추출 · 검증 · 저장 (FR-01~03·3d) ───────────────────────────────────────

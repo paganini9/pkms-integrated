@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 from rdflib import Graph
 
 from core.logging import get_trace_id
+from reasoning.causation import get_reifier
 from reasoning.compiler import RuleCompiler
 from reasoning.reasoner import Reasoner
 from reasoning.rule_views import RuleViews
@@ -67,6 +68,10 @@ def validate_shacl(
     req: ValidateRequest, validator: Annotated[SpecValidator, Depends(get_spec_validator)]
 ) -> ValidateResponse:
     violations = validator.validate(req.concepts, req.relations)
+    # T-93 — T-91 Causation 검증 배선. 예전엔 reifier 가 **유닛 테스트에서만** 불렸다(실 경로 미배선).
+    # 인과 프레임이 잡히면 컴파일러가 방출한 CausationShape 로 구조를 검증한다(손 SHACL 아님).
+    reifier = get_reifier()
+    violations += reifier.validate(reifier.reify(req.concepts, req.relations))
     return ValidateResponse(
         conforms=not any(v.severity == "violation" for v in violations),
         violations=violations,
@@ -132,6 +137,7 @@ def oov_approve(
     """OOV 이형을 승인해 altLabel 로 영속 편입(T-89). 미승인 409. 편입 후 접지 캐시 무효화."""
     out = uo.approve_altlabel(req.concept_iri, req.label, req.approved)
     get_spec_validator.cache_clear()  # 다음 /validate 부터 새 altLabel 이 접지에 반영된다
+    get_reifier.cache_clear()  # reifier 도 자체 validator 를 들고 있다(T-93) — 같이 무효화
     return out
 
 

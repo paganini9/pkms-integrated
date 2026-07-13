@@ -24,6 +24,7 @@ jobs:
           echo "OXIGRAPH_PATH=$RUNNER_TEMP/data/oxigraph" >> "$GITHUB_ENV"
           echo "CHROMA_PATH=$RUNNER_TEMP/data/chroma" >> "$GITHUB_ENV"
           echo "UPPER_OVERLAY_PATH=$RUNNER_TEMP/data/upper_overlay.ttl" >> "$GITHUB_ENV"
+          echo "AUTHORING_RULES_PATH=$RUNNER_TEMP/data/authoring_rules.ttl" >> "$GITHUB_ENV"
 
       - name: Python 3.12
         uses: actions/setup-python@v5

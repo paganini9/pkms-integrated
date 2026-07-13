@@ -22,7 +22,7 @@
       "properties": {
         "name": { "type": "string", "minLength": 1, "maxLength": 200 },
         "target_vehicle": { "type": "string", "enum": ["MidSizeSUV", "CompactSedan"] },
-        "target_env": { "type": "string", "enum": ["Winter"] },
+        "target_env": { "type": "string", "description": "CD-15 — EnvCondition 로컬네임(개방). 닫힌 enum 아님" },
         "knowledge_categories": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
       }
     },

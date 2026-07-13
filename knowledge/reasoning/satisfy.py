@@ -67,14 +67,20 @@ class MissingRequired(Exception):
         self.warnings = warnings
 
 
-def _design_graph(design: Design) -> Graph:
+def _design_graph(design: Design, resolve=None) -> Graph:  # noqa: ANN001
+    """설계 인스턴스 그래프. 개념 값(재질·차종·환경)은 **IRI 로 해석**한다.
+
+    CD-15 이후 환경조건은 닫힌 enum 이 아니라 온톨로지가 아는 EnvCondition 이다.
+    거버넌스로 신설된 개념은 상위 오버레이(ext: 네임스페이스)에 있으므로 `dom:` 을 가정하면 안 된다.
+    """
+    resolve = resolve or (lambda v: DOM[v])
     g = Graph()
     g.add((DESIGN_IRI, RDF.type, DOM.WiperBlade))
     g.add((DESIGN_IRI, RDFS.label, Literal(design.label or design.id or "검증 대상 설계")))
     for field, pred in _OBJECT_FIELDS.items():
         value = getattr(design, field, None)
         if value:
-            g.add((DESIGN_IRI, pred, DOM[value]))
+            g.add((DESIGN_IRI, pred, resolve(value)))
     for field, (pred, dt) in _LITERAL_FIELDS.items():
         value = getattr(design, field, None)
         if value is not None:
@@ -95,9 +101,11 @@ class SatisfyEngine:
         self._cache: OrderedDict[str, SatisfyResponse] = OrderedDict()
 
         # 상위 온톨로지 + 도메인 (차종 maxSafeLengthMm 등 상위 데이터를 게이트가 함께 봐야 한다)
+        # + 승인된 거버넌스 오버레이(T-85) — 신설 개념(Ozone·Crack…)도 판정 어휘에 든다.
+        self._overlay_path = settings.upper_overlay_path
+        self._overlay_mtime: float | None = None
         self._onto = Graph()
-        for name in ("m0.ttl", "m1_wiper.ttl"):
-            self._onto.parse(self._dir / name, format="turtle")
+        self._load_onto()
 
         # 요구거동(RB) 정의는 M2 프로젝트 데이터에 있다. 설계 인스턴스는 요청마다 새로 만든다.
         self._m2 = Graph().parse(self._dir / "m2_instances.ttl", format="turtle")
@@ -109,6 +117,39 @@ class SatisfyEngine:
             }
             for rb in self._m2.subjects(RDF.type, SPMM.RequiredBehavior)
         }
+
+    # ── 온톨로지(시드 + 승인 오버레이) ────────────────────────────────────
+    def _overlay_stamp(self) -> float | None:
+        return self._overlay_path.stat().st_mtime if self._overlay_path.exists() else None
+
+    def _load_onto(self) -> None:
+        graph = Graph()
+        for name in ("m0.ttl", "m1_wiper.ttl"):
+            graph.parse(self._dir / name, format="turtle")
+        if self._overlay_path.exists():
+            graph.parse(self._overlay_path, format="turtle")
+        self._onto = graph
+        self._overlay_mtime = self._overlay_stamp()
+        self._concept_iri_cache: dict[str, URIRef] = {}
+
+    def _maybe_reload_onto(self) -> None:
+        """승인(거버넌스)으로 온톨로지가 자라면 판정도 그것을 본다."""
+        if self._overlay_stamp() != self._overlay_mtime:
+            self._load_onto()
+
+    def _concept_iri(self, value: str) -> URIRef:
+        """설계 값(로컬네임) → 온톨로지 IRI. 못 찾으면 dom: 로 가정(시드 동작 불변)."""
+        cached = self._concept_iri_cache.get(value)
+        if cached is not None:
+            return cached
+        found: URIRef = DOM[value]
+        if (DOM[value], None, None) not in self._onto:
+            for subject in self._onto.subjects(unique=True):
+                if isinstance(subject, URIRef) and loc(subject) == value:
+                    found = subject
+                    break
+        self._concept_iri_cache[value] = found
+        return found
 
     # ── 캐시 ──────────────────────────────────────────────────────────────
     def _signature(self, design: Design, require: list[str], compiled: CompiledRules) -> str:
@@ -255,7 +296,7 @@ class SatisfyEngine:
         data = Graph()
         for t in self._onto:
             data.add(t)
-        for t in _design_graph(design):
+        for t in _design_graph(design, self._concept_iri):
             data.add(t)
         return self._run_gates(data, compiled).get(DESIGN_IRI, [])
 
@@ -311,7 +352,8 @@ class SatisfyEngine:
     def satisfy(
         self, design: Design, require: list[str], categories: set[str] | None = None
     ) -> SatisfyResponse:
-        compiled = self.compiler.compile(categories)
+        self._maybe_reload_onto()  # 승인된 온톨로지 성장 반영(T-93 저작 루프)
+        compiled = self.compiler.compile(categories)  # 저작 규칙 오버레이 반영
         require = list(require) or sorted(self._requirements)
         signature = self._signature(design, require, compiled)
 
