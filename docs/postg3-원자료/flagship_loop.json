@@ -1,0 +1,832 @@
+{
+  "validate": {
+    "conforms": true,
+    "violations": [],
+    "trace_id": "950859eaabfa4774"
+  },
+  "save": {
+    "status": 201,
+    "body": {
+      "sentence": {
+        "id": "S11",
+        "iri": "http://ex.org/domain#S11",
+        "text": "오존 노출이 기준을 초과하면 고무 블레이드에 균열이 생긴다.",
+        "category": "소음",
+        "mentions": [
+          "오존",
+          "WiperBlade",
+          "Rubber",
+          "균열"
+        ],
+        "about_symptom": null,
+        "polarity": "cause"
+      },
+      "derived": {
+        "rule": {
+          "id": "소음Rule",
+          "label": "오존 노출이 기준을 초과하면 고무 블레이드에 균열이 생긴다.",
+          "polarity": "cause",
+          "category": "소음",
+          "about_symptom": null,
+          "basis": "S11",
+          "conds": [
+            {
+              "path": "hasMaterial",
+              "op": "eq",
+              "val": "Rubber",
+              "ref_list": null
+            },
+            {
+              "path": "causes",
+              "op": "eq",
+              "val": "균열",
+              "ref_list": null
+            },
+            {
+              "path": "conditionedOn",
+              "op": "eq",
+              "val": "오존",
+              "ref_list": null
+            }
+          ]
+        },
+        "shapes": [
+          {
+            "id": "소음Shape",
+            "gate_for": "소음",
+            "sentence": "S11"
+          }
+        ],
+        "causal_edges": [
+          {
+            "subject": "소음Rule",
+            "predicate": "causes",
+            "object": "소음",
+            "evidence": "S11",
+            "confidence": null
+          }
+        ]
+      },
+      "human_view": [
+        "오존 노출이 기준을 초과하면 고무 블레이드에 균열이 생긴다.  [cause·S11·소음] → "
+      ],
+      "trace_id": "a15c63aa95b74c0f"
+    }
+  },
+  "causation_sparql": {
+    "rows": [],
+    "trace_id": "f74883b48e7b4e03"
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "ArmShape",
+        "label": "ArmShape",
+        "kind": "concept",
+        "iri": "http://ex.org/domain#ArmShape",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "ChatterShape",
+        "label": "ChatterShape",
+        "kind": "concept",
+        "iri": "http://ex.org/domain#ChatterShape",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "CompactSedan",
+        "label": "소형 세단",
+        "kind": "concept",
+        "iri": "http://ex.org/domain#CompactSedan",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "ContactBehavior",
+        "label": "접촉 거동",
+        "kind": "concept",
+        "iri": "http://ex.org/domain#ContactBehavior",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "DesignRule",
+        "label": "DesignRule",
+        "kind": "concept",
+        "iri": "http://ex.org/domain#DesignRule",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "KnowledgeSentence",
+        "label": "KnowledgeSentence",
+        "kind": "concept",
+        "iri": "http://ex.org/domain#KnowledgeSentence",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "MidSizeSUV",
+        "label": "중형 SUV",
+        "kind": "concept",
+        "iri": "http://ex.org/domain#MidSizeSUV",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "NoiseShape",
+        "label": "NoiseShape",
+        "kind": "concept",
+        "iri": "http://ex.org/domain#NoiseShape",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "Project",
+        "label": "설계 프로젝트",
+        "kind": "concept",
+        "iri": "http://ex.org/domain#Project",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "Rubber",
+        "label": "Rubber (고무)",
+        "kind": "concept",
+        "iri": "http://ex.org/domain#Rubber",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "Silicone",
+        "label": "Silicone (실리콘)",
+        "kind": "concept",
+        "iri": "http://ex.org/domain#Silicone",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "SpringShape",
+        "label": "SpringShape",
+        "kind": "concept",
+        "iri": "http://ex.org/domain#SpringShape",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "SweepBehavior",
+        "label": "쓸기 거동",
+        "kind": "concept",
+        "iri": "http://ex.org/domain#SweepBehavior",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "Winter",
+        "label": "겨울철 저온",
+        "kind": "concept",
+        "iri": "http://ex.org/domain#Winter",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "WiperArm",
+        "label": "Wiper Arm (와이퍼 암)",
+        "kind": "concept",
+        "iri": "http://ex.org/domain#WiperArm",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "WiperBlade",
+        "label": "Wiper Blade (와이퍼 블레이드)",
+        "kind": "concept",
+        "iri": "http://ex.org/domain#WiperBlade",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "WiperMaterial",
+        "label": "WiperMaterial",
+        "kind": "concept",
+        "iri": "http://ex.org/domain#WiperMaterial",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "WipingBehavior",
+        "label": "와이핑 거동",
+        "kind": "concept",
+        "iri": "http://ex.org/domain#WipingBehavior",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "ArmRule",
+        "label": "단순 암형상 → 떨림 악화",
+        "kind": "rule",
+        "iri": "http://ex.org/domain#ArmRule",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "ChatterRule",
+        "label": "길이 > 차종 안전길이 → 떨림",
+        "kind": "rule",
+        "iri": "http://ex.org/domain#ChatterRule",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "NoiseRule",
+        "label": "겨울 + 고무 → 소음",
+        "kind": "rule",
+        "iri": "http://ex.org/domain#NoiseRule",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "SiliconeRule",
+        "label": "실리콘 → 소음 해소",
+        "kind": "rule",
+        "iri": "http://ex.org/domain#SiliconeRule",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "SpringRule",
+        "label": "스프링 압력 < 10N → 떨림 악화",
+        "kind": "rule",
+        "iri": "http://ex.org/domain#SpringRule",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "S1",
+        "label": "S1",
+        "kind": "sentence",
+        "iri": "http://ex.org/domain#S1",
+        "layer": "M1",
+        "inferred": false,
+        "text": "겨울철 저온에서 고무는 경도가 상승해 소음을 유발한다."
+      },
+      {
+        "id": "S10",
+        "label": "S10",
+        "kind": "sentence",
+        "iri": "http://ex.org/domain#S10",
+        "layer": "M1",
+        "inferred": false,
+        "text": "프로브 블레이드"
+      },
+      {
+        "id": "S11",
+        "label": "S11",
+        "kind": "sentence",
+        "iri": "http://ex.org/domain#S11",
+        "layer": "M1",
+        "inferred": false,
+        "text": "오존 노출이 기준을 초과하면 고무 블레이드에 균열이 생긴다."
+      },
+      {
+        "id": "S2",
+        "label": "S2",
+        "kind": "sentence",
+        "iri": "http://ex.org/domain#S2",
+        "layer": "M1",
+        "inferred": false,
+        "text": "실리콘은 저온에서도 탄성을 유지하므로 소음 문제를 해소한다."
+      },
+      {
+        "id": "S3",
+        "label": "S3",
+        "kind": "sentence",
+        "iri": "http://ex.org/domain#S3",
+        "layer": "M1",
+        "inferred": false,
+        "text": "중형 SUV에서 블레이드 길이가 600mm 이상이면 끝단 떨림이 발생할 수 있다."
+      },
+      {
+        "id": "S4",
+        "label": "S4",
+        "kind": "sentence",
+        "iri": "http://ex.org/domain#S4",
+        "layer": "M1",
+        "inferred": false,
+        "text": "끝단 떨림은 와이퍼 암 스프링 압력이 부족할 때(10N 미만) 악화된다."
+      },
+      {
+        "id": "S5",
+        "label": "S5",
+        "kind": "sentence",
+        "iri": "http://ex.org/domain#S5",
+        "layer": "M1",
+        "inferred": false,
+        "text": "소형 세단은 550mm까지는 끝단 떨림 문제가 없다."
+      },
+      {
+        "id": "S6",
+        "label": "S6",
+        "kind": "sentence",
+        "iri": "http://ex.org/domain#S6",
+        "layer": "M1",
+        "inferred": false,
+        "text": "와이퍼 암 형상이 단순하면 압력 편차가 커져 떨림이 악화된다."
+      },
+      {
+        "id": "S7",
+        "label": "S7",
+        "kind": "sentence",
+        "iri": "http://ex.org/domain#S7",
+        "layer": "M1",
+        "inferred": false,
+        "text": "워셔액·세차제·염화칼슘 등 외부 화학 물질 노출에 의한 변형이나 부식이 발생하지 않아야 한다."
+      },
+      {
+        "id": "S8",
+        "label": "S8",
+        "kind": "sentence",
+        "iri": "http://ex.org/domain#S8",
+        "layer": "M1",
+        "inferred": false,
+        "text": "프로브 타이어2"
+      },
+      {
+        "id": "S9",
+        "label": "S9",
+        "kind": "sentence",
+        "iri": "http://ex.org/domain#S9",
+        "layer": "M1",
+        "inferred": false,
+        "text": "프로브 타이어"
+      },
+      {
+        "id": "Noise",
+        "label": "소음",
+        "kind": "symptom",
+        "iri": "http://ex.org/domain#Noise",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      },
+      {
+        "id": "TipChatter",
+        "label": "끝단 떨림",
+        "kind": "symptom",
+        "iri": "http://ex.org/domain#TipChatter",
+        "layer": "M1",
+        "inferred": false,
+        "text": null
+      }
+    ],
+    "edges": [
+      {
+        "source": "ArmRule",
+        "target": "TipChatter",
+        "predicate": "aboutSymptom",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "ArmRule",
+        "target": "S6",
+        "predicate": "fromSentence",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "ChatterRule",
+        "target": "TipChatter",
+        "predicate": "aboutSymptom",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "ChatterRule",
+        "target": "S3",
+        "predicate": "fromSentence",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "ChatterRule",
+        "target": "S5",
+        "predicate": "fromSentence",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "ContactBehavior",
+        "target": "TipChatter",
+        "predicate": "has_subbehavior",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "Noise",
+        "target": "Winter",
+        "predicate": "conditionedOn",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "NoiseRule",
+        "target": "Noise",
+        "predicate": "aboutSymptom",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "NoiseRule",
+        "target": "S1",
+        "predicate": "fromSentence",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "Rubber",
+        "target": "Noise",
+        "predicate": "causes",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "Rubber",
+        "target": "WiperMaterial",
+        "predicate": "subClassOf",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S1",
+        "target": "Noise",
+        "predicate": "aboutSymptom",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S1",
+        "target": "NoiseRule",
+        "predicate": "derivesRule",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S1",
+        "target": "Noise",
+        "predicate": "mentions",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S1",
+        "target": "Rubber",
+        "predicate": "mentions",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S1",
+        "target": "Winter",
+        "predicate": "mentions",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S10",
+        "target": "WiperBlade",
+        "predicate": "mentions",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S11",
+        "target": "Rubber",
+        "predicate": "mentions",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S11",
+        "target": "WiperBlade",
+        "predicate": "mentions",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S2",
+        "target": "Noise",
+        "predicate": "aboutSymptom",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S2",
+        "target": "SiliconeRule",
+        "predicate": "derivesRule",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S2",
+        "target": "Noise",
+        "predicate": "mentions",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S2",
+        "target": "Silicone",
+        "predicate": "mentions",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S3",
+        "target": "TipChatter",
+        "predicate": "aboutSymptom",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S3",
+        "target": "ChatterRule",
+        "predicate": "derivesRule",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S3",
+        "target": "MidSizeSUV",
+        "predicate": "mentions",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S3",
+        "target": "TipChatter",
+        "predicate": "mentions",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S4",
+        "target": "TipChatter",
+        "predicate": "aboutSymptom",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S4",
+        "target": "SpringRule",
+        "predicate": "derivesRule",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S4",
+        "target": "TipChatter",
+        "predicate": "mentions",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S4",
+        "target": "WiperArm",
+        "predicate": "mentions",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S5",
+        "target": "TipChatter",
+        "predicate": "aboutSymptom",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S5",
+        "target": "ChatterRule",
+        "predicate": "derivesRule",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S5",
+        "target": "CompactSedan",
+        "predicate": "mentions",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S5",
+        "target": "TipChatter",
+        "predicate": "mentions",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S6",
+        "target": "TipChatter",
+        "predicate": "aboutSymptom",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S6",
+        "target": "ArmRule",
+        "predicate": "derivesRule",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S6",
+        "target": "TipChatter",
+        "predicate": "mentions",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "S6",
+        "target": "WiperArm",
+        "predicate": "mentions",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "Silicone",
+        "target": "Noise",
+        "predicate": "mitigates",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "Silicone",
+        "target": "WiperMaterial",
+        "predicate": "subClassOf",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "SiliconeRule",
+        "target": "Noise",
+        "predicate": "aboutSymptom",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "SiliconeRule",
+        "target": "S2",
+        "predicate": "fromSentence",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "SpringRule",
+        "target": "TipChatter",
+        "predicate": "aboutSymptom",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "SpringRule",
+        "target": "S4",
+        "predicate": "fromSentence",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "SweepBehavior",
+        "target": "ContactBehavior",
+        "predicate": "has_subbehavior",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "SweepBehavior",
+        "target": "TipChatter",
+        "predicate": "has_subbehavior",
+        "inferred": true,
+        "evidence": null
+      },
+      {
+        "source": "WipingBehavior",
+        "target": "ContactBehavior",
+        "predicate": "has_subbehavior",
+        "inferred": true,
+        "evidence": null
+      },
+      {
+        "source": "WipingBehavior",
+        "target": "SweepBehavior",
+        "predicate": "has_subbehavior",
+        "inferred": false,
+        "evidence": null
+      },
+      {
+        "source": "WipingBehavior",
+        "target": "TipChatter",
+        "predicate": "has_subbehavior",
+        "inferred": true,
+        "evidence": null
+      }
+    ],
+    "stats": {
+      "nodes": 36,
+      "edges": 50,
+      "inferred_edges": 3,
+      "truncated": false
+    },
+    "trace_id": "f02ae3ae44cd4794"
+  },
+  "satisfy": {
+    "satisfies": false,
+    "steps": [
+      {
+        "stage": "subsumption",
+        "ok": true,
+        "detail": "해당 없음"
+      },
+      {
+        "stage": "shacl_interval",
+        "ok": true,
+        "checks": [
+          {
+            "name": "길이 구간포함 lengthMm ≤ maxSafe",
+            "expr": "550 ≤ 599",
+            "ok": true
+          },
+          {
+            "name": "스프링 임계 springN ≥ 10",
+            "expr": "12 ≥ 10",
+            "ok": true
+          }
+        ],
+        "warnings": null
+      },
+      {
+        "stage": "symptom_free",
+        "ok": false,
+        "exhibited": [
+          {
+            "symptom": "TipChatter",
+            "label": "끝단 떨림",
+            "sentences": [
+              "S6"
+            ]
+          }
+        ]
+      }
+    ],
+    "violations": [
+      "S6"
+    ],
+    "violation_bases": [
+      "S6"
+    ],
+    "violated_requirements": [
+      {
+        "rb": "RB_NoChatter",
+        "label": "끝단 떨림 없음",
+        "forbids": "TipChatter",
+        "sentences": [
+          "S6"
+        ]
+      }
+    ],
+    "alternatives": [
+      "암형상→complex"
+    ],
+    "trace_id": "f94355eb4f0a4dbe",
+    "pending_reason": null,
+    "applied_categories": [
+      "소음",
+      "떨림"
+    ],
+    "justification": [
+      "적용 지식범위: ['소음', '떨림'] · 게이트 4개"

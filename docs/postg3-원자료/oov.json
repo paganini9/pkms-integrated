@@ -1,0 +1,877 @@
+{
+  "들뜸": {
+    "status": 200,
+    "body": {
+      "label": "들뜸",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "Hardness",
+          "iri": "http://ex.org/domain#Hardness",
+          "pref_label": "경도",
+          "score": 0.93,
+          "via": "embedding"
+        },
+        {
+          "concept": "SweepBehavior",
+          "iri": "http://ex.org/domain#SweepBehavior",
+          "pref_label": "쓸기 거동",
+          "score": 0.867,
+          "via": "embedding"
+        },
+        {
+          "concept": "ArmShapeAttr",
+          "iri": "http://ex.org/domain#ArmShapeAttr",
+          "pref_label": "형상",
+          "score": 0.844,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "5aea1216cc654e52"
+    }
+  },
+  "물끌림": {
+    "status": 200,
+    "body": {
+      "label": "물끌림",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "Hardness",
+          "iri": "http://ex.org/domain#Hardness",
+          "pref_label": "경도",
+          "score": 0.864,
+          "via": "embedding"
+        },
+        {
+          "concept": "Spring",
+          "iri": "http://ex.org/domain#Spring",
+          "pref_label": "스프링",
+          "score": 0.851,
+          "via": "embedding"
+        },
+        {
+          "concept": "TipChatter",
+          "iri": "http://ex.org/domain#TipChatter",
+          "pref_label": "끝단 떨림",
+          "score": 0.849,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "5d1e21dd5023479f"
+    }
+  },
+  "얼룩": {
+    "status": 200,
+    "body": {
+      "label": "얼룩",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "Hardness",
+          "iri": "http://ex.org/domain#Hardness",
+          "pref_label": "경도",
+          "score": 0.841,
+          "via": "embedding"
+        },
+        {
+          "concept": "Spring",
+          "iri": "http://ex.org/domain#Spring",
+          "pref_label": "스프링",
+          "score": 0.806,
+          "via": "embedding"
+        },
+        {
+          "concept": "SweepBehavior",
+          "iri": "http://ex.org/domain#SweepBehavior",
+          "pref_label": "쓸기 거동",
+          "score": 0.805,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "fadf0d2a58b54507"
+    }
+  },
+  "오존": {
+    "status": 200,
+    "body": {
+      "label": "오존",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "Hardness",
+          "iri": "http://ex.org/domain#Hardness",
+          "pref_label": "경도",
+          "score": 0.922,
+          "via": "embedding"
+        },
+        {
+          "concept": "ArmShapeAttr",
+          "iri": "http://ex.org/domain#ArmShapeAttr",
+          "pref_label": "형상",
+          "score": 0.843,
+          "via": "embedding"
+        },
+        {
+          "concept": "SweepBehavior",
+          "iri": "http://ex.org/domain#SweepBehavior",
+          "pref_label": "쓸기 거동",
+          "score": 0.823,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "43f32b84d3694ea6"
+    }
+  },
+  "오존 노출": {
+    "status": 200,
+    "body": {
+      "label": "오존 노출",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "Causation",
+          "iri": "http://ex.org/spmm-ext#Causation",
+          "pref_label": "Causation",
+          "score": 0.52,
+          "via": "embedding"
+        },
+        {
+          "concept": "Elasticity",
+          "iri": "http://ex.org/domain#Elasticity",
+          "pref_label": "탄성",
+          "score": 0.49,
+          "via": "embedding"
+        },
+        {
+          "concept": "causes",
+          "iri": "http://ex.org/spmm-ext#causes",
+          "pref_label": "causes",
+          "score": 0.451,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "919f98edae0549c5"
+    }
+  },
+  "자외선": {
+    "status": 200,
+    "body": {
+      "label": "자외선",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "Elasticity",
+          "iri": "http://ex.org/domain#Elasticity",
+          "pref_label": "탄성",
+          "score": 0.475,
+          "via": "embedding"
+        },
+        {
+          "concept": "ArmShapeAttr",
+          "iri": "http://ex.org/domain#ArmShapeAttr",
+          "pref_label": "형상",
+          "score": 0.402,
+          "via": "embedding"
+        },
+        {
+          "concept": "Hardness",
+          "iri": "http://ex.org/domain#Hardness",
+          "pref_label": "경도",
+          "score": 0.383,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "cdccaad8cb294f96"
+    }
+  },
+  "균열": {
+    "status": 200,
+    "body": {
+      "label": "균열",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "ArmShapeAttr",
+          "iri": "http://ex.org/domain#ArmShapeAttr",
+          "pref_label": "형상",
+          "score": 0.716,
+          "via": "embedding"
+        },
+        {
+          "concept": "Hardness",
+          "iri": "http://ex.org/domain#Hardness",
+          "pref_label": "경도",
+          "score": 0.688,
+          "via": "embedding"
+        },
+        {
+          "concept": "SweepBehavior",
+          "iri": "http://ex.org/domain#SweepBehavior",
+          "pref_label": "쓸기 거동",
+          "score": 0.645,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "59940c3938074c90"
+    }
+  },
+  "경화": {
+    "status": 200,
+    "body": {
+      "label": "경화",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "Hardness",
+          "iri": "http://ex.org/domain#Hardness",
+          "pref_label": "경도",
+          "score": 0.987,
+          "via": "embedding"
+        },
+        {
+          "concept": "ArmShapeAttr",
+          "iri": "http://ex.org/domain#ArmShapeAttr",
+          "pref_label": "형상",
+          "score": 0.902,
+          "via": "embedding"
+        },
+        {
+          "concept": "Spring",
+          "iri": "http://ex.org/domain#Spring",
+          "pref_label": "스프링",
+          "score": 0.886,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "d87edc9194404563"
+    }
+  },
+  "부식": {
+    "status": 200,
+    "body": {
+      "label": "부식",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "Hardness",
+          "iri": "http://ex.org/domain#Hardness",
+          "pref_label": "경도",
+          "score": 0.94,
+          "via": "embedding"
+        },
+        {
+          "concept": "ArmShapeAttr",
+          "iri": "http://ex.org/domain#ArmShapeAttr",
+          "pref_label": "형상",
+          "score": 0.893,
+          "via": "embedding"
+        },
+        {
+          "concept": "Spring",
+          "iri": "http://ex.org/domain#Spring",
+          "pref_label": "스프링",
+          "score": 0.832,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "45dfbb58b8c64af9"
+    }
+  },
+  "염화칼슘": {
+    "status": 200,
+    "body": {
+      "label": "염화칼슘",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "Elasticity",
+          "iri": "http://ex.org/domain#Elasticity",
+          "pref_label": "탄성",
+          "score": 0.508,
+          "via": "embedding"
+        },
+        {
+          "concept": "mitigates",
+          "iri": "http://ex.org/spmm-ext#mitigates",
+          "pref_label": "mitigates",
+          "score": 0.356,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "30c744250f684617"
+    }
+  },
+  "결빙": {
+    "status": 200,
+    "body": {
+      "label": "결빙",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "Hardness",
+          "iri": "http://ex.org/domain#Hardness",
+          "pref_label": "경도",
+          "score": 0.915,
+          "via": "embedding"
+        },
+        {
+          "concept": "Spring",
+          "iri": "http://ex.org/domain#Spring",
+          "pref_label": "스프링",
+          "score": 0.881,
+          "via": "embedding"
+        },
+        {
+          "concept": "TipChatter",
+          "iri": "http://ex.org/domain#TipChatter",
+          "pref_label": "끝단 떨림",
+          "score": 0.874,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "a98e2f0d80b84bf0"
+    }
+  },
+  "커넥터": {
+    "status": 200,
+    "body": {
+      "label": "커넥터",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "WipingBehavior",
+          "iri": "http://ex.org/domain#WipingBehavior",
+          "pref_label": "와이핑 거동",
+          "score": 0.786,
+          "via": "embedding"
+        },
+        {
+          "concept": "ContactBehavior",
+          "iri": "http://ex.org/domain#ContactBehavior",
+          "pref_label": "접촉 거동",
+          "score": 0.771,
+          "via": "embedding"
+        },
+        {
+          "concept": "Hardness",
+          "iri": "http://ex.org/domain#Hardness",
+          "pref_label": "경도",
+          "score": 0.69,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "359934e30cff46eb"
+    }
+  },
+  "스포일러": {
+    "status": 200,
+    "body": {
+      "label": "스포일러",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "Hardness",
+          "iri": "http://ex.org/domain#Hardness",
+          "pref_label": "경도",
+          "score": 0.855,
+          "via": "embedding"
+        },
+        {
+          "concept": "Spring",
+          "iri": "http://ex.org/domain#Spring",
+          "pref_label": "스프링",
+          "score": 0.841,
+          "via": "embedding"
+        },
+        {
+          "concept": "SweepBehavior",
+          "iri": "http://ex.org/domain#SweepBehavior",
+          "pref_label": "쓸기 거동",
+          "score": 0.837,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "c0797dee9845424e"
+    }
+  },
+  "고속 주행": {
+    "status": 200,
+    "body": {
+      "label": "고속 주행",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "Hardness",
+          "iri": "http://ex.org/domain#Hardness",
+          "pref_label": "경도",
+          "score": 0.845,
+          "via": "embedding"
+        },
+        {
+          "concept": "Spring",
+          "iri": "http://ex.org/domain#Spring",
+          "pref_label": "스프링",
+          "score": 0.8,
+          "via": "embedding"
+        },
+        {
+          "concept": "TipChatter",
+          "iri": "http://ex.org/domain#TipChatter",
+          "pref_label": "끝단 떨림",
+          "score": 0.761,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "ebb86521151e48d5"
+    }
+  },
+  "블레이드 프레임": {
+    "status": 200,
+    "body": {
+      "label": "블레이드 프레임",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "ArmShapeAttr",
+          "iri": "http://ex.org/domain#ArmShapeAttr",
+          "pref_label": "형상",
+          "score": 0.861,
+          "via": "embedding"
+        },
+        {
+          "concept": "Hardness",
+          "iri": "http://ex.org/domain#Hardness",
+          "pref_label": "경도",
+          "score": 0.82,
+          "via": "embedding"
+        },
+        {
+          "concept": "TipChatter",
+          "iri": "http://ex.org/domain#TipChatter",
+          "pref_label": "끝단 떨림",
+          "score": 0.786,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "945d43b20aab47b8"
+    }
+  },
+  "이탈": {
+    "status": 200,
+    "body": {
+      "label": "이탈",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "Hardness",
+          "iri": "http://ex.org/domain#Hardness",
+          "pref_label": "경도",
+          "score": 0.928,
+          "via": "embedding"
+        },
+        {
+          "concept": "TipChatter",
+          "iri": "http://ex.org/domain#TipChatter",
+          "pref_label": "끝단 떨림",
+          "score": 0.848,
+          "via": "embedding"
+        },
+        {
+          "concept": "Spring",
+          "iri": "http://ex.org/domain#Spring",
+          "pref_label": "스프링",
+          "score": 0.847,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "4e1b430a1016460a"
+    }
+  },
+  "워셔액": {
+    "status": 200,
+    "body": {
+      "label": "워셔액",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "SweepBehavior",
+          "iri": "http://ex.org/domain#SweepBehavior",
+          "pref_label": "쓸기 거동",
+          "score": 0.947,
+          "via": "embedding"
+        },
+        {
+          "concept": "Hardness",
+          "iri": "http://ex.org/domain#Hardness",
+          "pref_label": "경도",
+          "score": 0.802,
+          "via": "embedding"
+        },
+        {
+          "concept": "Winter",
+          "iri": "http://ex.org/domain#Winter",
+          "pref_label": "겨울철 저온",
+          "score": 0.795,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "2e11d9e85c924d3d"
+    }
+  },
+  "시야": {
+    "status": 200,
+    "body": {
+      "label": "시야",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "Hardness",
+          "iri": "http://ex.org/domain#Hardness",
+          "pref_label": "경도",
+          "score": 0.898,
+          "via": "embedding"
+        },
+        {
+          "concept": "ArmShapeAttr",
+          "iri": "http://ex.org/domain#ArmShapeAttr",
+          "pref_label": "형상",
+          "score": 0.895,
+          "via": "embedding"
+        },
+        {
+          "concept": "SweepBehavior",
+          "iri": "http://ex.org/domain#SweepBehavior",
+          "pref_label": "쓸기 거동",
+          "score": 0.877,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "10dedec37b7449b7"
+    }
+  },
+  "유연성": {
+    "status": 200,
+    "body": {
+      "label": "유연성",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "Hardness",
+          "iri": "http://ex.org/domain#Hardness",
+          "pref_label": "경도",
+          "score": 0.92,
+          "via": "embedding"
+        },
+        {
+          "concept": "Elasticity",
+          "iri": "http://ex.org/domain#Elasticity",
+          "pref_label": "탄성",
+          "score": 0.898,
+          "via": "embedding"
+        },
+        {
+          "concept": "ArmShapeAttr",
+          "iri": "http://ex.org/domain#ArmShapeAttr",
+          "pref_label": "형상",
+          "score": 0.887,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "198ca672c967442e"
+    }
+  },
+  "와이퍼 블레이드": {
+    "status": 200,
+    "body": {
+      "label": "와이퍼 블레이드",
+      "in_domain": true,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "WiperBlade",
+          "iri": "http://ex.org/domain#WiperBlade",
+          "pref_label": "Wiper Blade",
+          "score": 1,
+          "via": "lexical"
+        },
+        {
+          "concept": "WipingBehavior",
+          "iri": "http://ex.org/domain#WipingBehavior",
+          "pref_label": "와이핑 거동",
+          "score": 0.913,
+          "via": "embedding"
+        },
+        {
+          "concept": "SweepBehavior",
+          "iri": "http://ex.org/domain#SweepBehavior",
+          "pref_label": "쓸기 거동",
+          "score": 0.782,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "0bdf2956ef8840c8"
+    }
+  },
+  "타이어": {
+    "status": 200,
+    "body": {
+      "label": "타이어",
+      "in_domain": false,
+      "provisional": true,
+      "candidates": [
+        {
+          "concept": "Rubber",
+          "iri": "http://ex.org/domain#Rubber",
+          "pref_label": "Rubber",
+          "score": 0.68,
+          "via": "embedding"
+        },
+        {
+          "concept": "Hardness",
+          "iri": "http://ex.org/domain#Hardness",
+          "pref_label": "경도",
+          "score": 0.667,
+          "via": "embedding"
+        },
+        {
+          "concept": "SweepBehavior",
+          "iri": "http://ex.org/domain#SweepBehavior",
+          "pref_label": "쓸기 거동",
+          "score": 0.646,
+          "via": "embedding"
+        }
+      ],
+      "provenance": {
+        "sentence": null,
+        "project_id": null
+      },
+      "triage": "synonym_variant",
+      "admin_proposal": {
+        "status": "stub",
+        "action": "altLabel 편입 제안"
+      },
+      "clarification": null,
+      "trace_id": "6e5a2a2e89d3401e"
+    }
+  }
+}
