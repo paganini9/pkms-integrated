@@ -1,0 +1,327 @@
+{
+  "design": {
+    "id": "D-ozone",
+    "material": "Rubber",
+    "vehicle": "MidSizeSUV",
+    "length_mm": 550,
+    "spring_n": 12,
+    "arm_shape": "complex",
+    "env": "Ozone"
+  },
+  "satisfy_ozone": {
+    "satisfies": true,
+    "steps": [
+      {
+        "stage": "subsumption",
+        "ok": false,
+        "detail": "오존 노출이 기준을 초과하면 고무 블레이드에 균열이 생긴다. (S8)"
+      },
+      {
+        "stage": "shacl_interval",
+        "ok": true,
+        "checks": [
+          {
+            "name": "길이 구간포함 lengthMm ≤ maxSafe",
+            "expr": "550 ≤ 599",
+            "ok": true
+          },
+          {
+            "name": "스프링 임계 springN ≥ 10",
+            "expr": "12 ≥ 10",
+            "ok": true
+          }
+        ],
+        "warnings": null
+      },
+      {
+        "stage": "symptom_free",
+        "ok": false,
+        "exhibited": [
+          {
+            "symptom": "Crack",
+            "label": "Crack",
+            "sentences": [
+              "S8"
+            ]
+          },
+          {
+            "symptom": "Hardening",
+            "label": "Hardening",
+            "sentences": [
+              "S9"
+            ]
+          }
+        ]
+      }
+    ],
+    "violations": [],
+    "violation_bases": [],
+    "violated_requirements": [],
+    "alternatives": [],
+    "trace_id": "678af8af796c463f",
+    "pending_reason": null,
+    "applied_categories": [
+      "소음",
+      "떨림"
+    ],
+    "justification": [
+      "적용 지식범위: ['소음', '떨림'] · 게이트 8개",
+      "(1) 정성 subsumption ✘ — 오존 노출이 기준을 초과하면 고무 블레이드에 균열이 생긴다. (S8)",
+      "(2) 수치 게이트 ✔ — 길이 구간포함 lengthMm ≤ maxSafe (550 ≤ 599)",
+      "(2) 수치 게이트 ✔ — 스프링 임계 springN ≥ 10 (12 ≥ 10)",
+      "(3) 무증상 규칙 ✘ — 유발 증상: Crack[S8], Hardening[S9]",
+      "판정: DB ⊑ RB_NoChatter ⊓ RB_Winter"
+    ],
+    "cache_hit": false
+  },
+  "satisfy_HighSpeed": {
+    "satisfies": true,
+    "steps": [
+      {
+        "stage": "subsumption",
+        "ok": false,
+        "detail": "영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다. (S9)"
+      },
+      {
+        "stage": "shacl_interval",
+        "ok": true,
+        "checks": [
+          {
+            "name": "길이 구간포함 lengthMm ≤ maxSafe",
+            "expr": "550 ≤ 599",
+            "ok": true
+          },
+          {
+            "name": "스프링 임계 springN ≥ 10",
+            "expr": "12 ≥ 10",
+            "ok": true
+          }
+        ],
+        "warnings": null
+      },
+      {
+        "stage": "symptom_free",
+        "ok": false,
+        "exhibited": [
+          {
+            "symptom": "Lift",
+            "label": "Lift",
+            "sentences": [
+              "S7"
+            ]
+          },
+          {
+            "symptom": "Hardening",
+            "label": "Hardening",
+            "sentences": [
+              "S9"
+            ]
+          }
+        ]
+      }
+    ],
+    "violations": [],
+    "violation_bases": [],
+    "violated_requirements": [],
+    "alternatives": [],
+    "trace_id": "d9b48b27fe4f4794",
+    "pending_reason": null,
+    "applied_categories": [
+      "소음",
+      "떨림"
+    ],
+    "justification": [
+      "적용 지식범위: ['소음', '떨림'] · 게이트 8개",
+      "(1) 정성 subsumption ✘ — 영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다. (S9)",
+      "(2) 수치 게이트 ✔ — 길이 구간포함 lengthMm ≤ maxSafe (550 ≤ 599)",
+      "(2) 수치 게이트 ✔ — 스프링 임계 springN ≥ 10 (12 ≥ 10)",
+      "(3) 무증상 규칙 ✘ — 유발 증상: Lift[S7], Hardening[S9]",
+      "판정: DB ⊑ RB_NoChatter ⊓ RB_Winter"
+    ],
+    "cache_hit": false
+  },
+  "satisfy_SubZero40": {
+    "satisfies": true,
+    "steps": [
+      {
+        "stage": "subsumption",
+        "ok": false,
+        "detail": "영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다. (S9)"
+      },
+      {
+        "stage": "shacl_interval",
+        "ok": true,
+        "checks": [
+          {
+            "name": "길이 구간포함 lengthMm ≤ maxSafe",
+            "expr": "550 ≤ 599",
+            "ok": true
+          },
+          {
+            "name": "스프링 임계 springN ≥ 10",
+            "expr": "12 ≥ 10",
+            "ok": true
+          }
+        ],
+        "warnings": null
+      },
+      {
+        "stage": "symptom_free",
+        "ok": false,
+        "exhibited": [
+          {
+            "symptom": "Hardening",
+            "label": "Hardening",
+            "sentences": [
+              "S9"
+            ]
+          }
+        ]
+      }
+    ],
+    "violations": [],
+    "violation_bases": [],
+    "violated_requirements": [],
+    "alternatives": [],
+    "trace_id": "61510e47d2784f21",
+    "pending_reason": null,
+    "applied_categories": [
+      "소음",
+      "떨림"
+    ],
+    "justification": [
+      "적용 지식범위: ['소음', '떨림'] · 게이트 8개",
+      "(1) 정성 subsumption ✘ — 영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다. (S9)",
+      "(2) 수치 게이트 ✔ — 길이 구간포함 lengthMm ≤ maxSafe (550 ≤ 599)",
+      "(2) 수치 게이트 ✔ — 스프링 임계 springN ≥ 10 (12 ≥ 10)",
+      "(3) 무증상 규칙 ✘ — 유발 증상: Hardening[S9]",
+      "판정: DB ⊑ RB_NoChatter ⊓ RB_Winter"
+    ],
+    "cache_hit": false
+  },
+  "satisfy_CalciumChloride": {
+    "satisfies": true,
+    "steps": [
+      {
+        "stage": "subsumption",
+        "ok": false,
+        "detail": "영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다. (S9)"
+      },
+      {
+        "stage": "shacl_interval",
+        "ok": true,
+        "checks": [
+          {
+            "name": "길이 구간포함 lengthMm ≤ maxSafe",
+            "expr": "550 ≤ 599",
+            "ok": true
+          },
+          {
+            "name": "스프링 임계 springN ≥ 10",
+            "expr": "12 ≥ 10",
+            "ok": true
+          }
+        ],
+        "warnings": null
+      },
+      {
+        "stage": "symptom_free",
+        "ok": false,
+        "exhibited": [
+          {
+            "symptom": "Hardening",
+            "label": "Hardening",
+            "sentences": [
+              "S9"
+            ]
+          },
+          {
+            "symptom": "Corrosion",
+            "label": "Corrosion",
+            "sentences": [
+              "S10"
+            ]
+          }
+        ]
+      }
+    ],
+    "violations": [],
+    "violation_bases": [],
+    "violated_requirements": [],
+    "alternatives": [],
+    "trace_id": "a5487a3a988f48be",
+    "pending_reason": null,
+    "applied_categories": [
+      "소음",
+      "떨림"
+    ],
+    "justification": [
+      "적용 지식범위: ['소음', '떨림'] · 게이트 8개",
+      "(1) 정성 subsumption ✘ — 영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다. (S9)",
+      "(2) 수치 게이트 ✔ — 길이 구간포함 lengthMm ≤ maxSafe (550 ≤ 599)",
+      "(2) 수치 게이트 ✔ — 스프링 임계 springN ≥ 10 (12 ≥ 10)",
+      "(3) 무증상 규칙 ✘ — 유발 증상: Hardening[S9], Corrosion[S10]",
+      "판정: DB ⊑ RB_NoChatter ⊓ RB_Winter"
+    ],
+    "cache_hit": false
+  },
+  "satisfy_Driving": {
+    "satisfies": true,
+    "steps": [
+      {
+        "stage": "subsumption",
+        "ok": false,
+        "detail": "영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다. (S9)"
+      },
+      {
+        "stage": "shacl_interval",
+        "ok": true,
+        "checks": [
+          {
+            "name": "길이 구간포함 lengthMm ≤ maxSafe",
+            "expr": "550 ≤ 599",
+            "ok": true
+          },
+          {
+            "name": "스프링 임계 springN ≥ 10",
+            "expr": "12 ≥ 10",
+            "ok": true
+          }
+        ],
+        "warnings": null
+      },
+      {
+        "stage": "symptom_free",
+        "ok": false,
+        "exhibited": [
+          {
+            "symptom": "Hardening",
+            "label": "Hardening",
+            "sentences": [
+              "S9"
+            ]
+          }
+        ]
+      }
+    ],
+    "violations": [],
+    "violation_bases": [],
+    "violated_requirements": [],
+    "alternatives": [],
+    "trace_id": "f6706f1c511e4878",
+    "pending_reason": null,
+    "applied_categories": [
+      "소음",
+      "떨림"
+    ],
+    "justification": [
+      "적용 지식범위: ['소음', '떨림'] · 게이트 8개",
+      "(1) 정성 subsumption ✘ — 영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다. (S9)",
+      "(2) 수치 게이트 ✔ — 길이 구간포함 lengthMm ≤ maxSafe (550 ≤ 599)",
+      "(2) 수치 게이트 ✔ — 스프링 임계 springN ≥ 10 (12 ≥ 10)",
+      "(3) 무증상 규칙 ✘ — 유발 증상: Hardening[S9]",
+      "판정: DB ⊑ RB_NoChatter ⊓ RB_Winter"
+    ],
+    "cache_hit": false
+  }
+}

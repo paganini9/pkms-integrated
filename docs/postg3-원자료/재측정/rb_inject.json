@@ -1,0 +1,292 @@
+{
+  "rb_nocrack": {
+    "satisfies": false,
+    "steps": [
+      {
+        "stage": "subsumption",
+        "ok": false,
+        "detail": "오존 노출이 기준을 초과하면 고무 블레이드에 균열이 생긴다. (S8)"
+      },
+      {
+        "stage": "shacl_interval",
+        "ok": true,
+        "checks": [
+          {
+            "name": "길이 구간포함 lengthMm ≤ maxSafe",
+            "expr": "550 ≤ 599",
+            "ok": true
+          },
+          {
+            "name": "스프링 임계 springN ≥ 10",
+            "expr": "12 ≥ 10",
+            "ok": true
+          }
+        ],
+        "warnings": null
+      },
+      {
+        "stage": "symptom_free",
+        "ok": false,
+        "exhibited": [
+          {
+            "symptom": "Crack",
+            "label": "Crack",
+            "sentences": [
+              "S8"
+            ]
+          },
+          {
+            "symptom": "Hardening",
+            "label": "Hardening",
+            "sentences": [
+              "S9"
+            ]
+          }
+        ]
+      }
+    ],
+    "violations": [
+      "S8"
+    ],
+    "violation_bases": [
+      "S8"
+    ],
+    "violated_requirements": [
+      {
+        "rb": "RB_NoCrack",
+        "label": "오존 내구(균열 없음)",
+        "forbids": "Crack",
+        "sentences": [
+          "S8"
+        ]
+      }
+    ],
+    "alternatives": [],
+    "trace_id": "c225528c58204c10",
+    "pending_reason": null,
+    "applied_categories": [
+      "소음",
+      "떨림"
+    ],
+    "justification": [
+      "적용 지식범위: ['소음', '떨림'] · 게이트 8개",
+      "(1) 정성 subsumption ✘ — 오존 노출이 기준을 초과하면 고무 블레이드에 균열이 생긴다. (S8)",
+      "(2) 수치 게이트 ✔ — 길이 구간포함 lengthMm ≤ maxSafe (550 ≤ 599)",
+      "(2) 수치 게이트 ✔ — 스프링 임계 springN ≥ 10 (12 ≥ 10)",
+      "(3) 무증상 규칙 ✘ — 유발 증상: Crack[S8], Hardening[S9]",
+      "판정: DB ⋢ RB_NoCrack"
+    ],
+    "cache_hit": false
+  },
+  "rb_nocrack_silicone": {
+    "satisfies": true,
+    "steps": [
+      {
+        "stage": "subsumption",
+        "ok": true,
+        "detail": "실리콘 → 소음 해소 (S2)"
+      },
+      {
+        "stage": "shacl_interval",
+        "ok": true,
+        "checks": [
+          {
+            "name": "길이 구간포함 lengthMm ≤ maxSafe",
+            "expr": "550 ≤ 599",
+            "ok": true
+          },
+          {
+            "name": "스프링 임계 springN ≥ 10",
+            "expr": "12 ≥ 10",
+            "ok": true
+          }
+        ],
+        "warnings": null
+      },
+      {
+        "stage": "symptom_free",
+        "ok": true,
+        "exhibited": []
+      }
+    ],
+    "violations": [],
+    "violation_bases": [],
+    "violated_requirements": [],
+    "alternatives": [],
+    "trace_id": "937f0b555ef84ba7",
+    "pending_reason": null,
+    "applied_categories": [
+      "소음",
+      "떨림"
+    ],
+    "justification": [
+      "적용 지식범위: ['소음', '떨림'] · 게이트 8개",
+      "(1) 정성 subsumption ✔ — 실리콘 → 소음 해소 (S2)",
+      "(2) 수치 게이트 ✔ — 길이 구간포함 lengthMm ≤ maxSafe (550 ≤ 599)",
+      "(2) 수치 게이트 ✔ — 스프링 임계 springN ≥ 10 (12 ≥ 10)",
+      "(3) 무증상 규칙 ✔ — 유발 증상 없음",
+      "판정: DB ⊑ RB_NoCrack"
+    ],
+    "cache_hit": false
+  },
+  "sat-bad": {
+    "satisfies": false,
+    "steps": [
+      {
+        "stage": "subsumption",
+        "ok": false,
+        "detail": "겨울 + 고무 → 소음 (S1)"
+      },
+      {
+        "stage": "shacl_interval",
+        "ok": false,
+        "checks": [
+          {
+            "name": "길이 구간포함 lengthMm ≤ maxSafe",
+            "expr": "600 ≤ 599",
+            "ok": false
+          },
+          {
+            "name": "스프링 임계 springN ≥ 10",
+            "expr": "8 ≥ 10",
+            "ok": false
+          }
+        ],
+        "warnings": null
+      },
+      {
+        "stage": "symptom_free",
+        "ok": false,
+        "exhibited": [
+          {
+            "symptom": "Noise",
+            "label": "소음",
+            "sentences": [
+              "S1"
+            ]
+          },
+          {
+            "symptom": "TipChatter",
+            "label": "끝단 떨림",
+            "sentences": [
+              "S3,S5",
+              "S4",
+              "S6"
+            ]
+          },
+          {
+            "symptom": "Hardening",
+            "label": "Hardening",
+            "sentences": [
+              "S9"
+            ]
+          }
+        ]
+      }
+    ],
+    "violations": [
+      "S1",
+      "S3",
+      "S4",
+      "S6"
+    ],
+    "violation_bases": [
+      "S1",
+      "S3,S5",
+      "S4",
+      "S6"
+    ],
+    "violated_requirements": [
+      {
+        "rb": "RB_NoChatter",
+        "label": "끝단 떨림 없음",
+        "forbids": "TipChatter",
+        "sentences": [
+          "S3,S5",
+          "S4",
+          "S6"
+        ]
+      },
+      {
+        "rb": "RB_Winter",
+        "label": "겨울 저소음(소음 없음)",
+        "forbids": "Noise",
+        "sentences": [
+          "S1"
+        ]
+      }
+    ],
+    "alternatives": [
+      "재질→실리콘(S2)",
+      "길이→차종 안전길이 이내(S5)",
+      "스프링→≥10N",
+      "암형상→complex"
+    ],
+    "trace_id": "1776621dc8e84324",
+    "pending_reason": null,
+    "applied_categories": [
+      "소음",
+      "떨림"
+    ],
+    "justification": [
+      "적용 지식범위: ['소음', '떨림'] · 게이트 8개",
+      "(1) 정성 subsumption ✘ — 겨울 + 고무 → 소음 (S1)",
+      "(2) 수치 게이트 ✘ — 길이 구간포함 lengthMm ≤ maxSafe (600 ≤ 599)",
+      "(2) 수치 게이트 ✘ — 스프링 임계 springN ≥ 10 (8 ≥ 10)",
+      "(3) 무증상 규칙 ✘ — 유발 증상: 소음[S1], 끝단 떨림[S3,S5·S4·S6], Hardening[S9]",
+      "판정: DB ⋢ RB_NoChatter ⊓ RB_NoCrack ⊓ RB_Winter"
+    ],
+    "cache_hit": false
+  },
+  "sat-good": {
+    "satisfies": true,
+    "steps": [
+      {
+        "stage": "subsumption",
+        "ok": true,
+        "detail": "실리콘 → 소음 해소 (S2)"
+      },
+      {
+        "stage": "shacl_interval",
+        "ok": true,
+        "checks": [
+          {
+            "name": "길이 구간포함 lengthMm ≤ maxSafe",
+            "expr": "550 ≤ 550",
+            "ok": true
+          },
+          {
+            "name": "스프링 임계 springN ≥ 10",
+            "expr": "12 ≥ 10",
+            "ok": true
+          }
+        ],
+        "warnings": null
+      },
+      {
+        "stage": "symptom_free",
+        "ok": true,
+        "exhibited": []
+      }
+    ],
+    "violations": [],
+    "violation_bases": [],
+    "violated_requirements": [],
+    "alternatives": [],
+    "trace_id": "6af0cd172a064efe",
+    "pending_reason": null,
+    "applied_categories": [
+      "소음",
+      "떨림"
+    ],
+    "justification": [
+      "적용 지식범위: ['소음', '떨림'] · 게이트 8개",
+      "(1) 정성 subsumption ✔ — 실리콘 → 소음 해소 (S2)",
+      "(2) 수치 게이트 ✔ — 길이 구간포함 lengthMm ≤ maxSafe (550 ≤ 550)",
+      "(2) 수치 게이트 ✔ — 스프링 임계 springN ≥ 10 (12 ≥ 10)",
+      "(3) 무증상 규칙 ✔ — 유발 증상 없음",
+      "판정: DB ⊑ RB_NoChatter ⊓ RB_NoCrack ⊓ RB_Winter"
+    ],
+    "cache_hit": false
+  }
+}

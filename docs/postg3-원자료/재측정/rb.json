@@ -1,0 +1,140 @@
+{
+  "R1": {
+    "text": "블레이드는 고속 주행 중 들뜸 현상이 발생하지 않아야 한다.",
+    "status": 201,
+    "body": {
+      "requirements": [],
+      "unknown_symptoms": [
+        "고속 주행 중 들뜸 현상"
+      ],
+      "trace_id": "a0f89ac0a8ad4169"
+    },
+    "m1_misroute": {
+      "concepts": [
+        {
+          "label": "블레이드",
+          "type": "Component"
+        },
+        {
+          "label": "고속 주행",
+          "type": "EnvCondition"
+        },
+        {
+          "label": "들뜸",
+          "type": "Symptom"
+        }
+      ],
+      "relations": [
+        {
+          "subject": "블레이드",
+          "predicate": "causes",
+          "object": "들뜸"
+        },
+        {
+          "subject": "들뜸",
+          "predicate": "conditionedOn",
+          "object": "고속 주행"
+        }
+      ],
+      "validate": {
+        "conforms": true,
+        "violations": [],
+        "trace_id": "81c73fdb641c41c6"
+      }
+    }
+  },
+  "R5": {
+    "text": "블레이드 고무 재질은 기준치 이상의 오존 및 자외선 노출 환경에서 균열이나 경화가 발생하지 않아야 한다.",
+    "status": 201,
+    "body": {
+      "requirements": [],
+      "unknown_symptoms": [
+        "기준치 이상의 오존 노출 환경에서 블레이드 고무 재질에 균열 발생",
+        "기준치 이상의 오존 노출 환경에서 블레이드 고무 재질의 경화 발생",
+        "기준치 이상의 자외선 노출 환경에서 블레이드 고무 재질에 균열 발생",
+        "기준치 이상의 자외선 노출 환경에서 블레이드 고무 재질의 경화 발생"
+      ],
+      "trace_id": "3349692561334608"
+    },
+    "m1_misroute": {
+      "concepts": [
+        {
+          "label": "블레이드",
+          "type": "Component"
+        },
+        {
+          "label": "고무",
+          "type": "Material"
+        },
+        {
+          "label": "오존 노출",
+          "type": "EnvCondition"
+        },
+        {
+          "label": "자외선 노출",
+          "type": "EnvCondition"
+        },
+        {
+          "label": "균열",
+          "type": "Symptom"
+        },
+        {
+          "label": "경화",
+          "type": "Symptom"
+        }
+      ],
+      "relations": [
+        {
+          "subject": "블레이드",
+          "predicate": "hasMaterial",
+          "object": "고무"
+        },
+        {
+          "subject": "고무",
+          "predicate": "causes",
+          "object": "균열"
+        },
+        {
+          "subject": "고무",
+          "predicate": "causes",
+          "object": "경화"
+        },
+        {
+          "subject": "균열",
+          "predicate": "conditionedOn",
+          "object": "오존 노출"
+        },
+        {
+          "subject": "균열",
+          "predicate": "conditionedOn",
+          "object": "자외선 노출"
+        },
+        {
+          "subject": "경화",
+          "predicate": "conditionedOn",
+          "object": "오존 노출"
+        },
+        {
+          "subject": "경화",
+          "predicate": "conditionedOn",
+          "object": "자외선 노출"
+        }
+      ],
+      "validate": {
+        "conforms": true,
+        "violations": [
+          {
+            "code": "unknown_concept",
+            "severity": "warning",
+            "offender": "자외선 노출",
+            "offender_iri": null,
+            "message": "'자외선 노출' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+            "sentence": null,
+            "source_shape": null
+          }
+        ],
+        "trace_id": "2ca38e45afb34a35"
+      }
+    }
+  }
+}

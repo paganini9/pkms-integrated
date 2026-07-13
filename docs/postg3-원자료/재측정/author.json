@@ -1,0 +1,1301 @@
+{
+  "K1": {
+    "text": "고속 주행 시 스포일러 없는 블레이드는 들뜸이 발생한다.",
+    "extract": {
+      "concepts": [
+        {
+          "label": "고속 주행",
+          "type": "EnvCondition"
+        },
+        {
+          "label": "스포일러",
+          "type": "Component"
+        },
+        {
+          "label": "블레이드",
+          "type": "Component"
+        },
+        {
+          "label": "들뜸",
+          "type": "Symptom"
+        }
+      ],
+      "relations": [
+        {
+          "subject": "블레이드",
+          "predicate": "causes",
+          "object": "들뜸",
+          "evidence": "스포일러 없는 블레이드는 들뜸이 발생한다"
+        },
+        {
+          "subject": "들뜸",
+          "predicate": "conditionedOn",
+          "object": "고속 주행",
+          "evidence": "고속 주행 시 들뜸이 발생한다"
+        },
+        {
+          "subject": "블레이드",
+          "predicate": "has_part",
+          "object": "스포일러",
+          "evidence": "스포일러 없는 블레이드"
+        }
+      ]
+    },
+    "validate_before": {
+      "conforms": false,
+      "violations": [
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "고속 주행",
+          "offender_iri": null,
+          "message": "'고속 주행' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "스포일러",
+          "offender_iri": null,
+          "message": "'스포일러' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "들뜸",
+          "offender_iri": null,
+          "message": "'들뜸' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "shacl_constraint",
+          "severity": "violation",
+          "offender": "_authored_causation_1",
+          "offender_iri": null,
+          "message": "Causation 은 manifestsSymptom(증상)을 하나 이상 가져야 하고 대상은 Symptom 이어야 합니다.",
+          "sentence": null,
+          "source_shape": "CausationShape"
+        }
+      ],
+      "trace_id": "569ddec4f821476e"
+    },
+    "governance": [
+      {
+        "add": [
+          {
+            "op": "add",
+            "id": "Lift",
+            "parent": "Symptom"
+          },
+          {
+            "op": "add",
+            "id": "HighSpeed",
+            "parent": "EnvCondition"
+          }
+        ],
+        "status": 200,
+        "body": {
+          "applied": 2,
+          "persisted": true,
+          "trace_id": "050cbfff9e2b4241"
+        }
+      },
+      {
+        "altLabel": "들뜸",
+        "concept": "Lift",
+        "status": 200
+      },
+      {
+        "altLabel": "들뜸 현상",
+        "concept": "Lift",
+        "status": 200
+      },
+      {
+        "altLabel": "고속 주행",
+        "concept": "HighSpeed",
+        "status": 200
+      },
+      {
+        "altLabel": "고속 주행 중",
+        "concept": "HighSpeed",
+        "status": 200
+      },
+      {
+        "altLabel": "주행 중",
+        "concept": "HighSpeed",
+        "status": 200
+      }
+    ],
+    "validate_after": {
+      "conforms": true,
+      "violations": [
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "스포일러",
+          "offender_iri": null,
+          "message": "'스포일러' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        }
+      ],
+      "trace_id": "664ba7627fa14521"
+    },
+    "save": {
+      "status": 201,
+      "body": {
+        "sentence": {
+          "id": "S7",
+          "iri": "http://ex.org/domain#S7",
+          "text": "고속 주행 시 스포일러 없는 블레이드는 들뜸이 발생한다.",
+          "category": "소음",
+          "mentions": [
+            "HighSpeed",
+            "스포일러",
+            "WiperBlade",
+            "Lift"
+          ],
+          "about_symptom": "들뜸",
+          "polarity": "cause"
+        },
+        "derived": {
+          "rule": {
+            "id": "S7Rule",
+            "label": "고속 주행 시 스포일러 없는 블레이드는 들뜸이 발생한다.",
+            "polarity": "cause",
+            "category": "소음",
+            "about_symptom": "Lift",
+            "basis": "S7",
+            "conds": [
+              {
+                "path": "operatesIn",
+                "op": "eq",
+                "val": "HighSpeed",
+                "ref_list": null
+              }
+            ]
+          },
+          "shapes": [
+            {
+              "id": "S7Shape",
+              "gate_for": "Lift",
+              "sentence": "S7"
+            }
+          ],
+          "causal_edges": [
+            {
+              "subject": "S7Rule",
+              "predicate": "causes",
+              "object": "Lift",
+              "evidence": "S7",
+              "confidence": null
+            }
+          ]
+        },
+        "human_view": [
+          "고속 주행 시 스포일러 없는 블레이드는 들뜸이 발생한다.  [cause·S7·소음] → Lift"
+        ],
+        "trace_id": "82048f0077ab42ae"
+      }
+    },
+    "derived": {
+      "id": "S7Rule",
+      "about_symptom": "Lift",
+      "polarity": "cause",
+      "conds": [
+        [
+          "operatesIn",
+          "HighSpeed"
+        ]
+      ]
+    },
+    "mentions": [
+      "HighSpeed",
+      "스포일러",
+      "WiperBlade",
+      "Lift"
+    ],
+    "rules_before": [
+      "ArmRule",
+      "ChatterRule",
+      "NoiseRule",
+      "SiliconeRule",
+      "SpringRule"
+    ],
+    "rules_after": [
+      "ArmRule",
+      "ChatterRule",
+      "NoiseRule",
+      "S7Rule",
+      "SiliconeRule",
+      "SpringRule"
+    ],
+    "causation_before": 0,
+    "causation_after": 1
+  },
+  "K2": {
+    "text": "오존 노출이 기준을 초과하면 고무 블레이드에 균열이 생긴다.",
+    "extract": {
+      "concepts": [
+        {
+          "label": "오존 노출",
+          "type": "EnvCondition"
+        },
+        {
+          "label": "블레이드",
+          "type": "Component"
+        },
+        {
+          "label": "고무",
+          "type": "Material"
+        },
+        {
+          "label": "균열",
+          "type": "Symptom"
+        }
+      ],
+      "relations": [
+        {
+          "subject": "블레이드",
+          "predicate": "hasMaterial",
+          "object": "고무"
+        },
+        {
+          "subject": "블레이드",
+          "predicate": "causes",
+          "object": "균열"
+        },
+        {
+          "subject": "균열",
+          "predicate": "conditionedOn",
+          "object": "오존 노출"
+        }
+      ]
+    },
+    "validate_before": {
+      "conforms": false,
+      "violations": [
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "오존 노출",
+          "offender_iri": null,
+          "message": "'오존 노출' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "균열",
+          "offender_iri": null,
+          "message": "'균열' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "shacl_constraint",
+          "severity": "violation",
+          "offender": "_authored_causation_1",
+          "offender_iri": null,
+          "message": "Causation 은 manifestsSymptom(증상)을 하나 이상 가져야 하고 대상은 Symptom 이어야 합니다.",
+          "sentence": null,
+          "source_shape": "CausationShape"
+        }
+      ],
+      "trace_id": "bc860a36191b44e7"
+    },
+    "governance": [
+      {
+        "add": [
+          {
+            "op": "add",
+            "id": "Ozone",
+            "parent": "EnvCondition"
+          },
+          {
+            "op": "add",
+            "id": "Crack",
+            "parent": "Symptom"
+          }
+        ],
+        "status": 200,
+        "body": {
+          "applied": 2,
+          "persisted": true,
+          "trace_id": "c3154e5ed10942a1"
+        }
+      },
+      {
+        "altLabel": "오존",
+        "concept": "Ozone",
+        "status": 200
+      },
+      {
+        "altLabel": "오존 노출",
+        "concept": "Ozone",
+        "status": 200
+      },
+      {
+        "altLabel": "균열",
+        "concept": "Crack",
+        "status": 200
+      }
+    ],
+    "validate_after": {
+      "conforms": true,
+      "violations": [],
+      "trace_id": "9c071211ca9c4001"
+    },
+    "save": {
+      "status": 201,
+      "body": {
+        "sentence": {
+          "id": "S8",
+          "iri": "http://ex.org/domain#S8",
+          "text": "오존 노출이 기준을 초과하면 고무 블레이드에 균열이 생긴다.",
+          "category": "소음",
+          "mentions": [
+            "Ozone",
+            "WiperBlade",
+            "Rubber",
+            "Crack"
+          ],
+          "about_symptom": "균열",
+          "polarity": "cause"
+        },
+        "derived": {
+          "rule": {
+            "id": "S8Rule",
+            "label": "오존 노출이 기준을 초과하면 고무 블레이드에 균열이 생긴다.",
+            "polarity": "cause",
+            "category": "소음",
+            "about_symptom": "Crack",
+            "basis": "S8",
+            "conds": [
+              {
+                "path": "hasMaterial",
+                "op": "eq",
+                "val": "Rubber",
+                "ref_list": null
+              },
+              {
+                "path": "operatesIn",
+                "op": "eq",
+                "val": "Ozone",
+                "ref_list": null
+              }
+            ]
+          },
+          "shapes": [
+            {
+              "id": "S8Shape",
+              "gate_for": "Crack",
+              "sentence": "S8"
+            }
+          ],
+          "causal_edges": [
+            {
+              "subject": "S8Rule",
+              "predicate": "causes",
+              "object": "Crack",
+              "evidence": "S8",
+              "confidence": null
+            }
+          ]
+        },
+        "human_view": [
+          "오존 노출이 기준을 초과하면 고무 블레이드에 균열이 생긴다.  [cause·S8·소음] → Crack"
+        ],
+        "trace_id": "0b5df8d513ac416b"
+      }
+    },
+    "derived": {
+      "id": "S8Rule",
+      "about_symptom": "Crack",
+      "polarity": "cause",
+      "conds": [
+        [
+          "hasMaterial",
+          "Rubber"
+        ],
+        [
+          "operatesIn",
+          "Ozone"
+        ]
+      ]
+    },
+    "mentions": [
+      "Ozone",
+      "WiperBlade",
+      "Rubber",
+      "Crack"
+    ],
+    "rules_before": [
+      "ArmRule",
+      "ChatterRule",
+      "NoiseRule",
+      "S7Rule",
+      "SiliconeRule",
+      "SpringRule"
+    ],
+    "rules_after": [
+      "ArmRule",
+      "ChatterRule",
+      "NoiseRule",
+      "S7Rule",
+      "S8Rule",
+      "SiliconeRule",
+      "SpringRule"
+    ],
+    "causation_before": 1,
+    "causation_after": 2
+  },
+  "K3": {
+    "text": "영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다.",
+    "extract": {
+      "concepts": [
+        {
+          "label": "영하 40도",
+          "type": "EnvCondition"
+        },
+        {
+          "label": "고무",
+          "type": "Material"
+        },
+        {
+          "label": "경화",
+          "type": "Behavior"
+        },
+        {
+          "label": "와이퍼",
+          "type": "Component"
+        },
+        {
+          "label": "작동 불량",
+          "type": "Symptom"
+        }
+      ],
+      "relations": [
+        {
+          "subject": "고무",
+          "predicate": "causes",
+          "object": "경화",
+          "evidence": "고무가 경화되어"
+        },
+        {
+          "subject": "경화",
+          "predicate": "causes",
+          "object": "작동 불량",
+          "evidence": "고무가 경화되어 와이퍼 작동 불량이 발생"
+        },
+        {
+          "subject": "작동 불량",
+          "predicate": "conditionedOn",
+          "object": "영하 40도",
+          "evidence": "영하 40도에서"
+        },
+        {
+          "subject": "와이퍼",
+          "predicate": "hasMaterial",
+          "object": "고무",
+          "evidence": "고무가 경화되어 와이퍼 작동 불량"
+        }
+      ]
+    },
+    "validate_before": {
+      "conforms": false,
+      "violations": [
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "영하 40도",
+          "offender_iri": null,
+          "message": "'영하 40도' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "경화",
+          "offender_iri": null,
+          "message": "'경화' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "작동 불량",
+          "offender_iri": null,
+          "message": "'작동 불량' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "causes_range",
+          "severity": "violation",
+          "offender": "경화",
+          "offender_iri": null,
+          "message": "'유발(causes)'의 대상은(는) 증상(Symptom)이어야 하는데 '경화'은(는) Behavior입니다.",
+          "sentence": null,
+          "source_shape": "CausesRangeShape"
+        },
+        {
+          "code": "shacl_constraint",
+          "severity": "violation",
+          "offender": "_authored_causation_1",
+          "offender_iri": null,
+          "message": "Causation 은 manifestsSymptom(증상)을 하나 이상 가져야 하고 대상은 Symptom 이어야 합니다.",
+          "sentence": null,
+          "source_shape": "CausationShape"
+        },
+        {
+          "code": "shacl_constraint",
+          "severity": "violation",
+          "offender": "_authored_causation_2",
+          "offender_iri": null,
+          "message": "Causation 은 manifestsSymptom(증상)을 하나 이상 가져야 하고 대상은 Symptom 이어야 합니다.",
+          "sentence": null,
+          "source_shape": "CausationShape"
+        },
+        {
+          "code": "shacl_constraint",
+          "severity": "violation",
+          "offender": "_authored_causation_2",
+          "offender_iri": null,
+          "message": "Causation 은 hasMechanism(기전)을 하나 이상 가져야 합니다.",
+          "sentence": null,
+          "source_shape": "CausationShape"
+        }
+      ],
+      "trace_id": "b9d7674d388b4968"
+    },
+    "governance": [
+      {
+        "add": [
+          {
+            "op": "add",
+            "id": "SubZero40",
+            "parent": "EnvCondition"
+          },
+          {
+            "op": "add",
+            "id": "Malfunction",
+            "parent": "Symptom"
+          },
+          {
+            "op": "add",
+            "id": "Hardening",
+            "parent": "Symptom"
+          }
+        ],
+        "status": 200,
+        "body": {
+          "applied": 3,
+          "persisted": true,
+          "trace_id": "e25e4fd81cb340b8"
+        }
+      },
+      {
+        "altLabel": "영하 40도",
+        "concept": "SubZero40",
+        "status": 200
+      },
+      {
+        "altLabel": "영하 40도 환경",
+        "concept": "SubZero40",
+        "status": 200
+      },
+      {
+        "altLabel": "작동 불량",
+        "concept": "Malfunction",
+        "status": 200
+      },
+      {
+        "altLabel": "경화",
+        "concept": "Hardening",
+        "status": 200
+      }
+    ],
+    "validate_after": {
+      "conforms": true,
+      "violations": [],
+      "trace_id": "fcc3449434a24792"
+    },
+    "save": {
+      "status": 201,
+      "body": {
+        "sentence": {
+          "id": "S9",
+          "iri": "http://ex.org/domain#S9",
+          "text": "영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다.",
+          "category": "소음",
+          "mentions": [
+            "SubZero40",
+            "Rubber",
+            "Hardening",
+            "WiperBlade",
+            "Malfunction"
+          ],
+          "about_symptom": "경화",
+          "polarity": "cause"
+        },
+        "derived": {
+          "rule": {
+            "id": "S9Rule",
+            "label": "영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다.",
+            "polarity": "cause",
+            "category": "소음",
+            "about_symptom": "Hardening",
+            "basis": "S9",
+            "conds": [
+              {
+                "path": "hasMaterial",
+                "op": "eq",
+                "val": "Rubber",
+                "ref_list": null
+              }
+            ]
+          },
+          "shapes": [
+            {
+              "id": "S9Shape",
+              "gate_for": "Hardening",
+              "sentence": "S9"
+            }
+          ],
+          "causal_edges": [
+            {
+              "subject": "S9Rule",
+              "predicate": "causes",
+              "object": "Hardening",
+              "evidence": "S9",
+              "confidence": null
+            }
+          ]
+        },
+        "human_view": [
+          "영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다.  [cause·S9·소음] → Hardening"
+        ],
+        "trace_id": "f84ead61961046d2"
+      }
+    },
+    "derived": {
+      "id": "S9Rule",
+      "about_symptom": "Hardening",
+      "polarity": "cause",
+      "conds": [
+        [
+          "hasMaterial",
+          "Rubber"
+        ]
+      ]
+    },
+    "mentions": [
+      "SubZero40",
+      "Rubber",
+      "Hardening",
+      "WiperBlade",
+      "Malfunction"
+    ],
+    "rules_before": [
+      "ArmRule",
+      "ChatterRule",
+      "NoiseRule",
+      "S7Rule",
+      "S8Rule",
+      "SiliconeRule",
+      "SpringRule"
+    ],
+    "rules_after": [
+      "ArmRule",
+      "ChatterRule",
+      "NoiseRule",
+      "S7Rule",
+      "S8Rule",
+      "S9Rule",
+      "SiliconeRule",
+      "SpringRule"
+    ],
+    "causation_before": 2,
+    "causation_after": 4
+  },
+  "K4": {
+    "text": "염화칼슘에 반복 노출되면 블레이드 프레임에 부식이 발생한다.",
+    "extract": {
+      "concepts": [
+        {
+          "label": "염화칼슘",
+          "type": "Material"
+        },
+        {
+          "label": "반복 노출",
+          "type": "EnvCondition"
+        },
+        {
+          "label": "블레이드 프레임",
+          "type": "Component"
+        },
+        {
+          "label": "프레임",
+          "type": "Component"
+        },
+        {
+          "label": "부식",
+          "type": "Symptom"
+        }
+      ],
+      "relations": [
+        {
+          "subject": "염화칼슘",
+          "predicate": "causes",
+          "object": "부식",
+          "evidence": "염화칼슘에 반복 노출되면 블레이드 프레임에 부식이 발생한다"
+        },
+        {
+          "subject": "부식",
+          "predicate": "conditionedOn",
+          "object": "반복 노출",
+          "evidence": "염화칼슘에 반복 노출되면"
+        }
+      ]
+    },
+    "validate_before": {
+      "conforms": false,
+      "violations": [
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "염화칼슘",
+          "offender_iri": null,
+          "message": "'염화칼슘' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "반복 노출",
+          "offender_iri": null,
+          "message": "'반복 노출' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "블레이드 프레임",
+          "offender_iri": null,
+          "message": "'블레이드 프레임' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "프레임",
+          "offender_iri": null,
+          "message": "'프레임' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "부식",
+          "offender_iri": null,
+          "message": "'부식' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "shacl_constraint",
+          "severity": "violation",
+          "offender": "_authored_causation_1",
+          "offender_iri": null,
+          "message": "Causation 은 manifestsSymptom(증상)을 하나 이상 가져야 하고 대상은 Symptom 이어야 합니다.",
+          "sentence": null,
+          "source_shape": "CausationShape"
+        },
+        {
+          "code": "shacl_constraint",
+          "severity": "violation",
+          "offender": "_authored_causation_1",
+          "offender_iri": null,
+          "message": "Causation 은 hasMechanism(기전)을 하나 이상 가져야 합니다.",
+          "sentence": null,
+          "source_shape": "CausationShape"
+        }
+      ],
+      "trace_id": "f2bb7459c1c94d2d"
+    },
+    "governance": [
+      {
+        "add": [
+          {
+            "op": "add",
+            "id": "CalciumChloride",
+            "parent": "EnvCondition"
+          },
+          {
+            "op": "add",
+            "id": "Corrosion",
+            "parent": "Symptom"
+          }
+        ],
+        "status": 200,
+        "body": {
+          "applied": 2,
+          "persisted": true,
+          "trace_id": "0398a840ee1349fd"
+        }
+      },
+      {
+        "altLabel": "염화칼슘",
+        "concept": "CalciumChloride",
+        "status": 200
+      },
+      {
+        "altLabel": "염화칼슘 노출",
+        "concept": "CalciumChloride",
+        "status": 200
+      },
+      {
+        "altLabel": "반복 노출",
+        "concept": "CalciumChloride",
+        "status": 200
+      },
+      {
+        "altLabel": "부식",
+        "concept": "Corrosion",
+        "status": 200
+      }
+    ],
+    "validate_after": {
+      "conforms": true,
+      "violations": [
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "블레이드 프레임",
+          "offender_iri": null,
+          "message": "'블레이드 프레임' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "프레임",
+          "offender_iri": null,
+          "message": "'프레임' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        }
+      ],
+      "trace_id": "8f9627ee9837400e"
+    },
+    "save": {
+      "status": 201,
+      "body": {
+        "sentence": {
+          "id": "S10",
+          "iri": "http://ex.org/domain#S10",
+          "text": "염화칼슘에 반복 노출되면 블레이드 프레임에 부식이 발생한다.",
+          "category": "소음",
+          "mentions": [
+            "CalciumChloride",
+            "CalciumChloride",
+            "블레이드_프레임_2dc32128",
+            "프레임",
+            "Corrosion"
+          ],
+          "about_symptom": "부식",
+          "polarity": "cause"
+        },
+        "derived": {
+          "rule": {
+            "id": "S10Rule",
+            "label": "염화칼슘에 반복 노출되면 블레이드 프레임에 부식이 발생한다.",
+            "polarity": "cause",
+            "category": "소음",
+            "about_symptom": "Corrosion",
+            "basis": "S10",
+            "conds": [
+              {
+                "path": "operatesIn",
+                "op": "eq",
+                "val": "CalciumChloride",
+                "ref_list": null
+              }
+            ]
+          },
+          "shapes": [
+            {
+              "id": "S10Shape",
+              "gate_for": "Corrosion",
+              "sentence": "S10"
+            }
+          ],
+          "causal_edges": [
+            {
+              "subject": "S10Rule",
+              "predicate": "causes",
+              "object": "Corrosion",
+              "evidence": "S10",
+              "confidence": null
+            }
+          ]
+        },
+        "human_view": [
+          "염화칼슘에 반복 노출되면 블레이드 프레임에 부식이 발생한다.  [cause·S10·소음] → Corrosion"
+        ],
+        "trace_id": "5398b9046392435a"
+      }
+    },
+    "derived": {
+      "id": "S10Rule",
+      "about_symptom": "Corrosion",
+      "polarity": "cause",
+      "conds": [
+        [
+          "operatesIn",
+          "CalciumChloride"
+        ]
+      ]
+    },
+    "mentions": [
+      "CalciumChloride",
+      "CalciumChloride",
+      "블레이드_프레임_2dc32128",
+      "프레임",
+      "Corrosion"
+    ],
+    "rules_before": [
+      "ArmRule",
+      "ChatterRule",
+      "NoiseRule",
+      "S7Rule",
+      "S8Rule",
+      "S9Rule",
+      "SiliconeRule",
+      "SpringRule"
+    ],
+    "rules_after": [
+      "ArmRule",
+      "ChatterRule",
+      "NoiseRule",
+      "S10Rule",
+      "S7Rule",
+      "S8Rule",
+      "S9Rule",
+      "SiliconeRule",
+      "SpringRule"
+    ],
+    "causation_before": 4,
+    "causation_after": 5
+  },
+  "K5": {
+    "text": "블레이드 길이가 커넥터 규격과 맞지 않으면 주행 중 이탈이 발생한다.",
+    "extract": {
+      "concepts": [
+        {
+          "label": "블레이드",
+          "type": "Component"
+        },
+        {
+          "label": "길이",
+          "type": "Attribute"
+        },
+        {
+          "label": "커넥터",
+          "type": "Component"
+        },
+        {
+          "label": "규격",
+          "type": "Attribute"
+        },
+        {
+          "label": "주행 중",
+          "type": "EnvCondition"
+        },
+        {
+          "label": "이탈",
+          "type": "Symptom"
+        }
+      ],
+      "relations": [
+        {
+          "subject": "블레이드",
+          "predicate": "has_part",
+          "object": "커넥터"
+        },
+        {
+          "subject": "블레이드",
+          "predicate": "hasMaterial",
+          "object": "길이"
+        },
+        {
+          "subject": "커넥터",
+          "predicate": "hasMaterial",
+          "object": "규격"
+        },
+        {
+          "subject": "길이",
+          "predicate": "causes",
+          "object": "이탈",
+          "evidence": "블레이드 길이가 커넥터 규격과 맞지 않으면 이탈이 발생한다"
+        },
+        {
+          "subject": "이탈",
+          "predicate": "conditionedOn",
+          "object": "주행 중"
+        }
+      ]
+    },
+    "validate_before": {
+      "conforms": false,
+      "violations": [
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "커넥터",
+          "offender_iri": null,
+          "message": "'커넥터' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "규격",
+          "offender_iri": null,
+          "message": "'규격' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "이탈",
+          "offender_iri": null,
+          "message": "'이탈' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "shacl_constraint",
+          "severity": "violation",
+          "offender": "길이",
+          "offender_iri": "http://ex.org/domain#BladeLength",
+          "message": "'재질(hasMaterial)'의 대상은(는) Material이어야 하는데 '길이'은(는) Attribute입니다.",
+          "sentence": null,
+          "source_shape": "HasmaterialRangeShape"
+        },
+        {
+          "code": "shacl_constraint",
+          "severity": "violation",
+          "offender": "커넥터",
+          "offender_iri": null,
+          "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '커넥터'은(는) Component입니다.",
+          "sentence": null,
+          "source_shape": "HasmaterialDomainShape"
+        },
+        {
+          "code": "shacl_constraint",
+          "severity": "violation",
+          "offender": "규격",
+          "offender_iri": null,
+          "message": "'재질(hasMaterial)'의 대상은(는) Material이어야 하는데 '규격'은(는) Attribute입니다.",
+          "sentence": null,
+          "source_shape": "HasmaterialRangeShape"
+        },
+        {
+          "code": "shacl_constraint",
+          "severity": "violation",
+          "offender": "_authored_causation_1",
+          "offender_iri": null,
+          "message": "Causation 은 manifestsSymptom(증상)을 하나 이상 가져야 하고 대상은 Symptom 이어야 합니다.",
+          "sentence": null,
+          "source_shape": "CausationShape"
+        }
+      ],
+      "trace_id": "5209f0ec46014f43"
+    },
+    "governance": [
+      {
+        "add": [
+          {
+            "op": "add",
+            "id": "Detachment",
+            "parent": "Symptom"
+          },
+          {
+            "op": "add",
+            "id": "Driving",
+            "parent": "EnvCondition"
+          }
+        ],
+        "status": 200,
+        "body": {
+          "applied": 2,
+          "persisted": true,
+          "trace_id": "639293481968420d"
+        }
+      },
+      {
+        "altLabel": "이탈",
+        "concept": "Detachment",
+        "status": 200
+      },
+      {
+        "altLabel": "주행 중 이탈",
+        "concept": "Detachment",
+        "status": 200
+      },
+      {
+        "altLabel": "주행",
+        "concept": "Driving",
+        "status": 200
+      },
+      {
+        "altLabel": "주행 중",
+        "concept": "Driving",
+        "status": 200
+      }
+    ],
+    "validate_after": {
+      "conforms": false,
+      "violations": [
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "커넥터",
+          "offender_iri": null,
+          "message": "'커넥터' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "unknown_concept",
+          "severity": "warning",
+          "offender": "규격",
+          "offender_iri": null,
+          "message": "'규격' 은(는) 도메인(와이퍼) 온톨로지에 없는 개념(범주 밖)입니다.",
+          "sentence": null,
+          "source_shape": null
+        },
+        {
+          "code": "shacl_constraint",
+          "severity": "violation",
+          "offender": "길이",
+          "offender_iri": "http://ex.org/domain#BladeLength",
+          "message": "'재질(hasMaterial)'의 대상은(는) Material이어야 하는데 '길이'은(는) Attribute입니다.",
+          "sentence": null,
+          "source_shape": "HasmaterialRangeShape"
+        },
+        {
+          "code": "shacl_constraint",
+          "severity": "violation",
+          "offender": "커넥터",
+          "offender_iri": null,
+          "message": "'재질(hasMaterial)'의 주어은(는) PartType이어야 하는데 '커넥터'은(는) Component입니다.",
+          "sentence": null,
+          "source_shape": "HasmaterialDomainShape"
+        },
+        {
+          "code": "shacl_constraint",
+          "severity": "violation",
+          "offender": "규격",
+          "offender_iri": null,
+          "message": "'재질(hasMaterial)'의 대상은(는) Material이어야 하는데 '규격'은(는) Attribute입니다.",
+          "sentence": null,
+          "source_shape": "HasmaterialRangeShape"
+        }
+      ],
+      "trace_id": "06d0f6cd5b3443fa"
+    },
+    "save": {
+      "status": 409,
+      "body": {
+        "code": "GUARDRAIL_BLOCKED",
+        "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+        "trace_id": "b2ee0aeb97594cb2"
+      }
+    },
+    "rules_before": [
+      "ArmRule",
+      "ChatterRule",
+      "NoiseRule",
+      "S10Rule",
+      "S7Rule",
+      "S8Rule",
+      "S9Rule",
+      "SiliconeRule",
+      "SpringRule"
+    ],
+    "rules_after": [
+      "ArmRule",
+      "ChatterRule",
+      "NoiseRule",
+      "S10Rule",
+      "S7Rule",
+      "S8Rule",
+      "S9Rule",
+      "SiliconeRule",
+      "SpringRule"
+    ],
+    "causation_before": 5,
+    "causation_after": 5
+  },
+  "_final": {
+    "rules": [
+      "ArmRule",
+      "ChatterRule",
+      "NoiseRule",
+      "S10Rule",
+      "S7Rule",
+      "S8Rule",
+      "S9Rule",
+      "SiliconeRule",
+      "SpringRule"
+    ],
+    "causation": [
+      {
+        "c": "http://ex.org/domain#Causation_S9_1",
+        "m": "http://ex.org/domain#Rubber",
+        "s": "http://ex.org/spmm-ext#Hardening"
+      },
+      {
+        "c": "http://ex.org/domain#Causation_S10_1",
+        "m": "http://ex.org/spmm-ext#CalciumChloride",
+        "cond": "http://ex.org/spmm-ext#CalciumChloride",
+        "s": "http://ex.org/spmm-ext#Corrosion"
+      },
+      {
+        "c": "http://ex.org/domain#Causation_S8_1",
+        "m": "http://ex.org/domain#WiperBlade",
+        "cond": "http://ex.org/spmm-ext#Ozone",
+        "s": "http://ex.org/spmm-ext#Crack"
+      },
+      {
+        "c": "http://ex.org/domain#Causation_S9_2",
+        "m": "http://ex.org/spmm-ext#Hardening",
+        "cond": "http://ex.org/spmm-ext#SubZero40",
+        "s": "http://ex.org/spmm-ext#Malfunction"
+      },
+      {
+        "c": "http://ex.org/domain#Causation_S7_1",
+        "m": "http://ex.org/domain#WiperBlade",
+        "cond": "http://ex.org/spmm-ext#HighSpeed",
+        "s": "http://ex.org/spmm-ext#Lift"
+      }
+    ]
+  }
+}

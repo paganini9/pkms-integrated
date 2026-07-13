@@ -1,0 +1,414 @@
+{
+  "sat-bad": {
+    "satisfies": false,
+    "steps": [
+      {
+        "stage": "subsumption",
+        "ok": false,
+        "detail": "겨울 + 고무 → 소음 (S1)"
+      },
+      {
+        "stage": "shacl_interval",
+        "ok": false,
+        "checks": [
+          {
+            "name": "길이 구간포함 lengthMm ≤ maxSafe",
+            "expr": "600 ≤ 599",
+            "ok": false
+          },
+          {
+            "name": "스프링 임계 springN ≥ 10",
+            "expr": "8 ≥ 10",
+            "ok": false
+          }
+        ],
+        "warnings": null
+      },
+      {
+        "stage": "symptom_free",
+        "ok": false,
+        "exhibited": [
+          {
+            "symptom": "Noise",
+            "label": "소음",
+            "sentences": [
+              "S1"
+            ]
+          },
+          {
+            "symptom": "TipChatter",
+            "label": "끝단 떨림",
+            "sentences": [
+              "S3,S5",
+              "S4",
+              "S6"
+            ]
+          },
+          {
+            "symptom": "Hardening",
+            "label": "Hardening",
+            "sentences": [
+              "S9"
+            ]
+          }
+        ]
+      }
+    ],
+    "violations": [
+      "S1",
+      "S3",
+      "S4",
+      "S6"
+    ],
+    "violation_bases": [
+      "S1",
+      "S3,S5",
+      "S4",
+      "S6"
+    ],
+    "violated_requirements": [
+      {
+        "rb": "RB_NoChatter",
+        "label": "끝단 떨림 없음",
+        "forbids": "TipChatter",
+        "sentences": [
+          "S3,S5",
+          "S4",
+          "S6"
+        ]
+      },
+      {
+        "rb": "RB_Winter",
+        "label": "겨울 저소음(소음 없음)",
+        "forbids": "Noise",
+        "sentences": [
+          "S1"
+        ]
+      }
+    ],
+    "alternatives": [
+      "재질→실리콘(S2)",
+      "길이→차종 안전길이 이내(S5)",
+      "스프링→≥10N",
+      "암형상→complex"
+    ],
+    "trace_id": "85ecb569715849ec",
+    "pending_reason": null,
+    "applied_categories": [
+      "소음",
+      "떨림"
+    ],
+    "justification": [
+      "적용 지식범위: ['소음', '떨림'] · 게이트 8개",
+      "(1) 정성 subsumption ✘ — 겨울 + 고무 → 소음 (S1)",
+      "(2) 수치 게이트 ✘ — 길이 구간포함 lengthMm ≤ maxSafe (600 ≤ 599)",
+      "(2) 수치 게이트 ✘ — 스프링 임계 springN ≥ 10 (8 ≥ 10)",
+      "(3) 무증상 규칙 ✘ — 유발 증상: 소음[S1], 끝단 떨림[S3,S5·S4·S6], Hardening[S9]",
+      "판정: DB ⋢ RB_NoChatter ⊓ RB_NoCrack ⊓ RB_Winter"
+    ],
+    "cache_hit": true
+  },
+  "sat-good": {
+    "satisfies": true,
+    "steps": [
+      {
+        "stage": "subsumption",
+        "ok": true,
+        "detail": "실리콘 → 소음 해소 (S2)"
+      },
+      {
+        "stage": "shacl_interval",
+        "ok": true,
+        "checks": [
+          {
+            "name": "길이 구간포함 lengthMm ≤ maxSafe",
+            "expr": "550 ≤ 550",
+            "ok": true
+          },
+          {
+            "name": "스프링 임계 springN ≥ 10",
+            "expr": "12 ≥ 10",
+            "ok": true
+          }
+        ],
+        "warnings": null
+      },
+      {
+        "stage": "symptom_free",
+        "ok": true,
+        "exhibited": []
+      }
+    ],
+    "violations": [],
+    "violation_bases": [],
+    "violated_requirements": [],
+    "alternatives": [],
+    "trace_id": "023daf5d93ad4a14",
+    "pending_reason": null,
+    "applied_categories": [
+      "소음",
+      "떨림"
+    ],
+    "justification": [
+      "적용 지식범위: ['소음', '떨림'] · 게이트 8개",
+      "(1) 정성 subsumption ✔ — 실리콘 → 소음 해소 (S2)",
+      "(2) 수치 게이트 ✔ — 길이 구간포함 lengthMm ≤ maxSafe (550 ≤ 550)",
+      "(2) 수치 게이트 ✔ — 스프링 임계 springN ≥ 10 (12 ≥ 10)",
+      "(3) 무증상 규칙 ✔ — 유발 증상 없음",
+      "판정: DB ⊑ RB_NoChatter ⊓ RB_NoCrack ⊓ RB_Winter"
+    ],
+    "cache_hit": true
+  },
+  "sat-pending": {
+    "satisfies": null,
+    "steps": [
+      {
+        "stage": "subsumption",
+        "ok": false,
+        "detail": "영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다. (S9)"
+      },
+      {
+        "stage": "shacl_interval",
+        "ok": false,
+        "checks": [],
+        "warnings": [
+          {
+            "code": "missing_required",
+            "severity": "warning",
+            "offender": "lengthMm",
+            "offender_iri": null,
+            "message": "lengthMm 값이 없어 규칙(S3,S5)을 판정할 수 없습니다. 값을 입력하면 최종 판정이 나옵니다.",
+            "sentence": "S3,S5",
+            "source_shape": "ChatterShape"
+          },
+          {
+            "code": "missing_required",
+            "severity": "warning",
+            "offender": "springN",
+            "offender_iri": null,
+            "message": "springN 값이 없어 규칙(S4)을 판정할 수 없습니다. 값을 입력하면 최종 판정이 나옵니다.",
+            "sentence": "S4",
+            "source_shape": "SpringShape"
+          }
+        ]
+      },
+      {
+        "stage": "symptom_free",
+        "ok": false,
+        "exhibited": []
+      }
+    ],
+    "violations": [],
+    "violation_bases": [],
+    "violated_requirements": [],
+    "alternatives": [],
+    "trace_id": "3cc38992c6c14650",
+    "pending_reason": "missing_required",
+    "applied_categories": [
+      "소음",
+      "떨림"
+    ],
+    "justification": [
+      "적용 지식범위: ['소음', '떨림'] · 게이트 8개",
+      "(1) 정성 subsumption ✘ — 영하 40도에서 고무가 경화되어 와이퍼 작동 불량이 발생한다. (S9)",
+      "lengthMm 값이 없어 규칙(S3,S5)을 판정할 수 없습니다. 값을 입력하면 최종 판정이 나옵니다.",
+      "springN 값이 없어 규칙(S4)을 판정할 수 없습니다. 값을 입력하면 최종 판정이 나옵니다."
+    ],
+    "cache_hit": false
+  },
+  "scope-A": {
+    "satisfies": false,
+    "steps": [
+      {
+        "stage": "subsumption",
+        "ok": false,
+        "detail": "겨울 + 고무 → 소음 (S1)"
+      },
+      {
+        "stage": "shacl_interval",
+        "ok": true,
+        "checks": [],
+        "warnings": null
+      },
+      {
+        "stage": "symptom_free",
+        "ok": false,
+        "exhibited": [
+          {
+            "symptom": "Noise",
+            "label": "소음",
+            "sentences": [
+              "S1"
+            ]
+          },
+          {
+            "symptom": "Hardening",
+            "label": "Hardening",
+            "sentences": [
+              "S9"
+            ]
+          }
+        ]
+      }
+    ],
+    "violations": [
+      "S1"
+    ],
+    "violation_bases": [
+      "S1"
+    ],
+    "violated_requirements": [
+      {
+        "rb": "RB_Winter",
+        "label": "겨울 저소음(소음 없음)",
+        "forbids": "Noise",
+        "sentences": [
+          "S1"
+        ]
+      }
+    ],
+    "alternatives": [
+      "재질→실리콘(S2)"
+    ],
+    "trace_id": "a2ebc19f766f4590",
+    "pending_reason": null,
+    "applied_categories": [
+      "소음"
+    ],
+    "justification": [
+      "적용 지식범위: ['소음'] · 게이트 5개",
+      "(1) 정성 subsumption ✘ — 겨울 + 고무 → 소음 (S1)",
+      "(3) 무증상 규칙 ✘ — 유발 증상: 소음[S1], Hardening[S9]",
+      "판정: DB ⋢ RB_NoChatter ⊓ RB_NoCrack ⊓ RB_Winter"
+    ],
+    "cache_hit": false
+  },
+  "scope-B": {
+    "satisfies": false,
+    "steps": [
+      {
+        "stage": "subsumption",
+        "ok": true,
+        "detail": "소음 카테고리 미적용 — 정성 판정 대상 없음"
+      },
+      {
+        "stage": "shacl_interval",
+        "ok": false,
+        "checks": [
+          {
+            "name": "길이 구간포함 lengthMm ≤ maxSafe",
+            "expr": "600 ≤ 599",
+            "ok": false
+          },
+          {
+            "name": "스프링 임계 springN ≥ 10",
+            "expr": "8 ≥ 10",
+            "ok": false
+          }
+        ],
+        "warnings": null
+      },
+      {
+        "stage": "symptom_free",
+        "ok": false,
+        "exhibited": [
+          {
+            "symptom": "TipChatter",
+            "label": "끝단 떨림",
+            "sentences": [
+              "S3,S5",
+              "S4",
+              "S6"
+            ]
+          }
+        ]
+      }
+    ],
+    "violations": [
+      "S3",
+      "S4",
+      "S6"
+    ],
+    "violation_bases": [
+      "S3,S5",
+      "S4",
+      "S6"
+    ],
+    "violated_requirements": [
+      {
+        "rb": "RB_NoChatter",
+        "label": "끝단 떨림 없음",
+        "forbids": "TipChatter",
+        "sentences": [
+          "S3,S5",
+          "S4",
+          "S6"
+        ]
+      }
+    ],
+    "alternatives": [
+      "길이→차종 안전길이 이내(S5)",
+      "스프링→≥10N",
+      "암형상→complex"
+    ],
+    "trace_id": "f1c3075be75f4d4b",
+    "pending_reason": null,
+    "applied_categories": [
+      "떨림"
+    ],
+    "justification": [
+      "적용 지식범위: ['떨림'] · 게이트 3개",
+      "(1) 정성 subsumption ✔ — 소음 카테고리 미적용 — 정성 판정 대상 없음",
+      "(2) 수치 게이트 ✘ — 길이 구간포함 lengthMm ≤ maxSafe (600 ≤ 599)",
+      "(2) 수치 게이트 ✘ — 스프링 임계 springN ≥ 10 (8 ≥ 10)",
+      "(3) 무증상 규칙 ✘ — 유발 증상: 끝단 떨림[S3,S5·S4·S6]",
+      "판정: DB ⋢ RB_NoChatter ⊓ RB_NoCrack ⊓ RB_Winter"
+    ],
+    "cache_hit": false
+  },
+  "qa": {
+    "자전거 브레이크 패드는 왜 마모되나요?": {
+      "layer": "C",
+      "verified_answer": {
+        "text": "명세 근거 없음 — 이 질문은 현재 지식베이스(와이퍼 블레이드 도메인)의 검증된 규칙으로 답할 수 없습니다. 억지로 답을 만들지 않습니다. 해당 지식을 추가하려면 지식 입력 화면을 이용해 주세요.",
+        "determinism": "rag",
+        "sources": []
+      },
+      "llm_answer": null,
+      "comparison": null,
+      "insufficient_evidence": true,
+      "trace_id": "c30e66e92025423f"
+    },
+    "타이어 공기압이 낮으면 어떤 문제가 생기나요?": {
+      "layer": "C",
+      "verified_answer": {
+        "text": "명세 근거 없음 — 이 질문은 현재 지식베이스(와이퍼 블레이드 도메인)의 검증된 규칙으로 답할 수 없습니다. 억지로 답을 만들지 않습니다. 해당 지식을 추가하려면 지식 입력 화면을 이용해 주세요.",
+        "determinism": "rag",
+        "sources": []
+      },
+      "llm_answer": null,
+      "comparison": null,
+      "insufficient_evidence": true,
+      "trace_id": "2fc7ac337e024348"
+    }
+  },
+  "bypass_authoring": {
+    "status": 409,
+    "body": {
+      "code": "GUARDRAIL_BLOCKED",
+      "user_message": "명세 위반이 남아 있어 저장할 수 없습니다. 경고를 해소한 뒤 승인해 주세요.",
+      "trace_id": "369a29a216414fdf"
+    }
+  },
+  "rules_final": [
+    "ArmRule",
+    "ChatterRule",
+    "NoiseRule",
+    "S10Rule",
+    "S7Rule",
+    "S8Rule",
+    "S9Rule",
+    "SiliconeRule",
+    "SpringRule"
+  ]
+}

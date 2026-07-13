@@ -1,0 +1,69 @@
+{
+  "save": {
+    "status": 201,
+    "body": {
+      "sentence": {
+        "id": "S11",
+        "iri": "http://ex.org/domain#S11",
+        "text": "블레이드는 고속 주행 중 들뜸 현상이 발생하지 않아야 한다.",
+        "category": "소음",
+        "mentions": [
+          "WiperBlade",
+          "HighSpeed",
+          "Lift"
+        ],
+        "about_symptom": "들뜸",
+        "polarity": "cause"
+      },
+      "derived": {
+        "rule": {
+          "id": "S7Rule",
+          "label": "고속 주행 시 스포일러 없는 블레이드는 들뜸이 발생한다.",
+          "polarity": "cause",
+          "category": "소음",
+          "about_symptom": "Lift",
+          "basis": "S7",
+          "conds": [
+            {
+              "path": "operatesIn",
+              "op": "eq",
+              "val": "HighSpeed",
+              "ref_list": null
+            }
+          ]
+        },
+        "shapes": [
+          {
+            "id": "S7Shape",
+            "gate_for": "Lift",
+            "sentence": "S7"
+          }
+        ],
+        "causal_edges": [
+          {
+            "subject": "S7Rule",
+            "predicate": "causes",
+            "object": "Lift",
+            "evidence": "S7",
+            "confidence": null
+          }
+        ]
+      },
+      "human_view": [
+        "고속 주행 시 스포일러 없는 블레이드는 들뜸이 발생한다.  [cause·S7·소음] → Lift"
+      ],
+      "trace_id": "4918c550cfc245fe"
+    }
+  },
+  "rules": [
+    "ArmRule",
+    "ChatterRule",
+    "NoiseRule",
+    "S10Rule",
+    "S7Rule",
+    "S8Rule",
+    "S9Rule",
+    "SiliconeRule",
+    "SpringRule"
+  ]
+}

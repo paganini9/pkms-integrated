@@ -1,0 +1,61 @@
+{
+  "K1": {
+    "save": 201,
+    "conforms": true,
+    "blocking": [],
+    "rule": "S7Rule",
+    "sym": "Lift"
+  },
+  "K2": {
+    "save": 0,
+    "note": "추출 공집합"
+  },
+  "K3": {
+    "save": 409,
+    "conforms": false,
+    "blocking": [
+      [
+        "shacl_constraint",
+        "_authored_causation_1"
+      ]
+    ],
+    "rule": null,
+    "sym": null
+  },
+  "K4": {
+    "save": 409,
+    "conforms": false,
+    "blocking": [
+      [
+        "shacl_constraint",
+        "블레이드 프레임"
+      ],
+      [
+        "shacl_constraint",
+        "염화칼슘"
+      ],
+      [
+        "shacl_constraint",
+        "_authored_causation_1"
+      ]
+    ],
+    "rule": null,
+    "sym": null
+  },
+  "K5": {
+    "save": 409,
+    "conforms": false,
+    "blocking": [
+      [
+        "shacl_constraint",
+        "커넥터"
+      ],
+      [
+        "shacl_constraint",
+        "규격"
+      ]
+    ],
+    "rule": null,
+    "sym": null
+  }
+}
