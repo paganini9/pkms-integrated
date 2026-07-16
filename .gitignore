@@ -20,6 +20,9 @@ knowledge/ontology-ref/satisfy_run_output.txt
 # ontology-ref/ontology/shapes_generated.ttl 는 참조 번들의 일부로 이미 추적 중이다.
 # 실행 시 재생성되지만 내용이 동일하므로 그대로 둔다(단일 진실원은 rules.ttl).
 
+# QA 러너 산출물 — 재측정 결과는 매 실행마다 갱신되는 원자료(보고본은 docs/ 에 남긴다)
+_coordination/qa/results-remeasure/
+
 # 도구 산출물 · 빌드 캐시
 .playwright-mcp/
 *.tsbuildinfo
